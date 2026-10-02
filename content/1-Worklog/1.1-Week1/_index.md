@@ -29,45 +29,11 @@ pre: " <b> 1.1. </b> "
 
 ### Week 1 Achievements:
 
-* Completed AWS account registration and setup.
-* Completed the required Labs and met the requirements to receive **$100 AWS Credit**.
-* Understood the rules, regulations and requirements to follow during the program.
-* Strengthened knowledge of the **Transformer** architecture, including:
-
-  * Overall Transformer structure.
-  * GPT architecture.
-  * BERT architecture.
-  * Self-Attention.
-  * Cross-Attention.
-  * Causal Self-Attention.
-  * Sinusoidal Positional Encoding.
-  * Rotary Position Embedding (RoPE).
-* Completed AWS contents:
-
-  * Introduction to AWS.
-  * AWS Management Console.
-  * Generative AI on AWS with Kiro.
-  * AWS Optimization.
-* Reviewed and strengthened knowledge of Machine Learning algorithms:
-
-  * Linear Regression.
-  * Logistic Regression.
-  * Softmax Regression.
-  * KNN.
-  * K-Means.
-  * Naive Bayes.
-  * Decision Tree.
-  * Random Forest.
-  * AdaBoost.
-  * Gradient Boosting.
-  * XGBoost.
-  * LightGBM.
-  * SVM.
-  * PCA.
-  * DBSCAN.
-  * Isolation Forest.
-  * ARIMA.
-* Strengthened knowledge of **SHAP** and how to use SHAP to explain feature contributions to model predictions.
-* Reviewed the process and basic concepts of **A/B Testing**.
-* Strengthened knowledge of the **RAG** architecture, including document processing, embedding, vector database, retrieval and LLM-based answer generation.
-* Reviewed **FastAPI** and how to build APIs to integrate and deploy AI/ML models.
+* Completed AWS account setup and the required Labs to receive **100 AWS Credit**.
+* Understood the program rules, requirements, and working guidelines.
+* Strengthened knowledge of **Transformer architectures**, including GPT, BERT, Attention mechanisms, and Positional Encoding.
+* Completed introductory AWS topics, including **AWS Management Console, Generative AI with Kiro, and AWS Optimization**.
+* Reviewed key **Machine Learning algorithms**, covering regression, classification, clustering, ensemble methods, dimensionality reduction, anomaly detection, and time-series forecasting.
+* Strengthened knowledge of **SHAP** for model explainability and reviewed the basic process of **A/B Testing**.
+* Reviewed the **RAG architecture**, including document processing, embeddings, vector databases, retrieval, and LLM-based generation.
+* Reviewed **FastAPI** and its use in building APIs for integrating and deploying AI/ML models.

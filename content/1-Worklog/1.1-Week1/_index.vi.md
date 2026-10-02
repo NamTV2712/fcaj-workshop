@@ -29,45 +29,11 @@ pre: " <b> 1.1. </b> "
 
 ### Kết quả đạt được tuần 1:
 
-* Hoàn tất đăng ký và thiết lập tài khoản AWS.
-* Hoàn thành các bài Lab cần thiết trong chương trình và đáp ứng yêu cầu để nhận **$100 AWS Credit**.
-* Nắm được các quy chế, thể lệ và yêu cầu cần tuân thủ trong quá trình tham gia chương trình.
-* Củng cố kiến thức về kiến trúc **Transformer**, bao gồm:
-
-  * Cấu trúc tổng thể của Transformer.
-  * Kiến trúc GPT.
-  * Kiến trúc BERT.
-  * Self-Attention.
-  * Cross-Attention.
-  * Causal Self-Attention.
-  * Sinusoidal Positional Encoding.
-  * Rotary Position Embedding (RoPE).
-* Hoàn thành các nội dung AWS:
-
-  * Introduction to AWS.
-  * AWS Management Console.
-  * Generative AI on AWS với Kiro.
-  * AWS Optimization.
-* Ôn tập và củng cố kiến thức về các thuật toán Machine Learning:
-
-  * Linear Regression.
-  * Logistic Regression.
-  * Softmax Regression.
-  * KNN.
-  * K-Means.
-  * Naive Bayes.
-  * Decision Tree.
-  * Random Forest.
-  * AdaBoost.
-  * Gradient Boosting.
-  * XGBoost.
-  * LightGBM.
-  * SVM.
-  * PCA.
-  * DBSCAN.
-  * Isolation Forest.
-  * ARIMA.
-* Củng cố kiến thức về **SHAP** và cách sử dụng SHAP để giải thích mức độ ảnh hưởng của các đặc trưng tới dự đoán của mô hình.
-* Ôn tập quy trình và các khái niệm cơ bản của **A/B Testing**.
-* Củng cố kiến thức về kiến trúc **RAG**, bao gồm quá trình xử lý tài liệu, embedding, vector database, retrieval và sinh câu trả lời bằng LLM.
-* Ôn tập **FastAPI** và cách xây dựng API để tích hợp, triển khai các mô hình AI/ML.
+* Hoàn tất thiết lập tài khoản AWS và các bài Lab cần thiết để nhận **100 AWS Credit**.
+* Nắm được các quy chế, yêu cầu và hướng dẫn làm việc của chương trình.
+* Củng cố kiến thức về **kiến trúc Transformer**, bao gồm GPT, BERT, cơ chế Attention và Positional Encoding.
+* Hoàn thành các nội dung AWS cơ bản, bao gồm **AWS Management Console, Generative AI với Kiro và AWS Optimization**.
+* Ôn tập các **thuật toán Machine Learning** chính, bao gồm hồi quy, phân loại, phân cụm, ensemble, giảm chiều dữ liệu, phát hiện bất thường và dự báo chuỗi thời gian.
+* Củng cố kiến thức về **SHAP** cho khả năng giải thích mô hình và ôn tập quy trình cơ bản của **A/B Testing**.
+* Ôn tập **kiến trúc RAG**, bao gồm xử lý tài liệu, embedding, vector database, retrieval và sinh câu trả lời bằng LLM.
+* Ôn tập **FastAPI** và cách dùng nó để xây dựng API tích hợp, triển khai các mô hình AI/ML.
