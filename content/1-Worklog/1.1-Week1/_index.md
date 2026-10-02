@@ -1,57 +1,70 @@
 ---
 title: "Week 1 Worklog"
-date: 2024-01-01
+date: 2026-09-19
 weight: 1
 chapter: false
 pre: " <b> 1.1. </b> "
 ---
-{{% notice warning %}} 
-⚠️ **Note:** The following information is for reference purposes only. Please **do not copy verbatim** for your own report, including this warning.
-{{% /notice %}}
-
 
 ### Week 1 Objectives:
 
-* Connect and get acquainted with members of First Cloud AI Journey.
-* Understand basic AWS services, how to use the console & CLI.
+* Complete the registration process and get familiar with the AWS environment.
+* Understand the program rules, regulations and requirements.
+* Review foundational knowledge of Transformer, Machine Learning and popular algorithms.
+* Learn basic AWS knowledge and Generative AI on AWS.
+* Strengthen knowledge of Explainable AI, A/B Testing, RAG and FastAPI.
 
 ### Tasks to be carried out this week:
-| Day | Task                                                                                                                                                                                                   | Start Date | Completion Date | Reference Material                        |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- | --------------- | ----------------------------------------- |
-| 2   | - Get acquainted with FCAJ members <br> - Read and take note of internship unit rules and regulations                                                                                                   | 08/11/2025 | 08/11/2025      |
-| 3   | - Learn about AWS and its types of services <br>&emsp; + Compute <br>&emsp; + Storage <br>&emsp; + Networking <br>&emsp; + Database <br>&emsp; + ... <br>                                              | 08/12/2025 | 08/12/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 4   | - Create AWS Free Tier account <br> - Learn about AWS Console & AWS CLI <br> - **Practice:** <br>&emsp; + Create AWS account <br>&emsp; + Install & configure AWS CLI <br> &emsp; + How to use AWS CLI | 08/13/2025 | 08/13/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 5   | - Learn basic EC2: <br>&emsp; + Instance types <br>&emsp; + AMI <br>&emsp; + EBS <br>&emsp; + ... <br> - SSH connection methods to EC2 <br> - Learn about Elastic IP   <br>                            | 08/14/2025 | 08/15/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 6   | - **Practice:** <br>&emsp; + Launch an EC2 instance <br>&emsp; + Connect via SSH <br>&emsp; + Attach an EBS volume                                                                                     | 08/15/2025 | 08/15/2025      | <https://cloudjourney.awsstudygroup.com/> |
 
+| Day | Task                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Start Date | Completion Date | Reference Material                                                                                                                                                 |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2   | - Register and set up an AWS account. - Complete the required Labs to receive **$100 AWS Credit**.  - Read and understand the **program rules, regulations and requirements**.                                                                                                                                                                                                                                                                                                                                             | 14/09/2026 | 14/09/2026      | [ap-southeast-2.signin.aws.amazon.com](https://ap-southeast-2.signin.aws.amazon.com/)                                                                               |
+| 3   | - Review the**Transformer** architecture.  - Study **GPT** and **BERT** architectures in detail.  - Review Attention mechanisms: &emsp; + Self-Attention &emsp; + Cross-Attention &emsp; + Causal Self-Attention  - Study **Positional Encoding** methods: &emsp; + Sinusoidal Positional Encoding &emsp; + RoPE (Rotary Position Embedding)  - Complete AWS modules: &emsp; + 01-01 Introduction to AWS &emsp; + 01-02 Management Console &emsp; + 01-03 Gen AI on AWS - Kiro &emsp; + 01-04 Optimization AWS | 15/09/2026 | 15/09/2026      | [www.facebook.com/aivietnam.edu.vn](https://www.facebook.com/aivietnam.edu.vn)[ap-southeast-2.signin.aws.amazon.com](https://ap-southeast-2.signin.aws.amazon.com/)  |
+| 4   | - Review Machine Learning algorithms:&emsp; + Gradient Boosting &emsp; + XGBoost &emsp; + LightGBM &emsp; + Linear Regression &emsp; + Logistic Regression &emsp; + Softmax Regression &emsp; + K-Nearest Neighbors (KNN) &emsp; + K-Means &emsp; + Naive Bayes                                                                                                                                                                                                                                                                        | 16/09/2026 | 16/09/2026      | [www.facebook.com/aivietnam.edu.vn](https://www.facebook.com/aivietnam.edu.vn)                                                                                      |
+| 5   | - Continue reviewing Machine Learning and Data Mining algorithms:&emsp; + AdaBoost &emsp; + Decision Tree &emsp; + Random Forest &emsp; + Isolation Forest &emsp; + Support Vector Machine (SVM) &emsp; + Principal Component Analysis (PCA) &emsp; + ARIMA &emsp; + DBSCAN                                                                                                                                                                                                                                                            | 17/09/2026 | 17/09/2026      | [www.facebook.com/aivietnam.edu.vn](https://www.facebook.com/aivietnam.edu.vn)                                                                                      |
+| 6   | - Study and review**SHAP (SHapley Additive exPlanations)** to explain Machine Learning model outputs.  - Review **A/B Testing** and how to evaluate experiment results.  - Review the architecture and workflow of **Retrieval-Augmented Generation (RAG)**.  - Review **FastAPI** and how to build APIs for AI/ML applications.                                                                                                                                                                               | 18/09/2026 | 18/09/2026      | [www.facebook.com/aivietnam.edu.vn](https://www.facebook.com/aivietnam.edu.vn)                                                                                      |
 
 ### Week 1 Achievements:
 
-* Understood what AWS is and mastered the basic service groups: 
-  * Compute
-  * Storage
-  * Networking 
-  * Database
-  * ...
+* Completed AWS account registration and setup.
+* Completed the required Labs and met the requirements to receive **$100 AWS Credit**.
+* Understood the rules, regulations and requirements to follow during the program.
+* Strengthened knowledge of the **Transformer** architecture, including:
 
-* Successfully created and configured an AWS Free Tier account.
+  * Overall Transformer structure.
+  * GPT architecture.
+  * BERT architecture.
+  * Self-Attention.
+  * Cross-Attention.
+  * Causal Self-Attention.
+  * Sinusoidal Positional Encoding.
+  * Rotary Position Embedding (RoPE).
+* Completed AWS contents:
 
-* Became familiar with the AWS Management Console and learned how to find, access, and use services via the web interface.
+  * Introduction to AWS.
+  * AWS Management Console.
+  * Generative AI on AWS with Kiro.
+  * AWS Optimization.
+* Reviewed and strengthened knowledge of Machine Learning algorithms:
 
-* Installed and configured AWS CLI on the computer, including:
-  * Access Key
-  * Secret Key
-  * Default Region
-  * ...
-
-* Used AWS CLI to perform basic operations such as:
-
-  * Check account & configuration information
-  * Retrieve the list of regions
-  * View EC2 service
-  * Create and manage key pairs
-  * Check information about running services
-  * ...
-
-* Acquired the ability to connect between the web interface and CLI to manage AWS resources in parallel.
-* ...
+  * Linear Regression.
+  * Logistic Regression.
+  * Softmax Regression.
+  * KNN.
+  * K-Means.
+  * Naive Bayes.
+  * Decision Tree.
+  * Random Forest.
+  * AdaBoost.
+  * Gradient Boosting.
+  * XGBoost.
+  * LightGBM.
+  * SVM.
+  * PCA.
+  * DBSCAN.
+  * Isolation Forest.
+  * ARIMA.
+* Strengthened knowledge of **SHAP** and how to use SHAP to explain feature contributions to model predictions.
+* Reviewed the process and basic concepts of **A/B Testing**.
+* Strengthened knowledge of the **RAG** architecture, including document processing, embedding, vector database, retrieval and LLM-based answer generation.
+* Reviewed **FastAPI** and how to build APIs to integrate and deploy AI/ML models.

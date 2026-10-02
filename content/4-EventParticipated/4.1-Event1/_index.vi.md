@@ -1,125 +1,123 @@
----
+﻿---
 title: "Event 1"
-date: 2024-01-01
+date: 2026-09-26
 weight: 1
 chapter: false
 pre: " <b> 4.1. </b> "
 ---
 
-{{% notice warning %}}
-⚠️ **Lưu ý:** Các thông tin dưới đây chỉ nhằm mục đích tham khảo, vui lòng **không sao chép nguyên văn** cho bài báo cáo của bạn kể cả warning này.
-{{% /notice %}}
-
-# Bài thu hoạch “GenAI-powered App-DB Modernization workshop”
+# Bài thu hoạch sự kiện “Buildrathon Kickoff: Code the Future with CMC Global”
 
 ### Mục Đích Của Sự Kiện
 
-- Chia sẻ best practices trong thiết kế ứng dụng hiện đại
-- Giới thiệu phương pháp DDD và event-driven architecture
-- Hướng dẫn lựa chọn compute services phù hợp
-- Giới thiệu công cụ AI hỗ trợ development lifecycle
+- Tìm hiểu thêm về **AWS Cloud** và những ứng dụng thực tế của **Generative AI**.
+- Cập nhật xu hướng **Agentic AI** và cách AI Agent có thể được ứng dụng để giải quyết các bài toán thực tế.
+- Tham gia hoạt động **hands-on** xây dựng giải pháp AI Agent dưới sự hướng dẫn của các chuyên gia.
+- Giao lưu, kết nối với các chuyên gia đến từ **CMC Global** và những người có cùng định hướng về Cloud & AI.
+- Có thêm góc nhìn về lộ trình phát triển nghề nghiệp trong lĩnh vực **Cloud, AI và công nghệ thông tin**.
 
 ### Danh Sách Diễn Giả
 
-- **Jignesh Shah** - Director, Open Source Databases
-- **Erica Liu** - Sr. GTM Specialist, AppMod
-- **Fabrianne Effendi** - Assc. Specialist SA, Serverless Amazon Web Services
+- **Thien Lu** – Program Manager, FCAJ
+- **Truong Bui** – Tech Lead, CMC Global
+- **Phong Pham** – Program Manager, FCAJ
 
 ### Nội Dung Nổi Bật
 
-#### Đưa ra các ảnh hưởng tiêu cực của kiến trúc ứng dụng cũ
+#### AWS Cloud và Generative AI
 
-- Thời gian release sản phẩm lâu → Mất doanh thu/bỏ lỡ cơ hội
-- Hoạt động kém hiệu quả → Mất năng suất, tốn kém chi phí
-- Không tuân thủ các quy định về bảo mật → Mất an ninh, uy tín
+- Tìm hiểu vai trò của **AWS Cloud** trong việc xây dựng và triển khai các ứng dụng hiện đại.
+- Cập nhật cách **Generative AI** đang được ứng dụng vào các bài toán thực tế.
+- Có thêm góc nhìn về sự kết hợp giữa Cloud và AI trong quá trình phát triển sản phẩm.
 
-#### Chuyển đổi sang kiến trúc ứng dụng mới - Microservice Architecture
+#### Agentic AI và AI Agent
 
-Chuyển đổi thành hệ thống modular – từng chức năng là một **dịch vụ độc lập** giao tiếp với nhau qua **sự kiện** với 3 trụ cột cốt lõi:
+- Tìm hiểu khái niệm **Agentic AI** và **AI Agent**.
+- Hiểu thêm về xu hướng sử dụng AI Agent trong các hệ thống và sản phẩm hiện đại.
+- Quan sát cách doanh nghiệp có thể ứng dụng AI để hỗ trợ giải quyết các bài toán thực tế.
 
-- **Queue Management**: Xử lý tác vụ bất đồng bộ
-- **Caching Strategy:** Tối ưu performance
-- **Message Handling:** Giao tiếp linh hoạt giữa services
+#### Hands-on xây dựng giải pháp AI Agent
 
-#### Domain-Driven Design (DDD)
+- Tham gia hoạt động thực hành liên quan đến việc xây dựng giải pháp **AI Agent**.
+- Có cơ hội chuyển những kiến thức lý thuyết về AI thành một bài toán thực tế.
+- Trao đổi với chuyên gia trong quá trình thực hành để hiểu rõ hơn cách tiếp cận và phát triển một giải pháp AI.
 
-- **Phương pháp 4 bước**: Xác định domain events → sắp xếp timeline → identify actors → xác định bounded contexts
-- **Case study bookstore**: Minh họa cách áp dụng DDD thực tế
-- **Context mapping**: 7 patterns tích hợp bounded contexts
+#### Networking và định hướng nghề nghiệp
 
-#### Event-Driven Architecture
-
-- **3 patterns tích hợp**: Publish/Subscribe, Point-to-point, Streaming
-- **Lợi ích**: Loose coupling, scalability, resilience
-- **So sánh sync vs async**: Hiểu rõ trade-offs (sự đánh đổi)
-
-#### Compute Evolution
-
-- **Shared Responsibility Model**: Từ EC2 → ECS → Fargate → Lambda
-- **Serverless benefits**: No server management, auto-scaling, pay-for-value
-- **Functions vs Containers**: Criteria lựa chọn phù hợp
-
-#### Amazon Q Developer
-
-- **SDLC automation**: Từ planning đến maintenance
-- **Code transformation**: Java upgrade, .NET modernization
-- **AWS Transform agents**: VMware, Mainframe, .NET migration
+- Giao lưu với các chuyên gia đến từ **CMC Global** và chương trình **First Cloud Journey AI**.
+- Trao đổi với những người có cùng định hướng về AWS, Cloud và AI.
+- Có thêm góc nhìn về kỹ năng và kiến thức cần chuẩn bị để phát triển trong lĩnh vực công nghệ.
 
 ### Những Gì Học Được
 
-#### Tư Duy Thiết Kế
+#### Kiến thức về Cloud và Generative AI
 
-- **Business-first approach**: Luôn bắt đầu từ business domain, không phải technology
-- **Ubiquitous language**: Importance của common vocabulary giữa business và tech teams
-- **Bounded contexts**: Cách identify và manage complexity trong large systems
+- Hiểu rõ hơn vai trò của **AWS Cloud** trong quá trình xây dựng các ứng dụng AI.
+- Cập nhật thêm xu hướng ứng dụng **Generative AI** trong thực tế.
+- Nhận thấy việc kết hợp kiến thức Cloud và AI là cần thiết khi phát triển các sản phẩm AI hiện đại.
 
-#### Kiến Trúc Kỹ Thuật
+#### Agentic AI
 
-- **Event storming technique**: Phương pháp thực tế để mô hình hóa quy trình kinh doanh
-- Sử dụng **Event-driven communication** thay vì synchronous calls
-- **Integration patterns**: Hiểu khi nào dùng sync, async, pub/sub, streaming
-- **Compute spectrum**: Criteria chọn từ VM → containers → serverless
+- Có cái nhìn tổng quan hơn về **Agentic AI** và AI Agent.
+- Hiểu rằng AI Agent không chỉ tạo nội dung mà còn hướng tới khả năng xử lý nhiệm vụ và hỗ trợ giải quyết các bài toán thực tế.
+- Có thêm định hướng để tiếp tục tìm hiểu sâu về các hệ thống AI Agent.
 
-#### Chiến Lược Hiện Đại Hóa
+#### Kinh nghiệm thực hành
 
-- **Phased approach**: Không rush, phải có roadmap rõ ràng
-- **7Rs framework**: Nhiều con đường khác nhau tùy thuộc vào đặc điểm của mỗi ứng dụng
-- **ROI measurement**: Cost reduction + business agility
+- Củng cố kiến thức thông qua hoạt động **hands-on**.
+- Hiểu rõ hơn sự khác biệt giữa việc học lý thuyết và triển khai một giải pháp thực tế.
+- Nhận thấy tầm quan trọng của việc phân tích bài toán trước khi lựa chọn công nghệ và xây dựng giải pháp.
+
+#### Kỹ năng và định hướng nghề nghiệp
+
+- Hiểu thêm về những kỹ năng cần thiết khi theo đuổi lĩnh vực **Cloud & AI**.
+- Nhận thấy bên cạnh kiến thức kỹ thuật, khả năng làm việc nhóm, giao tiếp và giải quyết vấn đề cũng rất quan trọng.
+- Có thêm động lực xây dựng các project thực tế thay vì chỉ dừng lại ở việc học lý thuyết.
 
 ### Ứng Dụng Vào Công Việc
 
-- **Áp dụng DDD** cho project hiện tại: Event storming sessions với business team
-- **Refactor microservices**: Sử dụng bounded contexts để identify service boundaries
-- **Implement event-driven patterns**: Thay thế một số sync calls bằng async messaging
-- **Serverless adoption**: Pilot AWS Lambda cho một số use cases phù hợp
-- **Try Amazon Q Developer**: Integrate vào development workflow để boost productivity
+- Tiếp tục nghiên cứu về **AI Agent** và cách tích hợp Agent vào các project AI hiện tại.
+- Kết hợp kiến thức về **RAG, LLM và Agentic AI** để thử nghiệm các hệ thống có khả năng xử lý tác vụ phức tạp hơn.
+- Tìm hiểu thêm cách triển khai các ứng dụng AI trên **AWS Cloud**.
+- Áp dụng tư duy xây dựng sản phẩm thực tế thay vì chỉ tập trung vào mô hình hoặc thuật toán riêng lẻ.
+- Thực hành nhiều hơn thông qua các project nhỏ để củng cố kiến thức về Cloud và Generative AI.
 
 ### Trải nghiệm trong event
 
-Tham gia workshop **“GenAI-powered App-DB Modernization”** là một trải nghiệm rất bổ ích, giúp tôi có cái nhìn toàn diện về cách hiện đại hóa ứng dụng và cơ sở dữ liệu bằng các phương pháp và công cụ hiện đại. Một số trải nghiệm nổi bật:
+Tham gia sự kiện **“Buildrathon Kickoff: Code the Future with CMC Global”** là cơ hội để tôi tiếp cận gần hơn với các ứng dụng thực tế của Cloud, Generative AI và Agentic AI. Sự kiện không chỉ tập trung vào kiến thức mà còn nhấn mạnh việc xây dựng sản phẩm, thực hành và kết nối với những người có cùng định hướng công nghệ.
 
-#### Học hỏi từ các diễn giả có chuyên môn cao
-- Các diễn giả đến từ AWS và các tổ chức công nghệ lớn đã chia sẻ **best practices** trong thiết kế ứng dụng hiện đại.
-- Qua các case study thực tế, tôi hiểu rõ hơn cách áp dụng **Domain-Driven Design (DDD)** và **Event-Driven Architecture** vào các project lớn.
+#### Học hỏi từ các diễn giả
 
-#### Trải nghiệm kỹ thuật thực tế
-- Tham gia các phiên trình bày về **event storming** giúp tôi hình dung cách **mô hình hóa quy trình kinh doanh** thành các domain events.
-- Học cách **phân tách microservices** và xác định **bounded contexts** để quản lý sự phức tạp của hệ thống lớn.
-- Hiểu rõ trade-offs giữa **synchronous và asynchronous communication** cũng như các pattern tích hợp như **pub/sub, point-to-point, streaming**.
+- Các diễn giả chia sẻ những góc nhìn về **Cloud, Generative AI và AI Agent**.
+- Những chia sẻ thực tế giúp tôi hiểu thêm cách các công nghệ AI được tiếp cận và ứng dụng trong môi trường doanh nghiệp.
+- Tôi có thêm góc nhìn về định hướng phát triển kỹ năng trong lĩnh vực Cloud & AI.
 
-#### Ứng dụng công cụ hiện đại
-- Trực tiếp tìm hiểu về **Amazon Q Developer**, công cụ AI hỗ trợ SDLC từ lập kế hoạch đến maintenance.
-- Học cách **tự động hóa code transformation** và pilot serverless với **AWS Lambda**, từ đó nâng cao năng suất phát triển.
+#### Trải nghiệm hands-on
+
+- Hoạt động thực hành giúp tôi tiếp cận bài toán **xây dựng giải pháp AI Agent** theo hướng thực tế hơn.
+- Qua quá trình thực hành, tôi hiểu rằng để xây dựng một sản phẩm AI cần kết hợp kiến thức về AI, phần mềm và Cloud.
+- Đây cũng là cơ hội để kiểm tra lại những kiến thức đã học trước đó và xác định những phần cần tiếp tục cải thiện.
 
 #### Kết nối và trao đổi
-- Workshop tạo cơ hội trao đổi trực tiếp với các chuyên gia, đồng nghiệp và team business, giúp **nâng cao ngôn ngữ chung (ubiquitous language)** giữa business và tech.
-- Qua các ví dụ thực tế, tôi nhận ra tầm quan trọng của **business-first approach**, luôn bắt đầu từ nhu cầu kinh doanh thay vì chỉ tập trung vào công nghệ.
+
+- Có cơ hội kết nối với các chuyên gia của **CMC Global**, các thành viên của FCAJ và những người có cùng đam mê về Cloud & AI.
+- Việc trao đổi trực tiếp giúp tôi có thêm góc nhìn về công nghệ, project thực tế và định hướng nghề nghiệp.
+- Networking cũng giúp mở rộng môi trường học hỏi và trao đổi kiến thức trong thời gian tới.
 
 #### Bài học rút ra
-- Việc áp dụng DDD và event-driven patterns giúp giảm **coupling**, tăng **scalability** và **resilience** cho hệ thống.
-- Chiến lược hiện đại hóa cần **phased approach** và đo lường **ROI**, không nên vội vàng chuyển đổi toàn bộ hệ thống.
-- Các công cụ AI như Amazon Q Developer có thể **boost productivity** nếu được tích hợp vào workflow phát triển hiện tại.
 
-#### Một số hình ảnh khi tham gia sự kiện
-* Thêm các hình ảnh của các bạn tại đây
-> Tổng thể, sự kiện không chỉ cung cấp kiến thức kỹ thuật mà còn giúp tôi thay đổi cách tư duy về thiết kế ứng dụng, hiện đại hóa hệ thống và phối hợp hiệu quả hơn giữa các team.
+- Việc học Cloud và AI nên đi kèm với **thực hành và xây dựng sản phẩm thực tế**.
+- Generative AI đang phát triển theo hướng các hệ thống có khả năng thực hiện nhiệm vụ, trong đó **AI Agent và Agentic AI** là những chủ đề cần tiếp tục nghiên cứu.
+- Kiến thức kỹ thuật chỉ là một phần; khả năng giải quyết vấn đề, làm việc nhóm và hiểu bài toán thực tế cũng rất quan trọng.
+
+#### Một số hình ảnh sự kiện
+
+![Poster sự kiện Buildrathon Kickoff](/images/4-Event/event1-photo1.jpg)
+
+*Poster giới thiệu sự kiện “Buildrathon Kickoff: Code the Future with CMC Global”.*
+
+![Poster Kickoff Buildrathon](/images/4-Event/event1-photo2.jpg)
+
+*Thông tin chương trình Buildrathon Kickoff với các diễn giả đến từ FCAJ và CMC Global.*
+
+> Tổng thể, sự kiện giúp tôi có thêm góc nhìn về AWS Cloud, Generative AI và Agentic AI, đồng thời nhấn mạnh tầm quan trọng của việc biến kiến thức thành các sản phẩm thực tế, chủ động thực hành và kết nối với cộng đồng công nghệ.
