@@ -1,57 +1,75 @@
 ---
 title: "Week 3 Worklog"
-date: 2024-01-01
+date: 2026-10-09
 weight: 1
 chapter: false
 pre: " <b> 1.3. </b> "
 ---
-{{% notice warning %}} 
-⚠️ **Note:** The following information is for reference purposes only. Please **do not copy verbatim** for your own report, including this warning.
-{{% /notice %}}
-
 
 ### Week 3 Objectives:
 
-* Connect and get acquainted with members of First Cloud AI Journey.
-* Understand basic AWS services, how to use the console & CLI.
+* Continue practicing and reinforcing AWS service knowledge through labs.
+* Define the idea, scope and implementation direction for the project.
+* Study technologies and environments supporting project development such as Apache Airflow, WSL, Linux and Docker.
+* Catch up on practical knowledge of Cloud, Agentic AI and AI-driven software development through the AWS Cloud & AI Day 2026 event.
 
 ### Tasks to be carried out this week:
-| Day | Task                                                                                                                                                                                                   | Start Date | Completion Date | Reference Material                        |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- | --------------- | ----------------------------------------- |
-| 2   | - Get acquainted with FCAJ members <br> - Read and take note of internship unit rules and regulations                                                                                                   | 08/11/2025 | 08/11/2025      |
-| 3   | - Learn about AWS and its types of services <br>&emsp; + Compute <br>&emsp; + Storage <br>&emsp; + Networking <br>&emsp; + Database <br>&emsp; + ... <br>                                              | 08/12/2025 | 08/12/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 4   | - Create AWS Free Tier account <br> - Learn about AWS Console & AWS CLI <br> - **Practice:** <br>&emsp; + Create AWS account <br>&emsp; + Install & configure AWS CLI <br> &emsp; + How to use AWS CLI | 08/13/2025 | 08/13/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 5   | - Learn basic EC2: <br>&emsp; + Instance types <br>&emsp; + AMI <br>&emsp; + EBS <br>&emsp; + ... <br> - SSH connection methods to EC2 <br> - Learn about Elastic IP   <br>                            | 08/14/2025 | 08/15/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 6   | - **Practice:** <br>&emsp; + Launch an EC2 instance <br>&emsp; + Connect via SSH <br>&emsp; + Attach an EBS volume                                                                                     | 08/15/2025 | 08/15/2025      | <https://cloudjourney.awsstudygroup.com/> |
 
+| Day | Task | Start Date | Completion Date | Reference Material |
+| --- | --- | --- | --- | --- |
+| 2 | - Complete the **Hosting a Static Website with Amazon S3** lab. <br> - Practice configuring Amazon S3 to host and deploy static websites. <br> - Complete the **Creating a Database with Amazon Relational Database Service (Amazon RDS)** lab. <br> - Practice creating and configuring databases on Amazon RDS. | 28/09/2026 | 28/09/2026 | AWS Skill Builder / AWS Documentation |
+| 3 | - Attend the **AWS Cloud & AI Day 2026: HCMC Watch Party** at AWS Office HCM. <br> - Follow sessions on **Cloud, Agentic AI, AI-Native Software Development, AI Security and AI Coding**. <br> - Join networking and knowledge exchange with the AWS Builders community. | 29/09/2026 | 29/09/2026 | AWS Cloud & AI Day 2026 / AWS Study Group |
+| 4 | - Brainstorm project ideas and analyze problems to solve. <br> - Discuss and finalize the project topic. <br> - Define the project's **problem statement, objectives, scope, boundary and limitations**. <br> - Build the proposal and initial implementation direction. <br> - Study the overview of **Apache Airflow**, its architecture and key components for the project. | 30/09/2026 | 30/09/2026 | Apache Airflow Documentation / Project materials |
+| 5 | - Study **WSL 1 and WSL 2**, their architecture, differences and use cases. <br> - Install and configure **WSL 2 with Ubuntu** on Windows. <br> - Learn and practice basic Linux commands in the Ubuntu environment. <br> - Study Docker concepts such as Image, Container, Dockerfile and Volume. <br> - Practice building images, creating and managing Docker containers. | 01/10/2026 | 01/10/2026 | Microsoft WSL Documentation / Docker Documentation / Ubuntu Documentation |
+| 6 | - Complete the **Optimizing Compute Costs with Amazon Lightsail** lab. <br> - Learn how to deploy and optimize compute costs with Amazon Lightsail. <br> - Complete the **Automating Application Scaling with Amazon EC2 Auto Scaling** lab. <br> - Learn and practice automatically scaling EC2 resources in or out with Auto Scaling. | 02/10/2026 | 02/10/2026 | AWS Skill Builder / AWS Documentation |
 
 ### Week 3 Achievements:
 
-* Understood what AWS is and mastered the basic service groups: 
-  * Compute
-  * Storage
-  * Networking 
-  * Database
-  * ...
+* Completed AWS labs related to:
+  * Amazon S3.
+  * Amazon RDS.
+  * Amazon Lightsail.
+  * Amazon EC2 Auto Scaling.
 
-* Successfully created and configured an AWS Free Tier account.
+* Understood and practiced how to:
+  * Host static websites on Amazon S3.
+  * Create and configure databases on Amazon RDS.
+  * Deploy resources with Amazon Lightsail and understand compute cost optimization.
+  * Use Amazon EC2 Auto Scaling to automatically adjust resources to application demand.
 
-* Became familiar with the AWS Management Console and learned how to find, access, and use services via the web interface.
+* Attended **AWS Cloud & AI Day 2026: HCMC Watch Party** and caught up on:
+  * Agentic AI.
+  * AI-Native Software Development.
+  * AI-driven Software Development Lifecycle.
+  * AI Security.
+  * AI Coding and MCP Server.
+  * Applying AI in software development and operations.
 
-* Installed and configured AWS CLI on the computer, including:
-  * Access Key
-  * Secret Key
-  * Default Region
-  * ...
+* Gained more practical perspectives on applying AI Agents and AI to the software development process, from coding and security to deployment and troubleshooting.
 
-* Used AWS CLI to perform basic operations such as:
+* Completed project brainstorming and topic selection:
+  * Defined the problem to solve.
+  * Defined project objectives.
+  * Defined the implementation scope.
+  * Defined boundary and limitations.
+  * Built the proposal and initial implementation direction.
 
-  * Check account & configuration information
-  * Retrieve the list of regions
-  * View EC2 service
-  * Create and manage key pairs
-  * Check information about running services
-  * ...
+* Gained an overview of Apache Airflow and its basic components:
+  * DAG.
+  * Task.
+  * Scheduler.
+  * Executor.
+  * Workflow orchestration.
 
-* Acquired the ability to connect between the web interface and CLI to manage AWS resources in parallel.
-* ...
+* Understood the differences between **WSL 1 and WSL 2** and successfully installed the **WSL 2 with Ubuntu** environment.
+
+* Reinforced Linux knowledge and practiced basic operations in the Ubuntu environment.
+
+* Grasped basic Docker concepts:
+  * Image.
+  * Container.
+  * Dockerfile.
+  * Volume.
+  * Building and running containers.
+
+* Set up a development environment using **Windows + WSL 2 + Ubuntu + Docker** for project implementation.
