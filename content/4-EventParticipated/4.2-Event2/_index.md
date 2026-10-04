@@ -123,6 +123,12 @@ Attending the **“GenAI-powered App-DB Modernization”** workshop was extremel
 
 #### Some event photos
 
-*Add your event photos here*
+![Group photo at the event (3rd person from the photographer in that row)](/images/4-Event/event2-photo1.jpg)
+
+*Group photo at the event (3rd person from the photographer in that row).*
+
+![Group photo at the event (person sitting at the far right end of the front row)](/images/4-Event/event2_photo2.jpg)
+
+*Group photo at the event (person sitting at the far right end of the front row).*
 
 > Overall, the event not only provided technical knowledge but also helped me reshape my thinking about application design, system modernization, and cross-team collaboration.
