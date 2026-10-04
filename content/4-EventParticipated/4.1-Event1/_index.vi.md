@@ -112,12 +112,12 @@ Tham gia sự kiện **“Buildrathon Kickoff: Code the Future with CMC Global�
 
 #### Một số hình ảnh sự kiện
 
-![Poster sự kiện Buildrathon Kickoff](/images/4-Event/event1-photo1.jpg)
+![Ảnh chụp tại sự kiện Buildrathon Kickoff (người thứ 3 từ trái qua)](/images/4-Event/event1-photo1.jpg)
 
-*Poster giới thiệu sự kiện “Buildrathon Kickoff: Code the Future with CMC Global”.*
+*Ảnh chụp tại sự kiện Buildrathon Kickoff (người thứ 3 từ trái qua).*
 
-![Poster Kickoff Buildrathon](/images/4-Event/event1-photo2.jpg)
+![Ảnh chụp tại sự kiện Buildrathon Kickoff (người thứ 2 từ trái qua)](/images/4-Event/event1-photo2.jpg)
 
-*Thông tin chương trình Buildrathon Kickoff với các diễn giả đến từ FCAJ và CMC Global.*
+*Ảnh chụp tại sự kiện Buildrathon Kickoff (người thứ 2 từ trái qua).*
 
 > Tổng thể, sự kiện giúp tôi có thêm góc nhìn về AWS Cloud, Generative AI và Agentic AI, đồng thời nhấn mạnh tầm quan trọng của việc biến kiến thức thành các sản phẩm thực tế, chủ động thực hành và kết nối với cộng đồng công nghệ.

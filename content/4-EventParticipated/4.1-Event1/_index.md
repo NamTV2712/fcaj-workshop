@@ -112,12 +112,12 @@ Joining **"Buildrathon Kickoff: Code the Future with CMC Global"** was an opport
 
 #### Some event photos
 
-![Buildrathon Kickoff event poster](/images/4-Event/event1-photo1.jpg)
+![Group photo at the Buildrathon Kickoff event (3rd person from the left)](/images/4-Event/event1-photo1.jpg)
 
-*Poster introducing the "Buildrathon Kickoff: Code the Future with CMC Global" event.*
+*Group photo at the Buildrathon Kickoff event (3rd person from the left).*
 
-![Buildrathon Kickoff poster](/images/4-Event/event1-photo2.jpg)
+![Group photo at the Buildrathon Kickoff event (2nd person from the left)](/images/4-Event/event1-photo2.jpg)
 
-*Buildrathon Kickoff program information with speakers from FCAJ and CMC Global.*
+*Group photo at the Buildrathon Kickoff event (2nd person from the left).*
 
 > Overall, the event gave me additional perspectives on AWS Cloud, Generative AI and Agentic AI, while emphasizing the importance of turning knowledge into real products, actively practicing and connecting with the tech community.
