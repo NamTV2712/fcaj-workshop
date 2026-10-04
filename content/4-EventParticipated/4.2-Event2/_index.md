@@ -127,7 +127,7 @@ Attending the **“GenAI-powered App-DB Modernization”** workshop was extremel
 
 *Group photo at the event (3rd person from the photographer in that row).*
 
-![Group photo at the event (person sitting at the far right end of the front row)](/images/4-Event/event2_photo2.jpg)
+![Group photo at the event (person sitting at the far right end of the front row)](/images/4-Event/event2-photo2.jpg)
 
 *Group photo at the event (person sitting at the far right end of the front row).*
 

@@ -127,7 +127,7 @@ Tham gia workshop **“GenAI-powered App-DB Modernization”** là một trải 
 
 *Ảnh chụp tại sự kiện (người thứ 3 tính từ người chụp ảnh đến trong hàng).*
 
-![Ảnh chụp tại sự kiện (người ngồi ngoài cùng hàng đầu bên phải)](/images/4-Event/event2_photo2.jpg)
+![Ảnh chụp tại sự kiện (người ngồi ngoài cùng hàng đầu bên phải)](/images/4-Event/event2-photo2.jpg)
 
 *Ảnh chụp tại sự kiện (người ngồi ngoài cùng hàng đầu bên phải).*
 
