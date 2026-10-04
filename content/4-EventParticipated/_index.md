@@ -1,18 +1,15 @@
 ---
 title: "Events Participated"
-date: 2024-01-01
+date: 2026-10-02
 weight: 4
 chapter: false
 pre: " <b> 4. </b> "
 ---
 
-{{% notice warning %}}
-⚠️ **Note:** The information below is for reference purposes only. Please **do not copy it verbatim** for your report, including this warning.
-{{% /notice %}}
-
-> In this section, you should list and describe in detail the events you have participated in during your internship or work experience.  
-> 
+> In this section, you should list and describe in detail the events you have participated in during your internship or work experience.
+>
 > Each event should be presented in the format Event 1, Event 2, Event 3…, along with the following details:
+>
 > * Event name
 > * Date and time
 > * Location (if applicable)
@@ -23,22 +20,24 @@ pre: " <b> 4. </b> "
 
 During my internship, I participated in two events. Each one was a memorable experience that provided new, interesting, and useful knowledge, along with gifts and wonderful moments.
 
-### [Event 1](4.1-Event1/)  
-&emsp;**Event Name:** Buildrathon Kickoff: Code the Future with CMC Global  
+### [Event 1](4.1-Event1/)
 
-&emsp;**Date & Time:** 09:00, August 13, 2025  
+&emsp;**Event Name:** Buildrathon Kickoff: Code the Future with CMC Global
 
-&emsp;**Location:** 26th Floor, Bitexco Tower, 02 Hai Trieu Street, Saigon Ward, Ho Chi Minh City  
+&emsp;**Date & Time:** 09:00, September 26, 2026
 
-&emsp;**Role:** Attendee  
+&emsp;**Location:** 26th Floor, Bitexco Tower, 02 Hai Trieu Street, Saigon Ward, Ho Chi Minh City
+
+&emsp;**Role:** Attendee
 
 ---
 
-### [Event 2](4.2-Event2/)  
-&emsp;**Event Name:** AWS Cloud & AI Day 2026: HCMC Watch Party  
+### [Event 2](4.2-Event2/)
 
-&emsp;**Date & Time:** September 29, 2026  
+&emsp;**Event Name:** AWS Cloud & AI Day 2026: HCMC Watch Party
 
-&emsp;**Location:** AWS Office HCM  
+&emsp;**Date & Time:** 08:00, September 29, 2026
 
-&emsp;**Role:** Attendee  
+&emsp;**Location:** 26th Floor, Bitexco Tower, 02 Hai Trieu Street, Saigon Ward, Ho Chi Minh City
+
+&emsp;**Role:** Attendee
