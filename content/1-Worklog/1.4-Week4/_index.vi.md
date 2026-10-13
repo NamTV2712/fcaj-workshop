@@ -1,59 +1,38 @@
 ---
 title: "Worklog Tuần 4"
-date: 2024-01-01
+date: 2026-10-10
 weight: 1
 chapter: false
 pre: " <b> 1.4. </b> "
 ---
-{{% notice warning %}}
-⚠️ **Lưu ý:** Các thông tin dưới đây chỉ nhằm mục đích tham khảo, vui lòng **không sao chép nguyên văn** cho bài báo cáo của bạn kể cả warning này.
-{{% /notice %}}
-
 
 ### Mục tiêu tuần 4:
 
-* Kết nối, làm quen với các thành viên trong First Cloud AI Journey.
-* Hiểu dịch vụ AWS cơ bản, cách dùng console & CLI.
+* Củng cố kiến thức Linux/WSL, Bash, process, service và networking.
+* Tìm hiểu Docker, Nginx, CI/CD, Kubernetes, monitoring và AI infrastructure.
+* Thực hành các dịch vụ AWS liên quan đến EC2, Lambda, CloudWatch, Route 53, migration và quản lý tài nguyên.
+* Xem lại proposal và specification của project để hiểu rõ hơn kiến trúc và hướng phát triển.
 
 ### Các công việc cần triển khai trong tuần này:
-| Thứ | Công việc                                                                                                                                                                                   | Ngày bắt đầu | Ngày hoàn thành | Nguồn tài liệu                            |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | --------------- | ----------------------------------------- |
-| 2   | - Làm quen với các thành viên FCAJ <br> - Đọc và lưu ý các nội quy, quy định tại đơn vị thực tập                                                                                             | 11/08/2025   | 11/08/2025      |
-| 3   | - Tìm hiểu AWS và các loại dịch vụ <br>&emsp; + Compute <br>&emsp; + Storage <br>&emsp; + Networking <br>&emsp; + Database <br>&emsp; + ... <br>                                            | 12/08/2025   | 12/08/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 4   | - Tạo AWS Free Tier account <br> - Tìm hiểu AWS Console & AWS CLI <br> - **Thực hành:** <br>&emsp; + Tạo AWS account <br>&emsp; + Cài AWS CLI & cấu hình <br> &emsp; + Cách sử dụng AWS CLI | 13/08/2025   | 13/08/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 5   | - Tìm hiểu EC2 cơ bản: <br>&emsp; + Instance types <br>&emsp; + AMI <br>&emsp; + EBS <br>&emsp; + ... <br> - Các cách remote SSH vào EC2 <br> - Tìm hiểu Elastic IP   <br>                  | 14/08/2025   | 15/08/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 6   | - **Thực hành:** <br>&emsp; + Tạo EC2 instance <br>&emsp; + Kết nối SSH <br>&emsp; + Gắn EBS volume                                                                                         | 15/08/2025   | 15/08/2025      | <https://cloudjourney.awsstudygroup.com/> |
 
+| Thứ | Công việc | Ngày bắt đầu | Ngày hoàn thành | Nguồn tài liệu |
+| --- | --- | --- | --- | --- |
+| 2 | - Học và thực hành **Linux/WSL**: quản lý file/thư mục, path, wildcard, `grep`, `find`, `sed`, `awk`, pipe/redirect, permission, user/group, environment variable và `$PATH`. <br> - Tìm hiểu process/PID, signal, foreground/background, `nohup`, stdin/stdout/stderr, Python virtual environment, dependency với `pip`, Git và SSH. <br> - Tìm hiểu networking/IP/port, HTTP với `curl`, archive, disk/RAM và cấu trúc filesystem Linux như `/etc`, `/var`, `/mnt`, `/proc`. | 05/10/2026 | 05/10/2026 |  |
+| 3 | - Tìm hiểu **symlink, disk/filesystem/mount** và Bash scripting với variables, arguments, `if`, `for/while`, function và exit code. <br> - Học logging, `journalctl`, `systemd` và cách quản lý application như một Linux service: start/stop/restart, auto-start khi boot và theo dõi log. <br> - Xem lại **proposal và specification của project** để hiểu rõ hơn mục tiêu, kiến trúc và các thành phần chính của project. | 06/10/2026 | 06/10/2026 |  |
+| 4 | - Học Linux/DevOps với `systemd`, `cron`, `tmux`, Docker/Docker Compose, port/volume/network, firewall và các nguyên tắc security cơ bản. <br> - Tìm hiểu GPU/CUDA, `nvidia-smi`, performance monitoring, `lsof`, `strace`, Nginx, FastAPI production deployment, EC2/EBS/VPC, CI/CD, Container Registry và Kubernetes. <br> - Tìm hiểu model serving, vLLM, distributed training, MLOps, observability, Linux internals; đồng thời tìm hiểu **AWS CloudWatch** và **Hybrid DNS với Route 53 Resolver**. | 07/10/2026 | 07/10/2026 |  |
+| 5 | - Thực hành **Using AWS CLI on Amazon EC2 (Windows/Ubuntu)** để thao tác và quản lý tài nguyên AWS bằng command line. <br> - Thực hành **AWS Lambda** để tự động shutdown server và gửi thông báo tới **Slack**. <br> - Xây dựng hệ thống monitoring bằng **Amazon CloudWatch và Grafana**, theo dõi metrics và trực quan hóa dữ liệu qua dashboard. | 08/10/2026 | 08/10/2026 |  |
+| 6 | - Thực hành **AWS VM Import/Export** để tìm hiểu quy trình migrate virtual server hiện có lên AWS. <br> - Thực hành migration database với **AWS DMS và Schema Conversion Tool (SCT)**, gồm chuyển đổi schema và di chuyển dữ liệu. <br> - Sử dụng **Tags và Resource Groups** để phân loại, gom nhóm và quản lý tài nguyên AWS hiệu quả hơn. | 09/10/2026 | 09/10/2026 |  |
 
 ### Kết quả đạt được tuần 4:
 
-* Hiểu AWS là gì và nắm được các nhóm dịch vụ cơ bản: 
-  * Compute
-  * Storage
-  * Networking 
-  * Database
-  * ...
-
-* Đã tạo và cấu hình AWS Free Tier account thành công.
-
-* Làm quen với AWS Management Console và biết cách tìm, truy cập, sử dụng dịch vụ từ giao diện web.
-
-* Cài đặt và cấu hình AWS CLI trên máy tính bao gồm:
-  * Access Key
-  * Secret Key
-  * Region mặc định
-  * ...
-
-* Sử dụng AWS CLI để thực hiện các thao tác cơ bản như:
-
-  * Kiểm tra thông tin tài khoản & cấu hình
-  * Lấy danh sách region
-  * Xem dịch vụ EC2
-  * Tạo và quản lý key pair
-  * Kiểm tra thông tin dịch vụ đang chạy
-  * ...
-
-* Có khả năng kết nối giữa giao diện web và CLI để quản lý tài nguyên AWS song song.
-* ...
-
-
+* Củng cố kiến thức Linux/WSL, Bash scripting, process, networking và Linux service.
+* Hiểu rõ hơn workflow **filesystem → shell → process → service → container → cloud**.
+* Sử dụng và hiểu vai trò của các công cụ Linux như `grep`, `find`, `sed`, `awk`, `curl`, `journalctl`, `systemctl`, `cron`, `tmux`, `lsof` và `strace`.
+* Hiểu các thành phần cơ bản của Docker/Docker Compose gồm image, container, port, volume và network.
+* Có kiến thức nền tảng về Nginx, FastAPI deployment, CI/CD, Kubernetes, GPU/CUDA, vLLM, MLOps và observability.
+* Hiểu thêm về Linux internals gồm process, syscall, file descriptor, namespace và cgroups.
+* Hiểu rõ hơn proposal, specification, kiến trúc và định hướng phát triển của project.
+* Thực hành quản lý EC2 bằng AWS CLI, automation với Lambda và monitoring bằng CloudWatch/Grafana.
+* Tìm hiểu Hybrid DNS với Amazon Route 53 Resolver.
+* Hiểu quy trình migration server bằng VM Import/Export và migration database bằng DMS/SCT.
+* Biết cách sử dụng Tags và Resource Groups để tổ chức và quản lý tài nguyên AWS.

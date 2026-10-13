@@ -1,57 +1,38 @@
 ---
 title: "Week 4 Worklog"
-date: 2024-01-01
+date: 2026-10-10
 weight: 1
 chapter: false
 pre: " <b> 1.4. </b> "
 ---
-{{% notice warning %}} 
-⚠️ **Note:** The following information is for reference purposes only. Please **do not copy verbatim** for your own report, including this warning.
-{{% /notice %}}
-
 
 ### Week 4 Objectives:
 
-* Connect and get acquainted with members of First Cloud AI Journey.
-* Understand basic AWS services, how to use the console & CLI.
+* Reinforce Linux/WSL, Bash, process, service and networking knowledge.
+* Study Docker, Nginx, CI/CD, Kubernetes, monitoring and AI infrastructure.
+* Practice AWS services related to EC2, Lambda, CloudWatch, Route 53, migration and resource management.
+* Review the project proposal and specification to better understand its architecture and direction.
 
 ### Tasks to be carried out this week:
-| Day | Task                                                                                                                                                                                                   | Start Date | Completion Date | Reference Material                        |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- | --------------- | ----------------------------------------- |
-| 2   | - Get acquainted with FCAJ members <br> - Read and take note of internship unit rules and regulations                                                                                                   | 08/11/2025 | 08/11/2025      |
-| 3   | - Learn about AWS and its types of services <br>&emsp; + Compute <br>&emsp; + Storage <br>&emsp; + Networking <br>&emsp; + Database <br>&emsp; + ... <br>                                              | 08/12/2025 | 08/12/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 4   | - Create AWS Free Tier account <br> - Learn about AWS Console & AWS CLI <br> - **Practice:** <br>&emsp; + Create AWS account <br>&emsp; + Install & configure AWS CLI <br> &emsp; + How to use AWS CLI | 08/13/2025 | 08/13/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 5   | - Learn basic EC2: <br>&emsp; + Instance types <br>&emsp; + AMI <br>&emsp; + EBS <br>&emsp; + ... <br> - SSH connection methods to EC2 <br> - Learn about Elastic IP   <br>                            | 08/14/2025 | 08/15/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 6   | - **Practice:** <br>&emsp; + Launch an EC2 instance <br>&emsp; + Connect via SSH <br>&emsp; + Attach an EBS volume                                                                                     | 08/15/2025 | 08/15/2025      | <https://cloudjourney.awsstudygroup.com/> |
 
+| Day | Task | Start Date | Completion Date | Reference Material |
+| --- | --- | --- | --- | --- |
+| 2 | - Learn and practice **Linux/WSL**: file/directory management, paths, wildcards, `grep`, `find`, `sed`, `awk`, pipes/redirects, permissions, users/groups, environment variables and `$PATH`. <br> - Study processes/PIDs, signals, foreground/background, `nohup`, stdin/stdout/stderr, Python virtual environments, `pip` dependencies, Git and SSH. <br> - Study networking/IP/ports, HTTP with `curl`, archives, disk/RAM and Linux filesystem structure such as `/etc`, `/var`, `/mnt`, `/proc`. | 05/10/2026 | 05/10/2026 |  |
+| 3 | - Study **symlinks, disks/filesystems/mounts** and Bash scripting with variables, arguments, `if`, `for/while`, functions and exit codes. <br> - Learn logging, `journalctl`, `systemd` and how to manage an application as a Linux service: start/stop/restart, auto-start on boot and log monitoring. <br> - Review the project's **proposal and specification** to better understand its objectives, architecture and key components. | 06/10/2026 | 06/10/2026 |  |
+| 4 | - Study Linux/DevOps with `systemd`, `cron`, `tmux`, Docker/Docker Compose, ports/volumes/networks, firewalls and basic security principles. <br> - Study GPU/CUDA, `nvidia-smi`, performance monitoring, `lsof`, `strace`, Nginx, FastAPI production deployment, EC2/EBS/VPC, CI/CD, Container Registries and Kubernetes. <br> - Study model serving, vLLM, distributed training, MLOps, observability, Linux internals; while also studying **AWS CloudWatch** and **Hybrid DNS with Route 53 Resolver**. | 07/10/2026 | 07/10/2026 |  |
+| 5 | - Practice **Using AWS CLI on Amazon EC2 (Windows/Ubuntu)** to operate and manage AWS resources from the command line. <br> - Practice **AWS Lambda** to automatically shut down servers and send notifications to **Slack**. <br> - Build a monitoring system with **Amazon CloudWatch and Grafana**, tracking metrics and visualizing data through dashboards. | 08/10/2026 | 08/10/2026 |  |
+| 6 | - Practice **AWS VM Import/Export** to learn the process of migrating existing virtual servers to AWS. <br> - Practice database migration with **AWS DMS and Schema Conversion Tool (SCT)**, including schema conversion and data migration. <br> - Use **Tags and Resource Groups** to classify, group and manage AWS resources more effectively. | 09/10/2026 | 09/10/2026 |  |
 
 ### Week 4 Achievements:
 
-* Understood what AWS is and mastered the basic service groups: 
-  * Compute
-  * Storage
-  * Networking 
-  * Database
-  * ...
-
-* Successfully created and configured an AWS Free Tier account.
-
-* Became familiar with the AWS Management Console and learned how to find, access, and use services via the web interface.
-
-* Installed and configured AWS CLI on the computer, including:
-  * Access Key
-  * Secret Key
-  * Default Region
-  * ...
-
-* Used AWS CLI to perform basic operations such as:
-
-  * Check account & configuration information
-  * Retrieve the list of regions
-  * View EC2 service
-  * Create and manage key pairs
-  * Check information about running services
-  * ...
-
-* Acquired the ability to connect between the web interface and CLI to manage AWS resources in parallel.
-* ...
+* Reinforced Linux/WSL, Bash scripting, process, networking and Linux service knowledge.
+* Better understood the **filesystem → shell → process → service → container → cloud** workflow.
+* Used and understood Linux tools such as `grep`, `find`, `sed`, `awk`, `curl`, `journalctl`, `systemctl`, `cron`, `tmux`, `lsof` and `strace`.
+* Understood basic Docker/Docker Compose components including images, containers, ports, volumes and networks.
+* Gained foundational knowledge of Nginx, FastAPI deployment, CI/CD, Kubernetes, GPU/CUDA, vLLM, MLOps and observability.
+* Learned more about Linux internals including processes, syscalls, file descriptors, namespaces and cgroups.
+* Better understood the project proposal, specification, architecture and development direction.
+* Practiced EC2 management with AWS CLI, automation with Lambda and monitoring with CloudWatch/Grafana.
+* Studied Hybrid DNS with Amazon Route 53 Resolver.
+* Understood server migration with VM Import/Export and database migration with DMS/SCT.
+* Learned to use Tags and Resource Groups to organize and manage AWS resources.
