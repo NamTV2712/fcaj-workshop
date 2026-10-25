@@ -1,55 +1,31 @@
 ---
-title: "Worklog Tuần 6"
-date: 2024-01-01
+title: "Tuần 6"
+date: 2026-10-25
 weight: 1
 chapter: false
 pre: " <b> 1.6. </b> "
 ---
 
+### Mục tiêu tuần 6
 
-### Mục tiêu tuần 6:
-
-* Kết nối, làm quen với các thành viên trong First Cloud AI Journey.
-* Hiểu dịch vụ AWS cơ bản, cách dùng console & CLI.
+- Tìm hiểu các giải pháp lưu trữ và quản lý dữ liệu trên AWS, bao gồm Amazon FSx, Data Lake và Amazon DynamoDB.
+- Khám phá các phương pháp tối ưu chi phí AWS, lựa chọn cấu hình EC2 phù hợp và theo dõi chi phí sử dụng.
+- Làm quen với AWS Glue, Amazon Athena và quá trình di chuyển ứng dụng nguyên khối.
+- Tìm hiểu kiến trúc microservices, tự động phát hành ứng dụng và tái cấu trúc dữ liệu, quy trình làm việc.
 
 ### Các công việc cần triển khai trong tuần này:
-| Thứ | Công việc                                                                                                                                                                                   | Ngày bắt đầu | Ngày hoàn thành | Nguồn tài liệu                            |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | --------------- | ----------------------------------------- |
-| 2   | - Làm quen với các thành viên FCAJ <br> - Đọc và lưu ý các nội quy, quy định tại đơn vị thực tập                                                                                             | 11/08/2025   | 11/08/2025      |
-| 3   | - Tìm hiểu AWS và các loại dịch vụ <br>&emsp; + Compute <br>&emsp; + Storage <br>&emsp; + Networking <br>&emsp; + Database <br>&emsp; + ... <br>                                            | 12/08/2025   | 12/08/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 4   | - Tạo AWS Free Tier account <br> - Tìm hiểu AWS Console & AWS CLI <br> - **Thực hành:** <br>&emsp; + Tạo AWS account <br>&emsp; + Cài AWS CLI & cấu hình <br> &emsp; + Cách sử dụng AWS CLI | 13/08/2025   | 13/08/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 5   | - Tìm hiểu EC2 cơ bản: <br>&emsp; + Instance types <br>&emsp; + AMI <br>&emsp; + EBS <br>&emsp; + ... <br> - Các cách remote SSH vào EC2 <br> - Tìm hiểu Elastic IP   <br>                  | 14/08/2025   | 15/08/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 6   | - **Thực hành:** <br>&emsp; + Tạo EC2 instance <br>&emsp; + Kết nối SSH <br>&emsp; + Gắn EBS volume                                                                                         | 15/08/2025   | 15/08/2025      | <https://cloudjourney.awsstudygroup.com/> |
 
+| Thứ | Công việc | Ngày bắt đầu | Ngày hoàn thành | Nguồn tài liệu |
+| --- | --- | --- | --- | --- |
+| Ngày 1 | - Tìm hiểu cách triển khai lưu trữ cho Windows bằng Amazon FSx. <br> - Khám phá cách xây dựng Data Lake và tổ chức dữ liệu trên AWS. <br> - Tìm hiểu kiến trúc nâng cao của Amazon DynamoDB. | 19/10/2026 | 19/10/2026 |  |
+| Ngày 2 | - Tìm hiểu Savings Plans, Reserved Instances và Reserved DB Instances. <br> - Khám phá cách lựa chọn kích thước EC2 phù hợp với nhu cầu sử dụng. <br> - Tìm hiểu cách trực quan hóa và theo dõi chi phí AWS. | 20/10/2026 | 20/10/2026 |  |
+| Ngày 3 | - Tìm hiểu cách sử dụng AWS Glue và Amazon Athena để phân tích dữ liệu chi phí. <br> - Khám phá các bước cơ bản khi di chuyển ứng dụng nguyên khối. | 21/10/2026 | 21/10/2026 |  |
+| Ngày 4 | - Tìm hiểu cách xây dựng microservice và phân chia chức năng ứng dụng. <br> - Khám phá quy trình tự động phát hành và triển khai ứng dụng. | 22/10/2026 | 22/10/2026 |  |
+| Ngày 5 | - Tìm hiểu cách tái cấu trúc dữ liệu để cải thiện việc tổ chức và xử lý thông tin. <br> - Khám phá cách cải tiến quy trình làm việc để hệ thống dễ bảo trì và mở rộng. | 23/10/2026 | 23/10/2026 |  |
 
 ### Kết quả đạt được tuần 6:
-* Hiểu AWS là gì và nắm được các nhóm dịch vụ cơ bản: 
-  * Compute
-  * Storage
-  * Networking 
-  * Database
-  * ...
 
-* Đã tạo và cấu hình AWS Free Tier account thành công.
-
-* Làm quen với AWS Management Console và biết cách tìm, truy cập, sử dụng dịch vụ từ giao diện web.
-
-* Cài đặt và cấu hình AWS CLI trên máy tính bao gồm:
-  * Access Key
-  * Secret Key
-  * Region mặc định
-  * ...
-
-* Sử dụng AWS CLI để thực hiện các thao tác cơ bản như:
-
-  * Kiểm tra thông tin tài khoản & cấu hình
-  * Lấy danh sách region
-  * Xem dịch vụ EC2
-  * Tạo và quản lý key pair
-  * Kiểm tra thông tin dịch vụ đang chạy
-  * ...
-
-* Có khả năng kết nối giữa giao diện web và CLI để quản lý tài nguyên AWS song song.
-* ...
-
-
+- Hiểu thêm về các dịch vụ lưu trữ, quản lý dữ liệu và cơ sở dữ liệu trên AWS.
+- Nắm được các phương pháp tối ưu chi phí và lựa chọn tài nguyên phù hợp.
+- Làm quen với công cụ phân tích dữ liệu chi phí và quy trình di chuyển ứng dụng nguyên khối.
+- Hiểu hơn về microservices, tự động phát hành ứng dụng và tái cấu trúc hệ thống.
