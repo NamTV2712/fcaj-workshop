@@ -8,27 +8,25 @@ pre: " <b> 1.6. </b> "
 
 ### Mục tiêu tuần 6
 
-- Tìm hiểu các giải pháp lưu trữ và quản lý dữ liệu trên AWS, bao gồm Amazon FSx dành cho Windows và cách xây dựng Data Lake để tập trung dữ liệu từ nhiều nguồn.
-- Nghiên cứu các kiến trúc nâng cao của Amazon DynamoDB, tìm hiểu cách tổ chức dữ liệu và lựa chọn thiết kế phù hợp với nhu cầu truy cập của ứng dụng.
-- Tìm hiểu các phương pháp tối ưu chi phí AWS thông qua Savings Plans, Reserved Instances và Reserved DB Instances. Làm quen với việc lựa chọn cấu hình EC2 phù hợp và theo dõi chi phí sử dụng tài nguyên.
-- Tìm hiểu cách sử dụng AWS Glue và Amazon Athena để xử lý, truy vấn và phân tích dữ liệu chi phí, từ đó hỗ trợ việc theo dõi và quản lý ngân sách hiệu quả hơn.
-- Làm quen với quá trình chuyển đổi từ ứng dụng nguyên khối sang kiến trúc microservices, đồng thời tìm hiểu cách tự động hóa quy trình phát hành và triển khai ứng dụng.
-- Tìm hiểu mục đích của việc tái cấu trúc dữ liệu và quy trình làm việc nhằm cải thiện khả năng bảo trì, giảm sự phức tạp và tạo điều kiện thuận lợi cho việc mở rộng hệ thống.
+- Tìm hiểu các giải pháp lưu trữ và quản lý dữ liệu trên AWS, bao gồm Amazon FSx, Data Lakes và Amazon DynamoDB.
+- Học các phương pháp tối ưu chi phí, lựa chọn tài nguyên phù hợp và theo dõi chi phí sử dụng AWS.
+- Làm quen với AWS Glue, Amazon Athena và quá trình di chuyển ứng dụng nguyên khối.
+- Tìm hiểu kiến trúc microservices, tự động phát hành ứng dụng và cải thiện cấu trúc dữ liệu, quy trình làm việc.
 
 ### Các công việc cần triển khai trong tuần này:
 
 | Thứ | Công việc | Ngày bắt đầu | Ngày hoàn thành | Nguồn tài liệu |
 | --- | --- | --- | --- | --- |
-| Ngày 1 | - Tìm hiểu cách triển khai lưu trữ cho Windows bằng Amazon FSx. <br> - Khám phá cách xây dựng Data Lake và tổ chức dữ liệu trên AWS. <br> - Tìm hiểu kiến trúc nâng cao của Amazon DynamoDB. | 19/10/2026 | 19/10/2026 | [https://cloudjourney.awsstudygroup.com/](https://cloudjourney.awsstudygroup.com/) |
-| Ngày 2 | - Tìm hiểu Savings Plans, Reserved Instances và Reserved DB Instances. <br> - Khám phá cách lựa chọn kích thước EC2 phù hợp với nhu cầu sử dụng. <br> - Tìm hiểu cách trực quan hóa và theo dõi chi phí AWS. | 20/10/2026 | 20/10/2026 | [https://cloudjourney.awsstudygroup.com/](https://cloudjourney.awsstudygroup.com/) |
-| Ngày 3 | - Tìm hiểu cách sử dụng AWS Glue và Amazon Athena để phân tích dữ liệu chi phí. <br> - Khám phá các bước cơ bản khi di chuyển ứng dụng nguyên khối. | 21/10/2026 | 21/10/2026 | [https://cloudjourney.awsstudygroup.com/](https://cloudjourney.awsstudygroup.com/) |
-| Ngày 4 | - Tìm hiểu cách xây dựng microservice và phân chia chức năng ứng dụng. <br> - Khám phá quy trình tự động phát hành và triển khai ứng dụng. | 22/10/2026 | 22/10/2026 | [https://cloudjourney.awsstudygroup.com/](https://cloudjourney.awsstudygroup.com/) |
-| Ngày 5 | - Tìm hiểu cách tái cấu trúc dữ liệu để cải thiện việc tổ chức và xử lý thông tin. <br> - Khám phá cách cải tiến quy trình làm việc để hệ thống dễ bảo trì và mở rộng. | 23/10/2026 | 23/10/2026 | [https://cloudjourney.awsstudygroup.com/](https://cloudjourney.awsstudygroup.com/) |
+| 2 | - Tìm hiểu cách thiết lập lưu trữ file Windows bằng Amazon FSx và khám phá các trường hợp sử dụng phù hợp. <br> - Khám phá cách xây dựng Data Lake trên AWS để tập trung dữ liệu từ nhiều nguồn khác nhau cho lưu trữ và phân tích. <br> - Nghiên cứu các kiến trúc nâng cao của Amazon DynamoDB, tổ chức dữ liệu và lựa chọn thiết kế dựa trên yêu cầu của ứng dụng. | 19/10/2026 | 19/10/2026 | [https://cloudjourney.awsstudygroup.com/](https://cloudjourney.awsstudygroup.com/) |
+| 3 | - Khám phá Savings Plans, Reserved Instances và Reserved DB Instances, so sánh mục đích của chúng trong việc giảm chi phí AWS. <br> - Học cách điều chỉnh kích thước EC2 dựa trên yêu cầu tài nguyên và tránh cung cấp quá nhiều hoặc không đủ dung lượng. <br> - Khám phá trực quan hóa chi phí AWS để theo dõi chi tiêu, xác định chi phí đáng chú ý và hỗ trợ quản lý ngân sách. | 20/10/2026 | 20/10/2026 | [https://cloudjourney.awsstudygroup.com/](https://cloudjourney.awsstudygroup.com/) |
+| 4 | - Học cách AWS Glue và Amazon Athena có thể được sử dụng để chuẩn bị, truy vấn và phân tích dữ liệu chi phí và sử dụng của AWS. <br> - Khám phá cách dữ liệu và truy vấn có thể được sử dụng để thu được thông tin chi tiết cho việc theo dõi chi phí. <br> - Nghiên cứu di chuyển ứng dụng nguyên khối, từ đánh giá hệ thống hiện tại đến xác định các thành phần có thể cần chuyển đổi. | 21/10/2026 | 21/10/2026 | [https://cloudjourney.awsstudygroup.com/](https://cloudjourney.awsstudygroup.com/) |
+| 5 | - Học cách xây dựng một microservice và chia ứng dụng thành các thành phần có trách nhiệm riêng biệt. <br> - Khám phá cách các microservice tương tác để hỗ trợ chức năng ứng dụng trong khi cho phép các thành phần được phát triển và duy trì độc lập. <br> - Học về việc phát hành ứng dụng tự động, từ việc đưa các thay đổi vào quy trình triển khai đến cập nhật phiên bản phần mềm. | 22/10/2026 | 22/10/2026 | [https://cloudjourney.awsstudygroup.com/](https://cloudjourney.awsstudygroup.com/) |
+| 6 | - Khám phá tái cấu trúc dữ liệu để cải thiện cách thông tin được tổ chức, lưu trữ và xử lý trong hệ thống. <br> - Xem xét các cách cải thiện quy trình làm việc bằng cách giảm bớt các bước không cần thiết và làm cho xử lý hiệu quả hơn. <br> - Hiểu cách tái cấu trúc hỗ trợ bảo trì hệ thống, nâng cấp và khả năng mở rộng khi yêu cầu thay đổi. | 23/10/2026 | 23/10/2026 | [https://cloudjourney.awsstudygroup.com/](https://cloudjourney.awsstudygroup.com/) |
 
 ### Kết quả đạt được tuần 6:
 
-- Hiểu thêm về Amazon FSx, Data Lake và Amazon DynamoDB, cũng như cách tổ chức và quản lý dữ liệu trên AWS.
-- Nắm được các phương pháp tối ưu chi phí AWS, bao gồm lựa chọn gói tiết kiệm, phiên bản dành riêng và điều chỉnh cấu hình EC2 theo nhu cầu sử dụng.
-- Làm quen với AWS Glue và Amazon Athena trong phân tích dữ liệu chi phí, đồng thời tìm hiểu các vấn đề cơ bản khi di chuyển ứng dụng nguyên khối.
-- Hiểu hơn về kiến trúc microservices và quy trình tự động phát hành ứng dụng, bao gồm lợi ích của việc phân chia chức năng và tự động hóa triển khai.
-- Nắm được vai trò của việc tái cấu trúc dữ liệu và quy trình làm việc trong việc cải thiện khả năng bảo trì, nâng cấp và mở rộng hệ thống.
+- Nắm được kiến thức tốt hơn về Amazon FSx, Data Lakes và Amazon DynamoDB, cùng các tùy chọn quản lý dữ liệu trên AWS.
+- Học về tối ưu chi phí AWS, điều chỉnh kích thước EC2 và theo dõi chi phí.
+- Làm quen với AWS Glue, Amazon Athena và các khái niệm chính liên quan đến việc di chuyển ứng dụng nguyên khối.
+- Hiểu rõ hơn về kiến trúc microservices và quy trình phát hành ứng dụng tự động.
+- Hiểu cách tái cấu trúc dữ liệu và quy trình làm việc có thể cải thiện bảo trì hệ thống, phát triển và khả năng mở rộng.
