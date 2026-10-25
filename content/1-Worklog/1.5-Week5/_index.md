@@ -1,6 +1,6 @@
 ---
 title: "Week 5 Worklog"
-date: 2026-17-10
+date: 2026-10-25
 weight: 1
 chapter: false
 pre: " <b> 1.5. </b> "
@@ -11,43 +11,26 @@ pre: " <b> 1.5. </b> "
 
 ### Week 5 Objectives:
 
-* Connect and get acquainted with members of First Cloud AI Journey.
-* Understand basic AWS services, how to use the console & CLI.
+* Study AWS resource access management, security, and operations automation.
+* Practice Infrastructure as Code, system management and application deployment.
+* Study VPC network connectivity, security monitoring, backup and data storage on AWS.
 
 ### Tasks to be carried out this week:
 
-| Day | Task                                                                                                                                                                                     | Start Date | Completion Date | Reference Material                                                                |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | --------------- | --------------------------------------------------------------------------------- |
-| 2   | - Get acquainted with FCAJ members  - Read and take note of internship unit rules and regulations                                                                                        | 12/10/2026 | 12/10/2026      |                                                                                   |
-| 3   | - Learn about AWS and its types of services &emsp; + Compute &emsp; + Storage &emsp; + Networking &emsp; + Database &emsp; + ...                                                         | 13/10/2026 | 13/10/2026      | [https://cloudjourney.awsstudygroup.com/](https://cloudjourney.awsstudygroup.com/) |
-| 4   | - Create AWS Free Tier account  - Learn about AWS Console & AWS CLI  - **Practice:** &emsp; + Create AWS account &emsp; + Install & configure AWS CLI  &emsp; + How to use AWS CLI | 14/10/2026 | 14/10/2026      | [https://cloudjourney.awsstudygroup.com/](https://cloudjourney.awsstudygroup.com/) |
-| 5   | - Learn basic EC2: &emsp; + Instance types &emsp; + AMI &emsp; + EBS &emsp; + ...  - SSH connection methods to EC2  - Learn about Elastic IP                                             | 15/10/2026 | 16/10/2026      | [https://cloudjourney.awsstudygroup.com/](https://cloudjourney.awsstudygroup.com/) |
-| 6   | - **Practice:** &emsp; + Launch an EC2 instance &emsp; + Connect via SSH &emsp; + Attach an EBS volume                                                                             | 16/10/2026 | 16/10/2026      | [https://cloudjourney.awsstudygroup.com/](https://cloudjourney.awsstudygroup.com/) |
+| Day | Task | Start Date | Completion Date | Reference Material |
+| --- | --- | --- | --- | --- |
+| 1 | - Practice EC2 access management with IAM combined with Tags; study AWS Systems Manager to manage services and automate tasks, and use Session Manager to access and manage sessions. <br> - Study how to initialize and manage AWS infrastructure as code (Infrastructure as Code) with AWS CloudFormation. | 12/10/2026 | 12/10/2026 |  |
+| 2 | - Study and set up Single Sign-On (Amazon SSO) for AWS Organizations. <br> - Practice limiting user permissions with IAM Permissions Boundaries and restricting IAM Role transfer with conditions in policy. | 13/10/2026 | 13/10/2026 |  |
+| 3 | - Practice checking security standards and consolidating security findings with AWS Security Hub; study how to protect applications and APIs with AWS WAF. <br> - Study and set up backup plans, manage resource backups with AWS Backup. | 14/10/2026 | 14/10/2026 |  |
+| 4 | - Study and practice connecting VPCs with VPC Peering to support communication between private virtual networks. <br> - Study AWS Transit Gateway to centrally manage connections between multiple VPCs and related networks. | 15/10/2026 | 15/10/2026 |  |
+| 5 | - Practice deploying applications with Docker and using AWS CodePipeline to build automated application deployment pipelines. <br> - Study AWS Storage Gateway – File Gateway to connect file storage environments with AWS, supporting storage and access to data on the cloud. | 16/10/2026 | 16/10/2026 |  |
 
 ### Week 5 Achievements:
 
-* Understood what AWS is and mastered the basic service groups:
-
-  * Compute
-  * Storage
-  * Networking
-  * Database
-  * ...
-* Successfully created and configured an AWS Free Tier account.
-* Became familiar with the AWS Management Console and learned how to find, access, and use services via the web interface.
-* Installed and configured AWS CLI on the computer, including:
-
-  * Access Key
-  * Secret Key
-  * Default Region
-  * ...
-* Used AWS CLI to perform basic operations such as:
-
-  * Check account & configuration information
-  * Retrieve the list of regions
-  * View EC2 service
-  * Create and manage key pairs
-  * Check information about running services
-  * ...
-* Acquired the ability to connect between the web interface and CLI to manage AWS resources in parallel.
-* ...
+* Understood how to manage EC2 access with IAM and Tags, limit permissions with Permissions Boundaries and control IAM Role transfer with conditions.
+* Studied Single Sign-On with Amazon SSO and system management with AWS Systems Manager, Session Manager.
+* Understood Infrastructure as Code principles and how to use AWS CloudFormation to initialize and manage infrastructure.
+* Grasped the role of AWS Security Hub in security checks, AWS WAF in protecting applications/APIs and AWS Backup in backup management.
+* Understood how to connect VPCs with VPC Peering and manage centralized network connectivity with AWS Transit Gateway.
+* Practiced deploying applications with Docker, studied CI/CD processes and automated deployment with AWS CodePipeline.
+* Studied AWS Storage Gateway – File Gateway and how to integrate file storage with AWS Cloud.
