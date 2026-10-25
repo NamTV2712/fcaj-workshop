@@ -27,7 +27,8 @@ pre: " <b> 1.6. </b> "
 
 ### Kết quả đạt được tuần 6:
 
-- Hiểu thêm về các dịch vụ lưu trữ, quản lý dữ liệu và cơ sở dữ liệu trên AWS.
-- Nắm được các phương pháp tối ưu chi phí và lựa chọn tài nguyên phù hợp.
-- Làm quen với công cụ phân tích dữ liệu chi phí và quy trình di chuyển ứng dụng nguyên khối.
-- Hiểu hơn về microservices, tự động phát hành ứng dụng và tái cấu trúc hệ thống.
+- Hiểu thêm về Amazon FSx, Data Lake và Amazon DynamoDB, cũng như cách tổ chức và quản lý dữ liệu trên AWS.
+- Nắm được các phương pháp tối ưu chi phí AWS, bao gồm lựa chọn gói tiết kiệm, phiên bản dành riêng và điều chỉnh cấu hình EC2 theo nhu cầu sử dụng.
+- Làm quen với AWS Glue và Amazon Athena trong phân tích dữ liệu chi phí, đồng thời tìm hiểu các vấn đề cơ bản khi di chuyển ứng dụng nguyên khối.
+- Hiểu hơn về kiến trúc microservices và quy trình tự động phát hành ứng dụng, bao gồm lợi ích của việc phân chia chức năng và tự động hóa triển khai.
+- Nắm được vai trò của việc tái cấu trúc dữ liệu và quy trình làm việc trong việc cải thiện khả năng bảo trì, nâng cấp và mở rộng hệ thống.
