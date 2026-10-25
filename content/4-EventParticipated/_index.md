@@ -5,7 +5,6 @@ weight: 4
 chapter: false
 pre: " <b> 4. </b> "
 ---
-
 > In this section, you should list and describe in detail the events you have participated in during your internship or work experience.
 >
 > Each event should be presented in the format Event 1, Event 2, Event 3…, along with the following details:
@@ -46,10 +45,10 @@ During my internship, I participated in three events. Each one was a memorable e
 
 ### [Event 3](4.3-Event3/)
 
-&emsp;**Event Name:** AWS Cloud & AI Day 2026: HCMC Watch Party
+&emsp;**Event Name:** Mini Meetup – First Cloud AI Journey
 
-&emsp;**Date & Time:** 08:00, September 29, 2026
+&emsp;**Date & Time:** 08:30, October 24, 2026
 
-&emsp;**Location:** AWS Office HCM
+&emsp;**Location: 26th Floor, Bitexco Tower, 02 Hai Trieu Street, Saigon Ward, Ho Chi Minh City**
 
 &emsp;**Role:** Attendee

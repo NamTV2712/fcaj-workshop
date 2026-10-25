@@ -5,7 +5,6 @@ weight: 4
 chapter: false
 pre: " <b> 4. </b> "
 ---
-
 > Trong phần này, các bạn cần liệt kê và mô tả chi tiết các sự kiện (event) mà mình đã tham gia trong suốt quá trình thực tập hoặc làm việc.
 >
 > Mỗi sự kiện nên được trình bày theo định dạng Event 1, Event 2, Event 3…, kèm theo các thông tin:
@@ -42,10 +41,10 @@ Trong quá trình thực tập, em đã tham gia 3 events, với mỗi event là
 
 ### [Event 3](4.3-Event3/)
 
-&emsp;**Tên sự kiện:** AWS Cloud & AI Day 2026: HCMC Watch Party
+&emsp;**Tên sự kiện:** Mini Meetup – First Cloud AI Journey
 
-&emsp;**Thời gian:** 08:00 ngày 29/09/2026
+&emsp;**Thời gian:** 08:30 ngày 24/10/2026
 
-&emsp;**Địa điểm:** AWS Office HCM
+&emsp;**Địa điểm:** Tầng 26, tòa nhà Bitexco, số 02 đường Hải Triều, phường Sài Gòn, thành phố Hồ Chí Minh
 
 &emsp;**Vai trò trong sự kiện:** Người tham dự

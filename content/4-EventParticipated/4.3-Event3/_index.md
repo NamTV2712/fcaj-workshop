@@ -1,300 +1,156 @@
 ---
 title: "Event 3"
-date: 2026-09-29
+date: 2026-10-24
 weight: 1
 chapter: false
 pre: " <b> 4.3. </b> "
 ---
 
-# Event Takeaways: "AWS Cloud & AI Day 2026: HCMC Watch Party"
+# Event Takeaways: "First Cloud AI Journey Meet Up"
 
 ### Event Objectives
 
-- Catch up on emerging trends in **Cloud Computing, Artificial Intelligence and Agentic AI**.
-- Learn how AWS and enterprises apply **AI Agents** to system development, modernization and operations.
-- Catch up on practical content from the **Builders x AI** track, focused on AI-driven software development.
-- Understand the role of AI across **Software Development Lifecycle (SDLC)** stages such as coding, security, deployment and troubleshooting.
-- Study frameworks, platforms and technologies supporting AI Agent development such as **LangGraph, Strands, Amazon Bedrock AgentCore and MCP Server**.
-- Gain additional perspectives on **Data Foundation, Cloud Modernization and AWS Local Zone** when building modern systems.
-- Network, exchange ideas and connect with the AWS Builders community, developers, solution architects and Cloud & AI enthusiasts in HCMC.
+- Explore practical applications of **Cloud Computing, Artificial Intelligence and AI Agents** through real-world industry presentations.
+- Learn how businesses use AWS services to build Voice AI systems, manage cloud resources and improve application security.
+- Understand approaches to deploying AI Agents in production, including runtime environments, memory management and security controls.
+- Explore how AI Agents can support software development, code review, system monitoring and automated workflows.
+- Gain practical insights from industry engineers and Tech Leads, and connect with the Cloud and AI community.
 
 ### Speakers
 
-The event brought together representatives from the Government, AWS, tech enterprises, partners and the builders community. Notable speakers and representatives included:
+The event featured five technical sessions delivered by engineers and technology leaders working in Cloud, AI and software development:
 
-- **Mr. Pham Duc Long** – Deputy Minister of Science and Technology.
-- **Ms. Jennifer Wicks** – U.S. Ambassador to Vietnam.
-- **Dr. Werner Vogels** – Chief Technology Officer (CTO), Amazon.com.
-- **Mr. Eric Yeo** – General Director of AWS Vietnam.
-- **Dr. Jens Lottner** – Chief Executive Officer (CEO), Techcombank.
-- **Ms. Mai Le** – Director of Product Management, Katalon.
-- **Dung Luong Tien** – AWS Student Builder Group UTC, speaker of **"Don't use a Ferrari to Get Pho" (DEV303)**.
-- **Nguyen Duc Manh** – Program Manager, AWS Student Builder Group UTC, speaker of **"Agent Harness & Agent Framework: Strands, LangGraph, Bedrock AgentCore" (DEV203)**.
+- **Kiet Tran** – Revve AI, speaker of **"Hear, Think, Speak – Building a Vietnamese Voice-AI Contact Center on AWS"**.
+- **Long Huynh** – Styl Solution, speaker of **"AWS Resource Access Manager"**.
+- **Thinh Nguyen** – Styl Solution, speaker of **"AWS Pentest with AWS Continuum / Security Agent"**.
+- **Xuan An** – Leader of AWS Student Builder Group HCMUTE, speaker of **"Amazon Bedrock AgentCore"**.
+- **Khoa Kieu** – Tech Lead at ACB, and **Nghi Danh** – AWS Community Builder, speakers of **"Kiro Crew"**.
 
-The event also featured:
-
-- **AWS Solution Architects and Senior Engineers**.
-- Experts and CTOs from **Renova Cloud**.
-- Technology experts from **Cloud Kinetics**.
-- Representatives from **VIB, VPBank, Trusting Social and Green SM**.
-- Solution consulting experts from **SoftwareOne**.
-
-At the HCMC hub, keynotes and technical sessions of **AWS Cloud & AI Day Vietnam 2026** were followed through the **HCMC Watch Party at AWS Office HCM**, combined with discussion and networking activities with the AWS Builders community in the southern region.
+The meet up took place from **9:00 AM to 12:00 PM on October 24, 2026**, on the 26th floor of Bitexco Financial Tower in Ho Chi Minh City.
 
 ### Key Highlights
 
-#### Opening Keynote
+#### Hear, Think, Speak – Building a Vietnamese Voice-AI Contact Center on AWS
 
-- Updates on **Cloud and AI** development trends.
-- The role of **Agentic AI Systems** in enterprise modernization and transformation.
-- Additional perspectives on digital infrastructure, Data Foundation and enterprise AI strategies.
-- How AWS helps enterprises build and deploy AI workloads on Cloud.
+- Explored the architecture of Voice AI systems built on AWS.
+- Learned about the importance of reducing latency to approximately **1.8 seconds** to make voice conversations feel more natural.
+- Observed a live demonstration of an AI system conducting an initial Cloud Engineer interview over a phone call in Vietnamese.
+- Gained a better understanding of the challenges involved in building real-time voice interactions.
 
-#### Building Software Like Never Before with Agentic AI
+#### AWS Resource Access Manager
 
-- The role of **Agentic AI** in software development.
-- AI Agents can help developers perform many tasks and workflows instead of just answering single questions.
-- Additional perspectives on taking AI Agents from experimentation to real-world production.
-- Recognized the potential of Agentic AI in automating repetitive work in software development.
+- Learned how **AWS Resource Access Manager (AWS RAM)** enables resources to be shared across accounts within an AWS Organization.
+- Explored how centralized resource sharing can simplify network administration and reduce unnecessary duplication.
+- Understood the relationship between IAM policies and Service Control Policies (SCPs) in managing access permissions.
+- Recognized the importance of defining permission boundaries and applying least-privilege principles in multi-account environments.
 
-#### From Sprints to AI-Native Delivery: TCBS' Transformation of SDLC
+#### AWS Pentest with AWS Continuum / Security Agent
 
-- The journey from traditional software development to **AI-Native Delivery**.
-- AI can be integrated into many different stages of the Software Development Lifecycle.
-- Practical perspectives on applying AI in enterprise environments and large systems.
-- The shift from **AI-assisted development** to **AI-driven development**.
+- Explored approaches to identifying security issues earlier in the software development process.
+- Learned how Terraform code can be reviewed and security checks can be integrated into GitLab/GitHub Pull Requests.
+- Discovered how Security Agents can help automate security testing in SIT/UAT environments before production deployment.
+- Understood the benefits of integrating security checks into development workflows instead of waiting until the final deployment stage.
 
-#### AWS Security Agent: Proactive AppSec from Design to Deployment
+#### Amazon Bedrock AgentCore
 
-- How AI is applied to **Application Security (AppSec)**.
-- Security can be introduced early at the design stage instead of only being checked after completion.
-- AI can help developers detect security issues from design through deployment.
-- Recognized the importance of combining AI with security in application development.
+- Explored **Amazon Bedrock AgentCore** and its role in supporting AI Agents in production environments.
+- Learned about AgentCore Runtime and the use of lightweight MicroVM environments on EC2 Spot to help optimize operating costs.
+- Studied the distinction between synchronous Short-term Memory and asynchronous Long-term Memory.
+- Understood how memory mechanisms help AI Agents retain relevant information and maintain context across interactions.
+- Recognized that deploying AI Agents requires more than an LLM; runtime infrastructure, memory, security and operational controls are also important.
 
-#### Tackling Anti-patterns with AI-Driven Development Lifecycle (AI-DLC)
+#### Kiro Crew
 
-- Issues and anti-patterns that can arise when bringing AI into software development.
-- The concept of **AI-Driven Development Lifecycle (AI-DLC)**.
-- Using AI effectively requires clear workflows, scope and control mechanisms.
-- AI should not be fully depended upon; automation must be combined with human validation.
-
-#### Supercharging AI Coding with MCP Servers and Your Knowledge Servers
-
-- The role of **MCP Servers** in AI Coding.
-- MCP helps AI connect to tools, data and external knowledge sources.
-- Knowledge Servers can provide enterprise- or project-specific context to AI.
-- The importance of context when building AI Coding Assistants or AI Agents.
-- More direction on using MCP to build AI systems that interact with many different tools.
-
-#### From Symptom to Source: AI-Driven Root Cause Analysis in Minutes
-
-- How AI can support **Root Cause Analysis**.
-- AI can analyze information from multiple sources to help identify incident causes.
-- Potential to reduce troubleshooting time in system operations.
-- AI can participate in monitoring and operations, not just development.
-
-#### Agent Frameworks and Agent Harness
-
-- Technologies and frameworks supporting AI Agent development:
-  - **Strands**.
-  - **LangGraph**.
-  - **Amazon Bedrock AgentCore**.
-
-- The role of Agent Frameworks in:
-  - Workflow orchestration.
-  - State management.
-  - Tool connections.
-  - Organizing AI Agent reasoning and execution.
-
-- Building AI Agents depends not only on Large Language Models but also on proper architecture and orchestration systems.
-
-#### Data Foundation and Cloud Modernization
-
-- The role of **Data Foundation** when deploying AI systems.
-- Data must be well organized, managed and standardized to support AI applications.
-- How Cloud helps enterprises modernize workloads and build scalable architectures.
-- Perspectives on combining Cloud, Data and AI in digital transformation.
-
-#### AWS Local Zones and real-world use cases
-
-- The role of AWS Local Zones for low-latency workloads.
-- Typical application groups include:
-  - Banking – Finance.
-  - Fintech.
-  - Realtime gaming.
-  - AI inference.
-  * Applications that process data close to users.
-
-- Perspectives on choosing the right infrastructure based on application latency requirements.
-
-#### Networking and practical discussions
-
-- Exchanging ideas on taking **AI Agents from prototype to real production environments**.
-- Discussing AI Coding, Cloud and cost optimization topics.
-- Further exchanges on challenges of integrating AI into current workflows.
-- Connecting with the AWS Builders community, developers and tech experts in HCMC.
+- Explored how AI Agents can operate continuously to support code reviews and system checks.
+- Learned how Kiro Crew can create Artifacts by gathering real-world data, organizing information and generating visualizations directly in the chat interface.
+- Studied **Context Window management**, including Auto Compact when context usage reaches approximately 70–90%.
+- Learned about breaking down context usage to examine token consumption across different components.
+- Explored Memory management techniques to remove outdated information and avoid unnecessary context growth.
+- Understood the importance of Guardrails to prevent dangerous actions, protect infrastructure and reduce the risk of exposing secrets or server credentials.
 
 ### What I Learned
 
-#### Agentic AI
+#### Voice AI and Real-Time Applications
 
-- Clearer understanding of the difference between regular AI chatbots and **Agentic AI**.
-- AI Agents can use tools, access knowledge and execute multi-step workflows.
-- Agentic AI can participate in many stages of software development and operations.
-- Building AI Agents requires clearly defined scope, tools, data and control mechanisms.
+- Voice AI systems must balance response quality, latency and the natural flow of conversations.
+- Real-time applications require careful consideration of the entire interaction pipeline, not just the underlying AI model.
+- Practical demonstrations helped me understand how AI can be applied to customer support and recruitment workflows.
+
+#### AWS Resource Management and Security
+
+- AWS RAM supports resource sharing across accounts, helping simplify administration in multi-account environments.
+- IAM policies and SCPs serve different purposes and can work together to establish appropriate access restrictions.
+- Security checks can be integrated into development workflows to identify potential issues before deployment.
+- Automated security testing can help teams identify risks earlier and reduce reliance on purely manual checks.
 
 #### AI Agent Architecture
 
-Understood that a real-world AI Agent system consists of much more than an LLM:
+A production-ready AI Agent requires more than a Large Language Model. Important components include:
 
-- Large Language Model.
-- Agent Framework.
-- Tools.
-- External APIs.
-- Knowledge Sources.
-- Context Management.
-- Memory.
-- Security.
-- Monitoring.
-- Human validation.
+- **LLM:** Processes requests and generates responses.
+- **Runtime:** Provides an environment in which the Agent can execute.
+- **Tools and APIs:** Allow the Agent to interact with external systems.
+- **Memory and Context:** Help retain relevant information across interactions.
+- **Security and Guardrails:** Restrict unsafe operations and protect sensitive resources.
+- **Monitoring and Cost Management:** Help track usage, performance and operating expenses.
 
-Gained additional knowledge of frameworks and platforms such as:
+I gained additional insight into how Agent runtime and memory systems support reliable AI applications in production.
 
-- LangGraph.
-- Strands.
-- Amazon Bedrock AgentCore.
-- MCP Server.
+#### AI Coding and Context Management
 
-#### AI in the Software Development Lifecycle
-
-AI can be applied across the SDLC:
-
-- Planning.
-- Development.
-- Coding.
-- Testing.
-- Security.
-- Delivery.
-- Deployment.
-- Monitoring.
-- Troubleshooting.
-
-The shift from traditional Software Development Lifecycle to **AI-Native / AI-Driven Development Lifecycle**.
-
-#### AI Coding and MCP
-
-- The role of **Model Context Protocol (MCP)** in connecting AI with tools and data sources.
-- MCP can help AI Coding Assistants access project context and external systems.
-- Context and knowledge quality greatly affect AI assistance capabilities.
-- More direction for researching MCP for future AI Agent projects.
-
-#### AI Security
-
-- How AI can support Application Security.
-- Security should be considered from the design stage.
-- AI can help detect security issues during development and deployment.
-- When building AI Agents, access rights, data and security must all be addressed.
-
-#### AI in system operations
-
-- The potential of AI in **Root Cause Analysis**.
-- AI can analyze logs, metrics and system information to support troubleshooting.
-- AI can be used in monitoring and operations, not limited to coding.
-
-#### Data and Cloud Infrastructure
-
-- The role of Data Foundation for AI systems.
-- Good AI needs quality data and suitable infrastructure architecture.
-- The role of Cloud in providing scalability and flexibility.
-- Perspectives on low-latency workloads and using AWS Local Zones.
+- AI Agents can assist with recurring software development tasks, including code review and system checks.
+- Context Window management is important because excessive context can increase token usage and operating costs.
+- Memory should be organized and maintained instead of retaining every piece of information indefinitely.
+- Guardrails are necessary when AI Agents can execute tools or interact with infrastructure.
+- AI automation should be designed with clear boundaries and appropriate human oversight.
 
 ### Applying to Work
 
-- Research applying **AI Agents** to current projects instead of only using conventional Q&A models.
-- Consider Agent Frameworks such as **LangGraph or Strands** to organize Agent workflows.
-- Research **Amazon Bedrock AgentCore** when building AI Agents on AWS.
-- Explore using **MCP Servers** to connect AI Agents with:
-  - Tools.
-  - APIs.
-  - Databases.
-  - Knowledge Bases.
-  - External systems.
-
-- Design AI workflows with clear scope and boundary.
-- Build human validation mechanisms for critical tasks.
-- Pay attention to security and access rights when Agents can use tools.
-- Explore bringing AI into more development lifecycle stages:
-  - Coding.
-  - Testing.
-  - Security.
-  - Deployment.
-  - Monitoring.
-
-- Apply an **AI-Native Development** mindset when building new projects.
-- Focus on Data Foundation when developing AI-powered applications.
-- Consider observability and troubleshooting from system design stages.
-- Continue researching AWS services that support deploying, scaling and operating AI workloads.
+- Explore using AI Agents to support code review, issue investigation and automated checks in software development projects.
+- Research AWS multi-account access management and apply least-privilege principles when designing cloud infrastructure.
+- Investigate how automated security checks can be integrated into GitHub/GitLab workflows.
+- Explore **Amazon Bedrock AgentCore** and other Agent runtime options when designing AI Agents for production environments.
+- Consider memory and context management strategies to control token consumption and maintain relevant information.
+- Design Guardrails and permission controls before allowing AI Agents to execute sensitive operations.
+- Evaluate AI solutions based on reliability, latency, security and operating costs, rather than focusing only on response quality.
 
 ### Event Experience
 
-Attending **AWS Cloud & AI Day 2026: HCMC Watch Party** at AWS Office HCM was a rewarding experience, helping me catch up on many Cloud and AI trends, especially **Agentic AI, AI-Native Software Development and AI-driven Development Lifecycle**.
+Attending the **First Cloud AI Journey Meet Up** at Bitexco Financial Tower was a valuable learning experience. The five sessions covered practical challenges in Voice AI, AWS resource management, security automation, AI Agent infrastructure and AI-assisted software development.
 
-#### Following in-depth content
+#### Learning from Real-World Applications
 
-- Followed the Opening Keynote and technical sessions of AWS Cloud & AI Day Vietnam 2026.
-- Sessions went beyond AI Coding into Agentic AI, security, software development lifecycle and operations.
-- I gained perspectives on how deeply AI is being integrated into system development and operations.
+- The Voice AI demonstration showed how AI can support natural, real-time interactions in practical business scenarios.
+- The AWS RAM and Security Agent sessions highlighted the importance of access control and security throughout the development process.
+- The Amazon Bedrock AgentCore session provided a clearer view of the infrastructure and memory mechanisms needed to operate AI Agents in production.
+- The Kiro Crew session was especially interesting because it demonstrated how AI Agents can assist with continuous code review and system checks.
 
-#### Learning more about Agentic AI
+#### Understanding Production Challenges
 
-- Agentic AI was one of the event highlights.
-- Learned how AI Agents can use tools and execute complex workflows instead of just generating content.
-- Gained perspectives on the components needed to take AI Agents from prototype to production.
-- This helps orient my future research and Agentic AI projects.
+- Building an AI Agent involves more than connecting an LLM to a prompt; runtime, memory, tools and security must also be considered.
+- Context Window and Memory management affect both system quality and operating costs.
+- Agents that can interact with real systems need clear permissions and safeguards to prevent unintended actions.
+- Automated workflows should be designed to balance efficiency with reliability and human control.
 
-#### Approaching Agent Frameworks and MCP
+#### Networking and Personal Development
 
-- Content on **Strands, LangGraph, Amazon Bedrock AgentCore and MCP Server** clarified modern AI Agent architecture.
-- The model is only one part of the system; Agents also need tool integration, context, knowledge and orchestration.
-- MCP is a technology worth watching for connecting AI Agents with external systems.
+- The meet up gave me an opportunity to learn from engineers and Tech Leads working on real-world Cloud and AI solutions.
+- The technical discussions encouraged me to explore AI Agent architecture and production deployment in greater depth.
+- The experience also reminded me to be more proactive in networking, asking questions and exchanging ideas with the technology community.
 
-#### Perspectives on AI in the SDLC
+#### Lessons Learned
 
-- AI can support much more than code generation.
-- AI is being integrated into security, deployment, monitoring and troubleshooting.
-- AI is becoming a component across the entire Software Development Lifecycle.
+- **AI Agents need more than a model:** runtime, tools, memory, security and monitoring are all important parts of the system.
+- **Low latency matters:** real-time applications must provide responses quickly enough to support natural user interactions.
+- **Security should be integrated early:** automated checks and appropriate access controls help reduce risks before deployment.
+- **Context and Memory require management:** retaining relevant information while controlling token usage is an important design consideration.
+- **Automation requires guardrails:** AI Agents should operate within clearly defined permissions and boundaries.
+- **Production readiness involves trade-offs:** reliability, security, cost and performance must be considered together.
 
-#### Connecting and exchanging ideas
+### Some Event Photos
 
-- Networking breaks enabled exchanges with the AWS Builders community in HCMC.
-- Opportunities to discuss AI Agents, Cloud, AI Coding and real-world AI deployment issues.
-- Direct exchanges provided perspectives beyond the technical sessions.
+![First Cloud AI Journey Meet Up (first person from the right)](/images/4-Event/event3-photo1.jpg)
 
-#### Lessons learned
+*First Cloud AI Journey Meet Up (first person from the right).*
 
-- **An AI Agent is not just an LLM** — it combines model, tools, knowledge, workflow and infrastructure.
-- Agentic AI can automate many workflows but needs clear scope and control mechanisms.
-- Agent Frameworks play a key role in organizing and orchestrating AI Agent activity.
-- MCP and Knowledge Integration are components worth watching when building Agents that work with real systems.
-- AI is gradually becoming part of the entire **Software Development Lifecycle**, not limited to coding.
-- Security and observability must be considered alongside AI automation capabilities.
-- Data Foundation and Cloud Infrastructure are critical foundations when deploying AI at scale.
-- Bringing AI into production requires balancing:
-  - Automation capability.
-  - Accuracy.
-  - Security.
-  - Cost.
-  - Reliability.
-  - Controllability.
-
-### Some event photos
-
-![Group photo at the event (3rd person from the photographer in that row)](/images/4-Event/event2-photo1.jpg)
-
-*Group photo at the event (3rd person from the photographer in that row).*
-
-![Group photo at the event (person sitting at the far right end of the front row)](/images/4-Event/event2-photo2.jpg)
-
-*Group photo at the event (person sitting at the far right end of the front row).*
-
-> Overall, **AWS Cloud & AI Day 2026: HCMC Watch Party** not only updated me on Cloud and AI trends but also deepened my understanding of Agentic AI and AI-Native Software Development. Through sharing sessions and networking, I gained knowledge of AI Agent architecture, Agent Frameworks, MCP Server, AI Security, Data Foundation and AI-driven operations. This also helps me better identify technologies to keep researching and apply to future projects.
+> Overall, the First Cloud AI Journey Meet Up helped me connect technical concepts with real-world applications in Cloud and AI. The sessions broadened my understanding of Voice AI, AWS security, Agent runtime architecture and AI-assisted software development. I also gained a stronger appreciation for context management, security guardrails and cost optimization when deploying AI Agents in production. Most importantly, the event motivated me to keep learning, connect with the community and apply these insights to future projects.
