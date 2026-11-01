@@ -1,160 +1,187 @@
 ---
-title: "Amazon Transcribe vs OpenAI Whisper: Which Speech-to-Text Solution Fits Vietnamese?"
+title: "Blog 1"
 date: 2026-10-22
 weight: 1
 chapter: false
 pre: " <b> 3.1. </b> "
 ---
 
-# Amazon Transcribe vs OpenAI Whisper: Which Speech-to-Text Solution Fits Vietnamese?
+# Amazon Transcribe vs OpenAI Whisper: Which Speech-to-Text Solution Is Better Suited to Vietnamese?
 
-Speech-to-text (STT) is one of the most practical applications of AI in customer support, meeting transcription, media accessibility, and voice-driven workflows. For Vietnamese – a tonal language with six tones, rich diacritics, and code-switching patterns – choosing the right STT service affects both accuracy and operating cost.
+**Published: October 22, 2026**
 
-This post compares **Amazon Transcribe**, a fully managed AWS speech recognition service, with **OpenAI Whisper**, an open-source automatic speech recognition model that can be self-hosted or accessed via API. The comparison is based on Vietnamese language support, deployment models, pricing, AWS integration, and objective evaluation metrics such as Word Error Rate (WER) and Character Error Rate (CER).
+Speech-to-Text technology is increasingly common, from automatic video captions and meeting transcripts to customer support call analysis. Two notable solutions are Amazon Transcribe and OpenAI Whisper. Both convert audio into text, but they differ significantly in their deployment models, capabilities, and costs.
 
----
+These differences are particularly relevant for Vietnamese, a tonal language with regional accents and frequent mixing of Vietnamese and English technical terms.
 
-## Amazon Transcribe: Managed Speech Recognition on AWS
+This article compares the two options in terms of speech recognition, Vietnamese support, deployment costs, and practical use cases.
 
-Amazon Transcribe is an AWS service that converts speech to text using deep learning models. It offers batch transcription for pre-recorded audio and streaming transcription for real-time applications.
+## 1. Overview of Amazon Transcribe and OpenAI Whisper
 
-### Key features relevant to Vietnamese
+**Amazon Transcribe**
 
-* **Language support**: Amazon Transcribe supports Vietnamese (`vi-VN`) for both batch and streaming transcription.
-* **Automatic language identification**: Can detect the dominant language in an audio file, useful for Vietnamese-English code-switching.
-* **Speaker diarization**: Labels who spoke when, helpful for meeting and call center transcripts.
-* **Custom vocabulary**: Allows you to add domain-specific terms (product names, technical jargon) to improve recognition accuracy.
-* **PII redaction**: Automatically redacts personally identifiable information from transcripts.
-* **Channels**: Supports multi-channel audio and telephone call audio (8 kHz telephony models).
+Amazon Transcribe is an Automatic Speech Recognition (ASR) service from AWS. It converts audio into text without requiring developers to build or operate their own machine learning model.
 
-### Deployment and integration
+As a fully managed service, AWS maintains the underlying infrastructure and speech recognition system. The application provides audio input and the necessary processing configuration.
 
-Because Amazon Transcribe is a fully managed AWS service, you can call it directly from:
+Amazon Transcribe offers two main processing modes:
 
-* AWS Management Console
-* AWS CLI and AWS SDKs (Python/Boto3, Java, Node.js, etc.)
-* AWS Lambda for serverless event-driven transcription
-* Amazon S3 event notifications to trigger transcription on file upload
+- **Batch Transcription:** Transcribes existing audio recordings.
+- **Streaming Transcription:** Transcribes incoming audio with near-real-time results.
 
-### Pricing model
+Depending on the language, the service also provides features such as Custom Vocabulary, Speaker Diarization, and Language Identification.
 
-Amazon Transcribe charges per second of audio processed, with different tiers for standard, medical, and telephony models. For Vietnamese standard batch transcription, pricing is typically in the range of a few USD per hour of audio, with a free tier available for new accounts (up to 60 minutes per month for the first 12 months).
+Its ability to integrate with Amazon S3, AWS Lambda, Amazon CloudWatch, and other AWS services makes it useful for automated audio-processing workflows.
 
----
+**OpenAI Whisper**
 
-## OpenAI Whisper: Open-Source Speech Recognition
+Whisper is an open-source speech recognition model introduced by OpenAI in 2022. It uses a Transformer architecture and was trained on approximately 680,000 hours of multilingual audio.
 
-Whisper is an open-source automatic speech recognition model trained on 680,000 hours of multilingual and multitask supervised data. It is known for strong robustness to accents, background noise, and technical language.
+Whisper supports multilingual speech transcription, language detection, and translation of speech into English.
 
-### Key features
+It is available in several model sizes, including Tiny, Base, Small, Medium, Large, and Turbo, with different compute requirements and performance trade-offs.
 
-* **Model sizes**: Tiny, Base, Small, Medium, Large-v1, Large-v2, Large-v3. Larger models offer higher accuracy at the cost of higher compute and latency.
-* **Vietnamese support**: Whisper includes Vietnamese in its training data and generally performs well on Vietnamese speech, though accuracy varies by model size and audio quality.
-* **Translation**: Whisper can translate non-English speech directly into English text.
-* **Self-hosted**: You run Whisper on your own infrastructure (EC2, ECS, EKS, or on-premises GPU/CPU), giving you full control over data privacy.
+Unlike Amazon Transcribe, the open-source model can run locally or on cloud infrastructure such as Amazon EC2.
 
-### Deployment considerations
+This gives developers control over the runtime environment, model selection, and data processing. In exchange, they must manage the computing resources, dependencies, and application infrastructure themselves.
 
-Running Whisper in production requires:
+## 2. Vietnamese speech recognition capabilities
 
-* **Compute**: GPU instances (e.g., AWS EC2 G4dn or G5) are recommended for real-time or near-real-time transcription. CPU-only inference is possible but significantly slower.
-* **Model management**: You are responsible for downloading, caching, and updating model weights.
-* **Infrastructure**: You need to build the API layer, queueing (e.g., Amazon SQS), worker scaling, and logging yourself.
+Vietnamese is a tonal language with regional accents. Conversations, especially in technology teams, may also mix Vietnamese with English terminology. Noisy recordings and unclear pronunciation make accurate transcription more difficult.
 
-Whisper via the OpenAI API is also an option, but it sends audio data to OpenAI’s infrastructure, which may not meet data residency or compliance requirements for some Vietnamese enterprises.
+**Vietnamese support in Amazon Transcribe**
 
----
+According to AWS documentation referenced for this post, Amazon Transcribe supports Vietnamese (`vi-VN`) in both batch and streaming modes.
 
-## Direct comparison for Vietnamese
+Custom Vocabulary is useful for adding names and domain-specific terminology to improve recognition.
 
-| Criterion | Amazon Transcribe | OpenAI Whisper (self-hosted) |
-|-----------|-------------------|------------------------------|
-| **Vietnamese support** | Native `vi-VN` model, actively maintained by AWS | Included in multilingual training; strong but community-dependent |
-| **Deployment** | Fully managed SaaS; no infrastructure to operate | Self-managed on EC2/ECS/EKS; you operate the stack |
-| **Setup time** | Minutes (API call or Console) | Hours to days (environment, model, scaling) |
-| **Accuracy (Vietnamese)** | Good for clear telephony and broadcast audio | Very good with Large-v3, especially on noisy or accented audio |
-| **Customization** | Custom vocabulary, language ID, PII redaction | Fine-tuning possible but requires ML expertise and data |
-| **Pricing** | Pay-per-second audio; predictable monthly cost | Infrastructure cost (GPU hours) + your engineering time |
-| **Latency** | Streaming API available for real-time use cases | Depends on instance type and model size; real-time needs GPU |
-| **Data residency** | Data stays within your chosen AWS Region | You control where data is processed and stored |
-| **Maintenance** | AWS handles model updates and scaling | You handle patches, scaling, and model versioning |
+However, Vietnamese was not supported by Amazon Transcribe's automatic Language Identification feature in the referenced language support table. Applications processing Vietnamese audio should therefore specify `vi-VN` explicitly.
 
----
+Custom Language Models and some advanced analysis features were also unavailable for Vietnamese in that language support information at the time of publication.
 
-## Example: Batch transcription with AWS CLI
+**Vietnamese support in Whisper**
 
-If your audio files are already in Amazon S3, you can start a transcription job with the AWS CLI:
+Whisper supports Vietnamese through its multilingual models. It can detect the input language or be configured to use a specified language.
 
-```bash
-aws transcribe start-transcription-job \
-    --transcription-job-name vi-meeting-2026-10-22 \
-    --language-code vi-VN \
-    --media MediaFileUri=s3://your-bucket/audio/meeting.mp3 \
-    --output-bucket-name your-bucket \
-    --settings ShowSpeakerLabels=true,MaxSpeakerLabels=5
-```
+Its diverse audio training data provides a basis for handling various speakers and recording conditions, although the model does not produce perfect results in every setting.
 
-Then retrieve the transcript:
+For example, consider the sentence:
 
-```bash
-aws transcribe get-transcription-job \
-    --transcription-job-name vi-meeting-2026-10-22
-```
+> "Hôm nay sẽ deploy ứng dụng lên Amazon EC2, sau đó cấu hình Security Group và kết nối với RDS."
 
-The result is a JSON file containing the transcript, confidence scores, and speaker labels.
+English technical terms such as "deploy", "Security Group", and "RDS" may be misrecognized when pronunciation is unclear or background noise is present.
 
----
+With Amazon Transcribe, Custom Vocabulary is one possible way to improve recognition of technical expressions. With Whisper, developers can experiment with different model sizes and context prompts where supported.
 
-## Example: Transcribing with Whisper in Python
+Without a common benchmark dataset, however, it would be misleading to claim that either system is consistently more accurate for Vietnamese. The comparison should cover northern, central, and southern accents, audio quality, and different speaking scenarios.
 
-If you prefer Whisper on an EC2 GPU instance:
+## 3. Deployment cost comparison
 
-```python
-import whisper
+Cost matters, particularly for applications that process hundreds or thousands of hours of audio.
 
-model = whisper.load_model("large-v3")
-result = model.transcribe("meeting.mp3", language="vi")
-print(result["text"])
-```
+**Amazon Transcribe**
 
-For production, you would wrap this in a FastAPI service, run it on an Auto Scaling group of GPU instances, and place an Application Load Balancer or Amazon API Gateway in front.
+Amazon Transcribe uses pay-as-you-go pricing based on the processed audio duration.
 
----
+Using an illustrative first-tier Standard Transcription rate of **USD 0.024 per minute** in US East (N. Virginia), processing ten hours of audio would cost approximately **USD 14.40**.
 
-## Suggested AWS architecture
+Actual charges depend on AWS Region, pricing tiers, optional features, and additional services such as storage.
 
-For a production Vietnamese transcription pipeline on AWS, a common pattern is:
+A key benefit is that the application does not have to keep a GPU server running or manage the ASR model. This can be valuable when workloads are irregular.
 
-1. **Amazon S3**: Store raw audio files (WAV, MP3, MP4).
-2. **S3 Event Notification**: Trigger an AWS Lambda function when a new audio file is uploaded.
-3. **AWS Lambda**: Call Amazon Transcribe `StartTranscriptionJob` or push a message to Amazon SQS.
-4. **Amazon Transcribe**: Perform batch or streaming transcription.
-5. **Amazon DynamoDB**: Store job metadata, transcript URIs, and confidence metrics.
-6. **Amazon CloudWatch**: Monitor job success/failure, latency, and cost.
-7. **Amazon SNS**: Notify stakeholders when transcription is complete.
+**OpenAI Whisper**
 
-If you choose Whisper, replace Step 4 with an Auto Scaling group of GPU-backed EC2 instances running a Whisper inference API, with SQS buffering transcription jobs.
+The open-source Whisper model has no model license fee, but inference still requires computing resources.
 
----
+When deployed on Amazon EC2, costs depend on instance type, runtime duration, storage, and performance requirements.
 
-## When to choose which
+Whisper can run on CPUs, but larger models typically require more compute. GPUs can speed up inference in many scenarios, at the cost of more expensive infrastructure.
 
-**Choose Amazon Transcribe when:**
-* You want a fully managed service with minimal operational overhead.
-* Your data must remain within AWS and comply with regional data residency rules.
-* You need speaker diarization, PII redaction, or custom vocabulary out of the box.
-* You are already building on AWS and want tight integration with S3, Lambda, and CloudWatch.
+For applications processing just a few recordings each day, keeping a GPU instance online continuously may be inefficient. On the other hand, existing infrastructure or instances that can be started only when needed may make self-hosting worthwhile.
 
-**Choose OpenAI Whisper when:**
-* You need the highest possible accuracy on noisy, accented, or technical Vietnamese audio and are willing to use Large-v3.
-* You require full control over model versioning and data processing location.
-* You already operate GPU infrastructure and have ML engineering capacity to maintain it.
-* You want to avoid per-second API pricing for very high audio volumes.
+The open-source model should not be confused with the hosted OpenAI Whisper API. The `whisper-1` API is a separately billed service, and OpenAI announced its discontinuation for February 26, 2027. This does not discontinue the open-source Whisper model.
 
----
+A fair cost comparison therefore needs to include compute, storage, operations, maintenance, and scalability—not just a price per audio minute.
 
-## Conclusion
+## 4. Practical use case: turning lectures into text
 
-For most teams building production Vietnamese speech-to-text on AWS, **Amazon Transcribe** is the pragmatic starting point: it is managed, integrates natively with the AWS ecosystem, and offers predictable pricing. **OpenAI Whisper Large-v3** is a strong alternative when you need maximum accuracy on challenging audio and have the infrastructure and ML expertise to self-host it.
+A useful Speech-to-Text application is a service that automatically converts recorded lectures to searchable transcripts. Students can look up key passages, extract information, or generate summaries rather than listening to the entire recording again.
 
-The best choice ultimately depends on your accuracy requirements, audio quality, budget, and team’s operational capacity. Many teams start with Transcribe to validate the use case, then evaluate Whisper if they need to squeeze out additional accuracy or reduce per-minute costs at very high scale.
+Both Amazon Transcribe and Whisper can support this workflow.
+
+**Option A: Amazon Transcribe**
+
+The architecture can combine Amazon S3, AWS Lambda, and Amazon Transcribe:
+
+1. A user uploads an audio file to Amazon S3.
+2. The upload event triggers AWS Lambda.
+3. Lambda starts a Transcription Job with the language code `vi-VN`.
+4. Amazon Transcribe processes the audio and produces the transcript.
+5. The transcript is stored in S3 for the application to retrieve.
+
+This approach uses managed AWS services and requires no self-hosted speech recognition model.
+
+**Option B: Whisper on Amazon EC2**
+
+The architecture can combine Amazon S3, Amazon SQS, and Amazon EC2:
+
+1. An audio recording is uploaded to S3.
+2. A processing request is sent to an Amazon SQS queue.
+3. An EC2 worker receives the request and downloads the audio.
+4. Whisper transcribes the recording into Vietnamese text.
+5. The result is saved to Amazon S3.
+
+The second option requires direct control of the inference environment, but makes it possible to choose the Whisper version, configure compute resources, and optimize the pipeline.
+
+Either solution could later include automatic lecture summarization using an LLM through Amazon Bedrock.
+
+## 5. How should accuracy be evaluated?
+
+A few individual recordings are not enough to evaluate a Speech-to-Text system fairly.
+
+A useful test dataset could include:
+
+- Recordings of speakers from different Vietnamese regions.
+- Clear recordings and recordings with background noise.
+- Everyday conversations and conversations containing technical vocabulary.
+
+The same dataset should then be processed by both services and compared against human-verified reference transcripts.
+
+Two common evaluation metrics are:
+
+**Word Error Rate (WER):** Measures recognition errors at the word level compared with a reference transcript.
+
+**Character Error Rate (CER):** Measures recognition errors at the character level.
+
+Lower values generally indicate better recognition under the selected metric. For Vietnamese, a consistent text normalization procedure is important before calculating the scores.
+
+Processing time, cost per audio hour, and operational complexity should also be considered. A small accuracy gain may not justify substantially higher infrastructure costs for every application.
+
+## 6. When should each solution be considered?
+
+Amazon Transcribe is a practical option for applications already using AWS, especially when the goal is to deliver a speech transcription feature quickly without maintaining the ML infrastructure.
+
+Its near-real-time Vietnamese streaming support and integration with other AWS services are significant advantages.
+
+Self-hosted Whisper is worth considering for research, custom inference workflows, or environments where direct control of model deployment and data handling is important.
+
+However, hardware requirements and ongoing operations should be evaluated carefully before choosing a self-hosted deployment.
+
+## 7. Conclusion
+
+Amazon Transcribe and OpenAI Whisper address the same Speech-to-Text problem with different approaches.
+
+Amazon Transcribe provides a managed recognition service, reducing deployment and operations work. The open-source Whisper model offers greater flexibility and control over the runtime and model configuration.
+
+Both support Vietnamese, but comparative accuracy needs to be tested on the same input data rather than assumed.
+
+The right decision depends on transcript quality, cost, performance, scalability, and operational requirements. A useful next step would be to benchmark both solutions against a Vietnamese dataset containing multiple regional accents and recording conditions.
+
+## References
+
+1. [Amazon Transcribe – Documentation](https://docs.aws.amazon.com/transcribe/)
+2. [Amazon Transcribe – Supported Languages](https://docs.aws.amazon.com/transcribe/latest/dg/supported-languages.html)
+3. [Amazon Transcribe – Pricing](https://aws.amazon.com/transcribe/pricing/)
+4. [OpenAI Whisper – GitHub Repository](https://github.com/openai/whisper)
+5. [OpenAI – Introducing Whisper](https://openai.com/index/whisper/)
+6. [OpenAI API – Speech-to-Text](https://developers.openai.com/api/docs/guides/speech-to-text)
