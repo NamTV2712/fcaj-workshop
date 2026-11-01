@@ -1,19 +1,27 @@
 ---
 title: "Blogs Posted"
-date: 2024-01-01
+date: 2026-10-22
 weight: 3
 chapter: false
 pre: " <b> 3. </b> "
 ---
 
+This section summarizes three technical blog posts shared with the AWS Study Group community. The posts discuss speech recognition for Vietnamese, an event-driven workflow for extracting meeting tasks, and real-time voice agents on AWS.
 
-This section will list and introduce the blogs you have posted to [AWS Study Group](https://www.facebook.com/groups/awsstudygroupfcj). For example:
+### [Blog 1 - Amazon Transcribe vs OpenAI Whisper: Which Speech-to-Text Solution Fits Vietnamese?](3.1-Blog1/)
 
-###  [Blog 1 - SESSION POLICIES IN AMAZON EKS POD IDENTITY](3.1-Blog1/)
-This blog introduces the newly added session policies feature in Amazon EKS Pod Identity, which allows you to narrow IAM permissions flexibly and precisely for each pod without needing to create multiple separate IAM roles. This is an important step forward that helps apply the principle of least privilege more effectively in large-scale Kubernetes environments.
+**Posted on October 22, 2026.** A comparison of Amazon Transcribe and OpenAI Whisper, focusing on Vietnamese speech recognition, deployment models, operating costs, practical AWS architectures, and objective evaluation methods such as WER and CER.
 
-###  [Blog 2 - ...](3.2-Blog2/)
-This blog introduces the newly added session policies feature in Amazon EKS Pod Identity, which allows you to narrow IAM permissions flexibly and precisely for each pod without needing to create multiple separate IAM roles. This is an important step forward that helps apply the principle of least privilege more effectively in large-scale Kubernetes environments.
+![Blog 1: Amazon Transcribe and OpenAI Whisper](/images/3-BlogsPosted/Blog1.jpg)
 
-###  [Blog 3 - ...](3.3-Blog3/)
-This blog introduces the newly added session policies feature in Amazon EKS Pod Identity, which allows you to narrow IAM permissions flexibly and precisely for each pod without needing to create multiple separate IAM roles. This is an important step forward that helps apply the principle of least privilege more effectively in large-scale Kubernetes environments.
+### [Blog 2 - From Meeting Transcripts to Notion Tasks with DynamoDB Streams, Lambda and Bedrock](3.2-Blog2/)
+
+**Posted on October 28, 2026.** An event-driven architecture that reacts when a meeting ends, extracts action items from the transcript using Amazon Bedrock, and creates structured tasks in Notion. The post also discusses idempotency and human confirmation.
+
+![Blog 2: Meeting transcript automation](/images/3-BlogsPosted/Blog2.jpg)
+
+### [Blog 3 - Amazon Nova 2.5 Sonic: From Voice Assistants to Task-Performing Voice Agents](3.3-Blog3/)
+
+**Posted on October 28, 2026.** An overview of Amazon Nova 2.5 Sonic and its real-time speech-to-speech capabilities, tool calling, barge-in support, and possible integration with Amazon Bedrock AgentCore and other AWS services.
+
+![Blog 3: Amazon Nova 2.5 Sonic](/images/3-BlogsPosted/Blog3.jpg)
