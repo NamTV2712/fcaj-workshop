@@ -5,10 +5,7 @@ weight: 2
 chapter: false
 pre: " <b> 3.2. </b> "
 ---
-
 # Từ Bản transcript Cuộc họp sang Nhiệm vụ Notion: Khi DynamoDB Streams, Lambda và Bedrock Làm Cùng Nhau
-
-**Đăng ngày: 28/10/2026**
 
 Có một bản transcript hoàn chỉnh sau một cuộc họp không nhất thiết có nghĩa là vấn đề theo dõi đã được giải quyết. Một bản transcript có thể chứa hàng nghìn từ, trong khi thông tin hữu ích nhất thường đơn giản hơn nhiều: Ai phụ trách nhiệm vụ nào? Hạn chót là khi nào? Mục tiêu hành động nào vẫn cần quan tâm?
 
@@ -60,7 +57,7 @@ Sau khi nhận phản hồi, Lambda xác thực dữ liệu và gọi Notion API
 
 ---
 
-![Hình 2. Các mảnh luồng DynamoDB Stream và xử lý sự kiện AWS Lambda. Nguồn: AWS Database Blog.]( /images/3-BlogsPosted/Blog2_2.jpg)
+![Hình 2. Các mảnh luồng DynamoDB Stream và xử lý sự kiện AWS Lambda. Nguồn: AWS Database Blog.](/images/3-BlogsPosted/Blog2_2.jpg)
 
 *Hình 2. Các mảnh luồng DynamoDB Stream và xử lý sự kiện AWS Lambda. Nguồn: AWS Database Blog.*
 
@@ -70,8 +67,8 @@ Sau khi nhận phản hồi, Lambda xác thực dữ liệu và gọi Notion API
 
 Khi một cuộc họp kết thúc, một mục được ghi (hoặc cập nhật) trong một bảng DynamoDB gọi là `Meetings`:
 
-| meeting_id (PK) | status | transcript_s3_url | created_at |
-|-----------------|--------|-------------------|------------|
+| meeting_id (PK)    | status    | transcript_s3_url                    | created_at           |
+| ------------------ | --------- | ------------------------------------ | -------------------- |
 | mtg-2026-10-28-001 | completed | s3://meeting-transcripts/mtg-001.txt | 2026-10-28T10:00:00Z |
 
 Trường `status` chuyển từ `pending` sang `completed`. DynamoDB Streams bắt nắm sự thay đổi này.
@@ -203,13 +200,13 @@ def lambda_handler(event, context):
 
 ## 5. Tính idempotency và xác nhận của con người
 
-| Lo | Cách xử lý |
-|-----|-------------|
-| Xử lý trùng lặp | Bảng DynamoDB lưu `processed_meeting_ids`; Lambda kiểm tra trước khi tạo Notion tasks. |
-| Stream gửi lại | Cùng `meeting_id` tạo ra cùng các nhiệm vụ được đề xuất; Ghi Notion bị khóa bước trước khi xác nhận. |
+| Lo                    | Cách xử lý                                                                                                                         |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Xử lý trùng lặp   | Bảng DynamoDB lưu `processed_meeting_ids`; Lambda kiểm tra trước khi tạo Notion tasks.                                        |
+| Stream gửi lại      | Cùng `meeting_id` tạo ra cùng các nhiệm vụ được đề xuất; Ghi Notion bị khóa bước trước khi xác nhận.            |
 | Tạo nhầm nhiệm vụ | Bước xem xét của con người cho phép người phê duyệt chỉnh sửa hoặc từ chối các mục trước khi chúng đến Notion. |
-| Thất bại một phần | Các nhiệm vụ được đề xuất được lưu trong DynamoDB trước; Ghi Notion là một bước riêng biệt, có thể thử lại. |
-| LLM bị ảo giác | Các trường không được hỗ trợ rõ ràng bởi transcript nên được để trống thay vì bị suy luận. |
+| Thất bại một phần | Các nhiệm vụ được đề xuất được lưu trong DynamoDB trước; Ghi Notion là một bước riêng biệt, có thể thử lại.  |
+| LLM bị ảo giác     | Các trường không được hỗ trợ rõ ràng bởi transcript nên được để trống thay vì bị suy luận.                      |
 
 ---
 
@@ -228,6 +225,7 @@ def lambda_handler(event, context):
 Mô hình tương tự có thể được mở rộng cho:
 
 * **Jira, Asana, Trello, hoặc ClickUp**: Thay thế lệnh gọi Notion API bằng lệnh gọi API của công cụ quản lý nhiệm vụ tương ứng.
+
 - **Email transcripts**: Thay thế S3 + DynamoDB bằng một SES inbound email handler.
 - **Call center transcripts**: Thay thế bản ghi âm cuộc họp bằng các bản ghi cuộc gọi trung tâm chăm sóc khách hàng từ Amazon Connect.
 - **Báo cáo định kỳ**: Thêm một Lambda quét hàng tuần quét tất cả các mục `pending_review` và gửi một tóm tắt email.

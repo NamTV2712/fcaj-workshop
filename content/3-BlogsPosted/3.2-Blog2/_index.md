@@ -5,10 +5,7 @@ weight: 2
 chapter: false
 pre: " <b> 3.2. </b> "
 ---
-
 # From Meeting Transcripts to Notion Tasks: When DynamoDB Streams, Lambda, and Bedrock Work Together
-
-**Published: October 28, 2026**
 
 Having a complete transcript after a meeting does not necessarily solve the follow-up problem. A transcript might contain thousands of words, while the most useful information is often much simpler: Who is responsible for which task? What is the deadline? Which action items still need attention?
 
@@ -66,8 +63,8 @@ After receiving the response, Lambda validates the data and calls the Notion API
 
 When a meeting finishes, an item is written (or updated) in a DynamoDB table called `Meetings`:
 
-| meeting_id (PK) | status | transcript_s3_url | created_at |
-|-----------------|--------|-------------------|------------|
+| meeting_id (PK)    | status    | transcript_s3_url                    | created_at           |
+| ------------------ | --------- | ------------------------------------ | -------------------- |
 | mtg-2026-10-28-001 | completed | s3://meeting-transcripts/mtg-001.txt | 2026-10-28T10:00:00Z |
 
 The `status` field moves from `pending` to `completed`. DynamoDB Streams captures this change.
@@ -118,7 +115,7 @@ To avoid creating duplicate tasks if the Lambda is retried or the stream event i
 
 ---
 
-![Figure 2. DynamoDB stream shards and AWS Lambda event processing. Source: AWS Database Blog.]( /images/3-BlogsPosted/Blog2_2.jpg)
+![Figure 2. DynamoDB stream shards and AWS Lambda event processing. Source: AWS Database Blog.](/images/3-BlogsPosted/Blog2_2.jpg)
 
 *Figure 2. DynamoDB stream shards and AWS Lambda event processing. Source: AWS Database Blog.*
 
@@ -203,13 +200,13 @@ def lambda_handler(event, context):
 
 ## 4. Idempotency and Human Confirmation
 
-| Concern | How it is handled |
-|---------|-------------------|
-| Duplicate processing | DynamoDB table stores `processed_meeting_ids`; Lambda checks before creating Notion tasks. |
-| Stream redelivery | Same `meeting_id` produces the same proposed tasks; Notion creation is gated behind confirmation. |
-| Wrong task created | Human review step lets an approver edit or reject items before they reach Notion. |
-| Partial failure | Proposed tasks are stored in DynamoDB first; Notion creation is a separate, retryable step. |
-| LLM hallucination | Fields not clearly supported by the transcript remain empty rather than being inferred. |
+| Concern              | How it is handled                                                                                   |
+| -------------------- | --------------------------------------------------------------------------------------------------- |
+| Duplicate processing | DynamoDB table stores `processed_meeting_ids`; Lambda checks before creating Notion tasks.        |
+| Stream redelivery    | Same `meeting_id` produces the same proposed tasks; Notion creation is gated behind confirmation. |
+| Wrong task created   | Human review step lets an approver edit or reject items before they reach Notion.                   |
+| Partial failure      | Proposed tasks are stored in DynamoDB first; Notion creation is a separate, retryable step.         |
+| LLM hallucination    | Fields not clearly supported by the transcript remain empty rather than being inferred.             |
 
 ---
 

@@ -5,10 +5,7 @@ weight: 1
 chapter: false
 pre: " <b> 3.1. </b> "
 ---
-
 # Amazon Transcribe vs OpenAI Whisper: Giải pháp Nhận dạng Giọng nói-Văn bản nào phù hợp hơn với tiếng Việt?
-
-**Đăng ngày: 22/10/2026**
 
 Công nghệ Speech-to-Text (STT) ngày càng phổ biến, từ ghi chú video tự động và phiên cuộc họp đến phân tích cuộc gọi chăm sóc khách hàng. Hai giải pháp đáng chú ý là Amazon Transcribe và OpenAI Whisper. Cả hai đều chuyển đổi âm thanh thành văn bản, nhưng chúng khác biệt đáng kể về mô hình triển khai, khả năng, cấu trúc giá cả và yêu cầu vận hành.
 
@@ -51,7 +48,7 @@ Không giống như Amazon Transcribe, mô hình mã nguồn mở có thể ch�
 
 ---
 
-![Hình 2. Kiến trúc mã hóa-giải mã Transformer của OpenAI Whisper cho nhận dạng giọng nói đa ngôn ngữ. Nguồn: OpenAI GitHub.]( /images/3-BlogsPosted/Blog1_2.jpg)
+![Hình 2. Kiến trúc mã hóa-giải mã Transformer của OpenAI Whisper cho nhận dạng giọng nói đa ngôn ngữ. Nguồn: OpenAI GitHub.](/images/3-BlogsPosted/Blog1_2.jpg)
 
 *Hình 2. Kiến trúc mã hóa-giải mã Transformer của OpenAI Whisper cho nhận dạng giọng nói đa ngôn ngữ. Nguồn: OpenAI GitHub.*
 
@@ -117,14 +114,14 @@ Vì vậy, một so sánh giá công bằng cần bao gồm tính toán, lưu tr
 
 ### Bảng tóm tắt
 
-| Yếu tố | Amazon Transcribe | OpenAI Whisper (tự triển khai) |
-|--------|-------------------|------------------------------|
-| Mô hình giá | Trả mỗi phút âm thanh | Chi phí máy chủ tính toán + thời gian kỹ thuật |
-| Cơ sở hạ tầng | Được quản lý hoàn toàn bởi AWS | Tự quản lý trên EC2/ECS/EKS |
-| GPU yêu cầu | Không | Khuyến khích cho mô hình lớn |
-| Mở rộng | Tự động | Thủ công hoặc nhóm mở rộng tự động |
-| Cập nhật mô hình | Được quản lý bởi AWS | Quản lý phiên bản thủ công |
-| Tư duy dữ liệu | Có thể cấu hình Vùng AWS | Kiểm soát hoàn toàn nơi triển khai |
+| Yếu tố             | Amazon Transcribe                      | OpenAI Whisper (tự triển khai)                       |
+| -------------------- | -------------------------------------- | ------------------------------------------------------ |
+| Mô hình giá       | Trả mỗi phút âm thanh              | Chi phí máy chủ tính toán + thời gian kỹ thuật |
+| Cơ sở hạ tầng    | Được quản lý hoàn toàn bởi AWS | Tự quản lý trên EC2/ECS/EKS                        |
+| GPU yêu cầu        | Không                                 | Khuyến khích cho mô hình lớn                      |
+| Mở rộng            | Tự động                             | Thủ công hoặc nhóm mở rộng tự động            |
+| Cập nhật mô hình | Được quản lý bởi AWS             | Quản lý phiên bản thủ công                       |
+| Tư duy dữ liệu    | Có thể cấu hình Vùng AWS          | Kiểm soát hoàn toàn nơi triển khai               |
 
 ---
 
