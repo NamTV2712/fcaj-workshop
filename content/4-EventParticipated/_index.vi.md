@@ -17,7 +17,7 @@ pre: " <b> 4. </b> "
 > * Kết quả hoặc giá trị đạt được (bài học, kỹ năng mới, đóng góp cho nhóm/dự án)
 > * Việc liệt kê này giúp thể hiện rõ sự tham gia thực tế của bạn, cũng như các kỹ năng mềm và kinh nghiệm bạn đã tích lũy qua từng sự kiện.
 
-Trong quá trình thực tập, em đã tham gia 3 events, với mỗi event là một trải nghiệm đáng nhớ với những kiến thức mới, hay và bổ ích, cùng với đó là nhứng món quà và những khoảnh khắc rất tuyệt vời.
+Trong quá trình thực tập, em đã tham gia 4 events, với mỗi event là một trải nghiệm đáng nhớ với những kiến thức mới, hay và bổ ích, cùng với đó là nhứng món quà và những khoảnh khắc rất tuyệt vời.
 
 ### [Event 1](4.1-Event1/)
 
@@ -44,6 +44,17 @@ Trong quá trình thực tập, em đã tham gia 3 events, với mỗi event là
 &emsp;**Tên sự kiện:** Mini Meetup – First Cloud AI Journey
 
 &emsp;**Thời gian:** 08:30 ngày 24/10/2026
+
+&emsp;**Địa điểm:** Tầng 26, tòa nhà Bitexco, số 02 đường Hải Triều, phường Sài Gòn, thành phố Hồ Chí Minh
+
+&emsp;**Vai trò trong sự kiện:** Người tham dự
+
+
+### [Event 4](4.4-Event4/)
+
+&emsp;**Tên sự kiện:** AWS First Cloud AI Journey Community Day
+
+&emsp;**Thời gian:** 09:00 ngày 31/10/2026
 
 &emsp;**Địa điểm:** Tầng 26, tòa nhà Bitexco, số 02 đường Hải Triều, phường Sài Gòn, thành phố Hồ Chí Minh
 

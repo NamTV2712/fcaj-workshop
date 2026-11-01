@@ -1,154 +1,155 @@
 ---
 title: "Event 4"
-date: 2026-10-24
+date: 2026-10-31
 weight: 1
 chapter: false
 pre: " <b> 4.4. </b> "
 ---
 
-# Bản thu hoạch: "First Cloud AI Journey Meet Up"
+# Bản thu hoạch: "AWS First Cloud AI Journey Community Day"
 
 ### Mục tiêu sự kiện
 
-- Khám phá các ứng dụng thực tế của **Điện toán đám mây, Trí tuệ nhân tạo và AI Agent** thông qua các bài trình bày ngành công nghiệp thực tế.
-- Hiểu cách các doanh nghiệp sử dụng các dịch vụ AWS để xây dựng hệ thống Voice AI, quản lý tài nguyên đám mây và cải thiện bảo mật ứng dụng.
-- Tìm hiểu các cách triển khai AI Agent vào sản xuất, bao gồm thời gian chạy, quản lý bộ nhớ và kiểm soát bảo mật.
-- Khám phá cách AI Agent có thể hỗ trợ phát triển phần mềm, đánh giá mã, theo dõi hệ thống và quy trình tự động hóa.
-- Nhận những thông tin thực tế từ các kỹ sư ngành và Tech Lead, và kết nối với cộng đồng Đám mây và AI.
+- Hiểu cách các nhóm kỹ thuật tiếp cận phát triển phần mềm quy mô lớn, bao gồm những thách thức thực tế khi xây dựng các Software Factories.
+- Khám phá các kỹ năng sinh viên cần thiết để nối kết giữa học thuật và công việc thực tế về Cloud và kỹ thuật phần mềm.
+- Tìm hiểu các ý kiến trong phiên AWS Lambda Web Functions, đặc biệt về xử lý HTTP, đồng thời xử lý yêu cầu, hiệu suất và cân nhắc chi phí.
+- Khám phá cách Amazon Simple Queue Service (Amazon SQS) có thể tách rời các thành phần và hỗ trợ thiết kế hệ thống bất đồng bộ.
+- Học từ hành trình thực tập AWS và tìm hiểu cách bắt đầu và duy trì đóng góp vào các dự án mã nguồn mở.
+- Kết nối các chủ đề kỹ thuật với các dự án Cloud trong tương lai và phát triển sự nghiệp.
 
 ### Diễn giả
 
-Sự kiện có năm phiên kỹ thuật do các kỹ sư và lãnh đạo công nghệ làm việc trong Đám mây, AI và phát triển phần mềm trình bày:
+Bộ 사이트 sự kiện giới thiệu sáu diễn giả từ doanh nghiệp và cộng đồng FCAJ:
 
-- **Kiet Tran** – Revve AI, diễn giả của phiên **"Hear, Think, Speak – Xây dựng Trung tâm Liên lạc Voice-AI tiếng Việt trên AWS"**.
-- **Long Huynh** – Styl Solution, diễn giả của phiên **"AWS Resource Access Manager"**.
-- **Thinh Nguyen** – Styl Solution, diễn giả của phiên **"AWS Pentest với AWS Continuum / Security Agent"**.
-- **Xuan An** – Trưởng AWS Student Builder Group HCMUTE, diễn giả của phiên **"Amazon Bedrock AgentCore"**.
-- **Khoa Kieu** – Tech Lead tại ACB, và **Nghi Danh** – AWS Community Builder, diễn giả của phiên **"Kiro Crew"**.
+- Thinh Nguyen – STYL Solutions.
+- Henry Duc Bui – CloudThinker.
+- Hung Tran – NAB.
+- Dao Cu Long – FCAJ.
+- Khang Duong – FCAJ.
+- Tuan Tran – FCAJ.
 
-Cuộc gặp gỡ diễn ra từ **9:00 sáng đến 12:00 trưa ngày 24 tháng 10 năm 2026**, ở tầng 26 của Bitexco Financial Tower tại Thành phố Hồ Chí Minh.
+Sự kiện được lên lịch từ 9:00 sáng đến 12:00 trưa ngày Thứ Bảy, 31 tháng 10 năm 2026, tại tầng 26 của Bitexco Financial Tower, 2 đường Hải Triều, Thành phố Hồ Chí Minh.
 
 ### Nội dung nổi bật
 
-#### Hear, Think, Speak – Xây dựng Trung tâm Liên lạc Voice-AI tiếng Việt trên AWS
+#### Bài học rút ra từ việc xây dựng các Software Factories (9:00–9:25 AM)
 
-- Khám phá kiến trúc của hệ thống Voice AI được xây dựng trên AWS.
-- Hiểu tầm quan trọng của việc giảm độ trễ xuống khoảng **1,8 giây** để cuộc trò chuyện bằng giọng nói trở nên tự nhiên hơn.
-- Quan sát một bản trình diễn trực tiếp của hệ thống AI tiến hành phỏng vấn ban đầu cho vị trí Kỹ sư Đám mây qua cuộc gọi điện thoại bằng tiếng Việt.
-- Nắm rõ hơn những thách thức khi xây dựng tương tác giọng nói thời gian thực.
+- Phiên tập trung vào các bài học thực tế từ việc xây dựng các Software Factories quy mô lớn thay vì coi việc phân phối phần mềm là chuỗi các nhiệm vụ lập trình tách biệt.
+- Lịch trình của phiên nhấn mạnh những bẫy triển khai phổ biến và tầm quan trọng của việc xác định các phương pháp hoạt động trong các nhóm kỹ thuật thực tế.
+- Một chủ đề hữu ích để nghiên cứu thêm là cách các quy trình làm việc chuẩn hóa, tự động hóa và vòng phản hồi hỗ trợ phân phối phần mềm có thể dự đoán.
+- Phiên cung cấp lý do để xem xét khả năng bảo trì và trải nghiệm của nhà phát triển bên cạnh tốc độ triển khai.
 
-#### AWS Resource Access Manager
+#### Giáo dục (9:30–9:55 AM)
 
-- Hiểu cách **AWS Resource Access Manager (AWS RAM)** cho phép chia sẻ tài nguyên giữa các tài khoản trong một AWS Organization.
-- Khám phá cách chia sẻ tài nguyên tập trung có thể đơn giản hóa quản lý mạng và giảm bớt sự trùng lặp không cần thiết.
-- Hiểu mối quan hệ giữa chính sách IAM và Chính sách Kiểm soát Dịch vụ (SCP) trong quản lý quyền truy cập.
-- Nhận thấy tầm quan trọng của việc xác định ranh giới quyền và áp dụng nguyên tắc quyền tối thiểu trong môi trường đa tài khoản.
+- Phiên này xem xét cách sinh viên có thể chuẩn bị cho sự nghiệp Cloud và kỹ thuật phần mềm từ góc độ của nhà giáo dục.
+- Nó giải quyết khoảng cách giữa học tập đại học và kỳ vọng tại nơi làm việc.
+- Cơ sở kỹ thuật, dự án thực hành, giao tiếp và giải quyết vấn đề độc lập là tất cả các lĩnh vực liên quan mà sinh viên nên suy ngẫm.
+- Chủ đề thảo luận nhấn mạnh rằng hoàn thành các bài hướng dẫn khác nhau với việc giải thích quyết định thiết kế và làm việc trong nhóm.
 
-#### AWS Pentest với AWS Continuum / Security Agent
+#### AWS Lambda Web Functions: Rethinking Serverless Web Architecture (10:00–10:25 AM)
 
-- Khám phá các cách tiếp cận để xác định các vấn đề bảo mật sớm hơn trong quá trình phát triển phần mềm.
-- Hiểu cách mã Terraform có thể được xem xét và kiểm tra bảo mật có thể được tích hợp vào Pull Requests của GitLab/GitHub.
-- Khám phá cách Security Agent có thể giúp tự động hóa kiểm tra bảo mật trong môi trường SIT/UAT trước khi triển khai sản xuất.
-- Hiểu lợi ích của việc tích hợp kiểm tra bảo mật vào quy trình phát triển thay vì chờ đến giai đoạn triển khai cuối cùng.
+- Phiên giới thiệu một cách tiếp cận đối với các ứng dụng web Serverless liên quan đến hỗ trợ HTTP gốc và đa-tranh xử lý lên đến 128 yêu cầu, như được mô tả trong lịch trình sự kiện.
+- Nó đặt ra câu hỏi về khi nào một cách tiếp cận Serverless có thể giảm chi phí chuyển đổiAdapter so với các mô hình triển khai thay thế.
+- Active CPU Billing đã được đưa vào làm chủ đề phân tích hiệu quả chi phí thay vì chỉ xét số lần gọi.
+- Đánh giá điểm chuẩn hiệu suất so với các khối công việc dựa trên bộ chứa trên Amazon EC2 hoặc Amazon ECS là một phần trong phạm vi phiên đã công bố.
+- Câu hỏi kiến trúc chính là cách độ trễ, mô hình yêu cầu, hành vi mở rộng và chi phí vận hành tổng thể ảnh hưởng đến việc chọn nền tảng.
 
-#### Amazon Bedrock AgentCore
+#### Amazon SQS: Xây dựng các hệ thống bất đồng bộ (10:30–11:00 AM)
 
-- Khám phá **Amazon Bedrock AgentCore** và vai trò của nó trong việc hỗ trợ AI Agent trong môi trường sản xuất.
-- Học về AgentCore Runtime và việc sử dụng môi trường MicroVM nhẹ trên EC2 Spot để giúp tối ưu hóa chi phí vận hành.
-- Nghiên cứu sự phân biệt giữa Bộ nhớ Ngắn hạn Đồng bộ và Bộ nhớ Dài hạn Bất đồng bộ.
-- Hiểu cách các cơ chế bộ nhớ giúp AI Agent giữ lại thông tin liên quan và duy trì bối cảnh trong các tương tác.
-- Nhận thấy rằng việc triển khai AI Agent đòi hỏi nhiều hơn một LLM; cơ sở hạ tầng thời gian chạy, bộ nhớ, bảo mật và kiểm soát vận hành cũng quan trọng.
+- Amazon SQS được trình bày là một khối xây dựng cho xử lý bất đồng bộ và tách rời các dịch vụ.
+- Hàng đợi cho phép công việc được đệm thay vì yêu cầu mỗi yêu cầu phải được hoàn thành ngay lập tức bởi thành phần phía dưới.
+- Thiết kế thực tế cần tính đến các lần thử lại, thời gian tầm nhìn, tin nhắn trùng lặp và hàng đợi thư mục thư từ khi thích hợp.
+- Một ví dụ là ứng dụng xử lý tệp: dịch vụ tải lên nhận một tệp, trong khi các công nhân độc lập xử lý các tác vụ được xếp hàng.
+- Chủ đề phiên minh họa cách thiết kế bất đồng bộ có thể cải thiện khả năng phục hồi và giúp hệ thống xử lý các khối lượng công việc biến động.
 
-#### Kiro Crew
+#### Hành trình thực tập AWS 3 tháng của tôi (11:00–11:25 AM)
 
-- Khám phá cách AI Agent có thể hoạt động liên tục để hỗ trợ đánh giá mã và kiểm tra hệ thống.
-- Hiểu cách Kiro Crew có thể tạo Artifacts bằng cách thu thập dữ liệu thực tế, tổ chức thông tin và tạo trực tiếp các trực quan hóa trong giao diện chat.
-- Nghiên cứu **Quản lý Cửa sổ Bối cảnh**, bao gồm Tự động Thu gọn khi mức sử dụng bối cảnh đạt khoảng 70–90%.
-- Học về việc phân tích mức sử dụng bối cảnh để xem xét mức tiêu thụ token trên các thành phần khác nhau.
-- Khám phá các kỹ thuật quản lý Bộ nhớ để xóa thông tin cũ và tránh sự tăng trưởng bối cảnh không cần thiết.
-- Hiểu tầm quan trọng của Guardrails để ngăn chặn các hành động nguy hiểm, bảo vệ cơ sở hạ tầng và giảm nguy cơ lộ bí mật hoặc thông tin đăng nhập máy chủ.
+- Phiên chia sẻ góc nhìn thực tập ba tháng, bao gồm việc sử dụng các dịch vụ AWS trong một dự án thực tế.
+- Một bài học liên quan là kết nối các bài tập kỹ thuật với các mục tiêu dự án rõ ràng và các kết quả có thể đo lường.
+- Các dự án Cloud liên quan nhiều hơn là khởi chạy tài nguyên: bảo mật, giám sát, tài liệu, chi phí và khắc phục sự cố cũng quan trọng.
+- Phiên cung cấp bối cảnh hữu ích để xem xét tiến độ học tập và chuẩn bị cho sự chuyển đổi từ các dự án đại học sang công việc chuyên nghiệp.
+
+#### Bắt đầu & Giữ tính nhất quán với đóng góp mã nguồn mở (11:30 AM–12:00 PM)
+
+- Phiên tập trung vào cách bắt đầu đóng góp vào các dự án mã nguồn mở và duy trì một thói quen đóng góp nhất quán.
+- Đóng góp có thể bắt đầu với tài liệu, sao chép vấn đề, sửa lỗi nhỏ hoặc thử nghiệm thay vì triển khai các tính năng lớn.
+- Xem xét các hướng dẫn đóng góp và làm việc với nhánh Git và các pull requests là các kỹ năng thực tế để phát triển.
+- Đóng góp thường xuyên, có thể quản lý được có thể giúp xây dựng sự quen thuộc với phát triển phần mềm cộng tác và đánh giá mã.
 
 ### Những gì tôi học được
 
-#### Voice AI và Ứng dụng Thời gian Thực
+#### Kỹ thuật phần mềm và chuẩn bị sự nghiệp
 
-- Hệ thống Voice AI phải cân bằng chất lượng phản hồi, độ trễ và dòng tự nhiên của cuộc trò chuyện.
-- Các ứng dụng thời gian thực yêu cầu sự cân nhắc kỹ lưỡng đối với toàn bộ pipeline tương tác, không chỉ mô hình AI cơ bản.
-- Các bản trình diễn thực tế giúp tôi hiểu cách AI có thể được áp dụng vào quy trình hỗ trợ khách hàng và tuyển dụng.
+- Quy trình phân phối phần mềm bền vững cần các quy ước rõ ràng, quy trình làm việc lặp lại và phản hồi, không chỉ lập trình nhanh hơn.
+- Kỹ năng kỹ thuật phát triển khi các khái niệm học thuật được áp dụng vào các hệ thống thực tế và những điều đánh đổi của chúng có thể được giải thích.
+- Các dự án thực tập nên được ghi chép với mục tiêu, kiến trúc, quyết định kỹ thuật và kết quả của chúng.
 
-#### Quản lý Tài nguyên và Bảo mật AWS
+#### Kiến trúc Serverless và nhận thức về chi phí
 
-- AWS RAM hỗ trợ chia sẻ tài nguyên giữa các tài khoản, giúp đơn giản hóa quản lý trong môi trường đa tài khoản.
-- Chính sách IAM và SCP phục vụ những mục đích khác nhau và có thể hoạt động cùng nhau để thiết lập các hạn chế truy cập phù hợp.
-- Kiểm tra bảo mật có thể được tích hợp vào quy trình phát triển để xác định các vấn đề tiềm ẩn trước khi triển khai.
-- Kiểm tra bảo mật tự động có thể giúp các nhóm xác định rủi ro sớm hơn và giảm sự phụ thuộc vào các kiểm tra thủ công thuần túy.
+- Các lựa chọn thiết kế Serverless nên được đánh giá bằng các đặc điểm khối lượng công việc như khối lượng yêu cầu, thời gian thực thi, đồng thời xử lý và độ trễ.
+- Các điểm chuẩn hiệu suất cần các điều kiện so sánh trước khi kết luận có thể được rút ra về AWS Lambda, EC2 hoặc ECS.
+- Phân tích chi phí nên bao gồm nhiều hơn mức chi phí tính toán được quảng cáo: các dịch vụ hỗ trợ, chi phí vận hành và dung lượng انتظار có thể ảnh hưởng đến kết quả cuối cùng.
+- Các tuyên bố Lambda Web Functions trong lịch trình là những điểm khởi đầu hữu ích để xem xét tài liệu thêm và xác thực thực hành.
 
-#### Kiến trúc AI Agent
+#### Xử lý bất đồng bộ với Amazon SQS
 
-Một AI Agent sẵn sàng sản xuất đòi hỏi nhiều hơn một Mô hình Ngôn ngữ Lớn. Các thành phần quan trọng bao gồm:
+- Một hàng đợi tách biệt tốc độ yêu cầu đến từ tốc độ công nhân xử lý chúng.
+- Nhà sản xuất và người tiêu dùng có thể được mở rộng và triển khai độc lập khi ứng dụng được thiết kế quanh một hàng đợi.
+- Khả năng phục hồi yêu cầu xử lý cân nhắc các lần thử lại, tính nhất quán, tin nhắn thất bại và theo dõi độ sâu hàng đợi.
+- Xử lý bất đồng bộ đặc biệt quan trọng đối với các khối lượng công việc như chuyển đổi video, thông báo nền và phiên âm âm thanh.
 
-- **LLM:** Xử lý yêu cầu và tạo phản hồi.
-- **Runtime:** Cung cấp môi trường mà Agent có thể thực thi.
-- **Công cụ và API:** Cho phép Agent tương tác với các hệ thống bên ngoài.
-- **Bộ nhớ và Bối cảnh:** Giúp giữ lại thông tin liên quan qua các tương tác.
-- **Bảo mật và Guardrails:** Hạn chế các hoạt động không an toàn và bảo vệ tài nguyên nhạy cảm.
-- **Giám sát và Quản lý chi phí:** Giúp theo dõi việc sử dụng, hiệu suất và chi phí vận hành.
+#### Mã nguồn mở và học tập liên tục
 
-Tôi có thêm nhận thức về cách hệ thống thời gian chạy và bộ nhớ của Agent hỗ trợ các ứng dụng AI tin cậy trong sản xuất.
+- Đóng góp nhỏ, nhất quán là một cách thực tế để có kinh nghiệm với các mã nguồn thực tế.
+- Việc đọc mã và tài liệu hiện có là một phần quan trọng của việc đóng góp hiệu quả.
+- Sự tăng trưởng kỹ thuật cũng phụ thuộc vào giao tiếp, cộng tác và thói quen đánh giá bài học từ công việc đã hoàn thành.
 
-#### AI Coding và Quản lý Bối cảnh
+### Ứng dụng vào công việc
 
-- AI Agent có thể hỗ trợ các tác vụ phát triển phần mềm lặp đi lặp lại, bao gồm đánh giá mã và kiểm tra hệ thống.
-- Quản lý Cửa sổ Bối cảnh rất quan trọng vì bối cảnh quá nhiều có thể tăng mức tiêu thụ token và chi phí vận hành.
-- Bộ nhớ nên được tổ chức và duy trì thay vì giữ mọi thông tin vô thời hạn.
-- Guardrails là cần thiết khi AI Agent có thể thực thi các công cụ hoặc tương tác với cơ sở hạ tầng.
-- Tự động hóa AI nên được thiết kế với các ranh giới rõ ràng và sự giám sát của con người thích hợp.
-
-### Ứng Dụng Vào Công Việc
-
-- Khám phá việc sử dụng AI Agent để hỗ trợ đánh giá mã, điều tra vấn đề và các kiểm tra tự động trong các dự án phát triển phần mềm.
-- Nghiên cứu quản lý truy cập đa tài khoản AWS và áp dụng nguyên tắc quyền tối thiểu khi thiết kế cơ sở hạ tầng đám mây.
-- Đào tạo cách các kiểm tra bảo mật tự động có thể được tích hợp vào quy trình làm việc GitHub/GitLab.
-- Khám phá **Amazon Bedrock AgentCore** và các tùy chọn thời gian chạy Agent khác khi thiết kế AI Agent cho môi trường sản xuất.
-- Xem xét các chiến lược quản lý bộ nhớ và bối cảnh để kiểm soát mức tiêu thụ token và duy trì thông tin liên quan.
-- Thiết kế Guardrails và kiểm soát quyền trước khi cho phép AI Agent thực thi các thao tác nhạy cảm.
-- Đánh giá các giải pháp AI dựa trên độ tin cậy, độ trễ, bảo mật và chi phí vận hành, chứ không chỉ tập trung vào chất lượng phản hồi.
+- Xem xét quy trình phát triển dự án để tìm cơ hội tự động hóa kiểm tra, xây dựng, triển khai và tài liệu.
+- So sánh các lựa chọn triển khai Serverless và EC2/ECS bằng các mô hình yêu cầu thực tế, mục tiêu độ trễ và giả định chi phí.
+- Khám phá Amazon SQS cho các tác vụ bất đồng bộ không cần hoàn thành trong yêu cầu HTTP hướng người dùng.
+- Thiết kế công nhân nền với xử lý thử lại, thời gian tầm nhìn, tính nhất quán và chính sách hàng đợi thư mục thư từ.
+- Áp dụng các chủ đề kỹ thuật Cloud của sự kiện vào tài liệu dự án: giải thích kiến trúc, quyền, giám sát và những điều đánh đổi vận hành.
+- Xây dựng thói quen học tập mã nguồn opened bền vững, bắt đầu với các đóng góp nhỏ có thể xem xét.
 
 ### Trải nghiệm sự kiện
 
-Tham gia **First Cloud AI Journey Meet Up** tại Bitexco Financial Tower là một trải nghiệm học tập có giá trị. Năm phiên đã bao quát các thách thức thực tế về Voice AI, quản lý tài nguyên AWS, tự động hóa bảo mật, cơ sở hạ tầng AI Agent và phát triển phần mềm hỗ trợ bằng AI.
+AWS First Cloud AI Journey Community Day đã kết hợp kỹ thuật phần mềm, kiến trúc Cloud và phát triển sự nghiệp vào một buổi sáng. Chương trình kết hợp quan điểm ngành công nghiệp với các phiên liên quan đến sinh viên chuẩn bị cho vai trò Cloud và phát triển phần mềm.
 
-#### Học từ Các Ứng dụng Thực tế
+#### Kết nối kiến trúc với quyết định thực tế
 
-- Bản trình diễn Voice AI đã cho thấy cách AI có thể hỗ trợ các tương tác thời gian thực tự nhiên trong các kịch bản kinh doanh thực tế.
-- Các phiên AWS RAM và Security Agent đã nhấn mạnh tầm quan trọng của kiểm soát truy cập và bảo mật trong suốt quá trình phát triển.
-- Phiên Amazon Bedrock AgentCore đã cung cấp cái nhìn rõ ràng hơn về cơ sở hạ tầng và cơ chế bộ nhớ cần thiết để vận hành AI Agent trong sản xuất.
-- Phiên Kiro Crew rất thú vị vì đã chứng minh cách AI Agent có thể hỗ trợ đánh giá mã liên tục và kiểm tra hệ thống.
+- Phiên Software Factories đặt ra các câu hỏi về các quy trình cần thiết để phát triển và duy trì phần mềm ở quy mô lớn.
+- Chủ đề AWS Lambda Web Functions kết nối kiến trúc Serverless với đo lường hiệu suất và đánh giá chi phí.
+- Chủ đề Amazon SQS cho thấy tại sao các mẫu giao tiếp quan trọng khi các ứng dụng phát triển quá một dịch vụ duy nhất.
 
-#### Hiểu Nhiều Về Những Thách thức trong Sản xuất
+#### Kết nối việc học với thực hành chuyên nghiệp
 
-- Xây dựng một AI Agent liên quan nhiều hơn việc kết nối một LLM với một câu lệnh; thời gian chạy, bộ nhớ, công cụ và bảo mật cũng phải được xem xét.
-- Cửa sổ Bối cảnh và Bộ nhớ ảnh hưởng cả đến chất lượng hệ thống và chi phí vận hành.
-- Các Agent có thể tương tác với các hệ thống thực tế cần có quyền và biện pháp bảo vệ rõ ràng để ngăn chặn các hành động không mong muốn.
-- Các quy trình làm việc tự động nên được thiết kế để cân bằng giữa hiệu quả, độ tin cậy và sự điều khiển của con người.
+- Các phiên Giáo dục và thực tập nhấn mạnh tầm quan trọng của việc học thực hành và giải thích các lựa chọn kỹ thuật.
+- Chủ đề mã nguồn mở cung cấp một hướng đi cụ thể để thực hành các quy trình làm việc nhóm bên ngoài lớp học.
+- Cùng nhau, những chủ đề này khuyến khích sự cân bằng giữa độ sâu kỹ thuật và sự phát triển chuyên nghiệp ổn định.
 
-#### Kết nối và Phát triển Cá nhân
+#### Kết nối và phát triển cá nhân
 
-- Cuộc gặp gỡ đã tạo cơ hội để tôi học hỏi từ các kỹ sư và Tech Lead đang làm việc trên các giải pháp Đám mây và AI thực tế.
-- Các cuộc thảo luận kỹ thuật đã khuyến khích tôi khám phá sâu hơn về kiến trúc AI Agent và triển khai sản xuất.
-- Trải nghiệm cũng nhắc nhở tôi phải chủ động hơn trong việc kết nối, đặt câu hỏi và trao đổi ý tưởng với cộng đồng công nghệ.
+- Chương trình mang lại cơ hội để tham gia với các chủ đề AWS và kỹ thuật phần mềm từ nhiều quan điểm chuyên nghiệp.
+- Sự kết hợp giữa các phiên kỹ thuật và tập trung vào sự nghiệp mang lại những hướng đi hữu ích để nghiên cứu thêm, đặc biệt là các hệ thống phân tán và quy trình của nhà phát triển.
+- Các điểm thảo luận cụ thể và quan sát cá nhân có thể được thêm vào từ ghi chú sự kiện trước khi báo cáo cuối cùng được nộp.
 
 #### Bài học rút ra
 
-- **AI Agent cần nhiều hơn một mô hình:** thời gian chạy, công cụ, bộ nhớ, bảo mật và giám sát đều là các phần quan trọng của hệ thống.
-- **Độ trễ thấp rất quan trọng:** các ứng dụng thời gian thực phải cung cấp phản hồi đủ nhanh để hỗ trợ tương tác tự nhiên với người dùng.
-- **Bảo mật cần được tích hợp sớm:** các kiểm tra tự động và kiểm soát truy cập thích hợp giúp giảm rủi ro trước khi triển khai.
-- **Bối cảnh và Bộ nhớ cần được quản lý:** giữ lại thông tin liên quan trong khi kiểm soát mức tiêu thụ token là một sự cân nhắc thiết kế quan trọng.
-- **Tự động hóa cần Guardrails:** AI Agent nên hoạt động trong các quyền và ranh giới được xác định rõ ràng.
-- **Sẵn sàng sản xuất liên quan đến các đánh đổi:** độ tin cậy, bảo mật, chi phí và hiệu suất phải được xem xét cùng nhau.
+- Kỹ thuật là nhiều hơn mã: các quy trình và sự cộng tác ảnh hưởng đến cách phần mềm được phân phối.
+- Đánh giá Serverless bằng bằng chứng: độ trễ, đồng thời xử lý và chi phí nên được đo lường cho khối lượng công việc mục tiêu.
+- Tách rời hỗ trợ khả năng mở rộng: hàng đợi bất đồng bộ giúp tách biệt các thành phần và làm thẳng thiện các đợt tăng khối lượng công việc.
+- Chi tiết vận hành quan trọng: các lần thử lại, giám sát và xử lý thất bại là điều thiết yếu trong các hệ thống sản xuất.
+- Thực tập kết nối lý thuyết và thực hành: các dự án thực đòi hỏi lập luận kiến trúc và giao tiếp rõ ràng.
+- Tính nhất quán hỗ trợ sự tăng trưởng: các đóng góp mã nguồn mở thường xuyên có thể củng cố các kỹ năng kỹ thuật dài hạn.
 
 ### Một số ảnh sự kiện
 
-<!-- Thêm ảnh từ First Cloud AI Journey Meet Up ở đây. -->
+![AWS First Cloud AI Journey Community Day (người thứ 3 tính từ phải qua trái)](/images/4-Event/event4-photo1.jpg)
 
-> Tổng thể, First Cloud AI Journey Meet Up đã giúp tôi kết nối các khái niệm kỹ thuật với các ứng dụng thực tế trong Đám mây và AI. Các phiên đã mở rộng hiểu biết của tôi về Voice AI, bảo mật AWS, kiến trúc thời gian chạy của Agent và phát triển phần mềm hỗ trợ bằng AI. Tôi cũng nhận thức rõ hơn về quản lý bối cảnh, Guardrails bảo mật và tối ưu hóa chi phí khi triển khai AI Agent trong sản xuất. Quan trọng nhất là sự kiện đã thúc đẩy tôi tiếp tục học hỏi, kết nối với cộng đồng và áp dụng những kiến thức này vào các dự án trong tương lai.
+*AWS First Cloud AI Journey Community Day (người thứ 3 tính từ phải qua trái).*
+
+> Tổng thể, AWS First Cloud AI Journey Community Day mang lại cơ hội để kết nối các phương pháp phân phối phần mềm, thiết kế Serverless, xử lý bất đồng bộ và chuẩn bị sự nghiệp. Các phiên cung cấp những hướng đi hữu ích để khám phá thêm: so sánh các kiến trúc Cloud với các tiêu chí có thể đo lường, sử dụng hàng đợi khi xử lý bất đồng bộ phù hợp, ghi chép kỹ các dự án thực tập AWS và phát triển một cách tiếp cận nhất quán đối với học tập mã nguồn opened.
+
+<!-- Lưu ý của biên tập viên: Soạn thảo từ lịch trình sự kiện đã công bố và p'hối sự kiện. Xác minh các chi tiết phiên cụ thể và thêm ghi chú cá nhân/ảnh trước khi nộp. -->
