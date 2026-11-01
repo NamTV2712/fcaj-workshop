@@ -6,7 +6,7 @@ chapter: false
 pre: " <b> 3. </b> "
 ---
 
-Phần này tóm tắt ba bài viết kỹ thuật đã chia sẻ với cộng đồng AWS Study Group. Các bài viết bàn về nhận dạng giọng nói tiếng Việt, quy trình sự kiện trích xuất công việc từ cuộc họp, và trợ lý giọng nói thời gian thực trên AWS.
+Trong quá trình thực tập, mình đã nghiên cứu các bài viết từ AWS Blog, kết hợp với trải nghiệm thực tế và quá trình học tập để viết các bài chia sẻ kỹ thuật. Mỗi bài blog đều tập trung vào một chủ đề cụ thể, giúp tổng hợp kiến thức, chia sẻ kinh nghiệm cũng như giới thiệu các giải pháp và thực hành tốt nhất (Best Practices) trên AWS. Các bài viết đã đăng trên AWS Study Group:
 
 ### [Blog 1 - Amazon Transcribe vs OpenAI Whisper: Giải pháp Nhận dạng Giọng nói-Văn bản nào phù hợp tiếng Việt?](3.1-Blog1/)
 
