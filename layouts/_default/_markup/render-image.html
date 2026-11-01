@@ -1,0 +1,8 @@
+{{- $dest := .Destination | replaceRE `^\s+|\s+$` "" -}}
+{{- if strings.HasPrefix $dest "/static/" -}}
+  {{- $dest = strings.TrimPrefix "/static" $dest -}}
+{{- end -}}
+{{- if and (strings.HasPrefix $dest "/") (not (strings.HasPrefix $dest "//")) -}}
+  {{- $dest = $dest | strings.TrimPrefix "/" | relURL -}}
+{{- end -}}
+<img src="{{ $dest }}" alt="{{ .Text }}"{{ with .Title }} title="{{ . }}"{{ end }}>

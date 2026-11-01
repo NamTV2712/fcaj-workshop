@@ -15,8 +15,6 @@ On **October 5, 2026**, AWS announced **Amazon Nova 2.5 Sonic**, a new speech-to
 
 The interesting aspect is not only voice generation and understanding but also how the model can work with AWS services to create a complete voice agent.
 
-![Amazon Nova 2.5 Sonic and voice agents on AWS](/images/3-BlogsPosted/Blog3.jpg)
-
 ---
 
 ## 1. What Makes Amazon Nova 2.5 Sonic Different?
@@ -67,7 +65,7 @@ The model therefore does not need unrestricted direct access to the database. Bu
 
 ---
 
-![Figure 2. AgentCore Runtime architecture for bidirectional voice interactions using Amazon Nova Sonic. Source: AWS Documentation.]( /images/3-BlogsPosted/Blog3_2.jpg)
+![Figure 2. AgentCore Runtime architecture for bidirectional voice interactions using Amazon Nova Sonic. Source: AWS Documentation.](/images/3-BlogsPosted/Blog3_2.jpg)
 
 *Figure 2. AgentCore Runtime architecture for bidirectional voice interactions using Amazon Nova Sonic. Source: AWS Documentation.*
 

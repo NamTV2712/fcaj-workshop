@@ -15,8 +15,6 @@ Vào ngày **5 tháng 10 năm 2026**, AWS đã công bố **Amazon Nova 2.5 Soni
 
 Điều thú vị không chỉ là việc sinh tạo và hiểu giọng nói mà còn là cách mô hình có thể làm việc với các dịch vụ AWS để tạo ra một trợ lý giọng nói hoàn chỉnh.
 
-![Amazon Nova 2.5 Sonic và trợ lý giọng nói trên AWS](/images/3-BlogsPosted/Blog3.jpg)
-
 ---
 
 ## 1. Điều gì làm Amazon Nova 2.5 Sonic khác biệt?
@@ -67,7 +65,7 @@ Do đó, mô hình không cần truy cập trực tiếp không hạn chế vào
 
 ---
 
-![Hình 2. Kiến trúc AgentCore Runtime cho tương tác giọng nói hai chiều bằng Amazon Nova Sonic. Nguồn: AWS Documentation.]( /images/3-BlogsPosted/Blog3_2.jpg)
+![Hình 2. Kiến trúc AgentCore Runtime cho tương tác giọng nói hai chiều bằng Amazon Nova Sonic. Nguồn: AWS Documentation.](/images/3-BlogsPosted/Blog3_2.jpg)
 
 *Hình 2. Kiến trúc AgentCore Runtime cho tương tác giọng nói hai chiều bằng Amazon Nova Sonic. Nguồn: AWS Documentation.*
 
