@@ -207,6 +207,10 @@ The right decision depends on transcript quality, cost, performance, scalability
 
 ---
 
+![Figure 2. OpenAI Whisper's Transformer encoder-decoder architecture for multilingual speech recognition. Source: OpenAI GitHub.]( /images/3-BlogsPosted/Blog1_2.jpg)
+
+*Figure 2. OpenAI Whisper's Transformer encoder-decoder architecture for multilingual speech recognition. Source: OpenAI GitHub.*
+
 ## References
 
 1. [Amazon Transcribe – Documentation](https://docs.aws.amazon.com/transcribe/)

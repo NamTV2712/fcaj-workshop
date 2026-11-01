@@ -5,10 +5,7 @@ weight: 3
 chapter: false
 pre: " <b> 3.3. </b> "
 ---
-
 # Amazon Nova 2.5 Sonic – Khi một trợ lý giọng nói có thể làm nhiều hơn chỉ nói chuyện
-
-**Đăng ngày: 28/10/2026**
 
 Một trợ lý giọng nói AI thường được mô tả là một quy trình ba giai đoạn: chuyển đổi giọng nói thành văn bản (Speech-to-Text), gửi văn bản đến LLM, và chuyển đổi câu trả lời trở lại âm thanh (Text-to-Speech).
 
@@ -130,6 +127,10 @@ Kết hợp Nova Sonic với AgentCore và các dịch vụ AWS khác mang lại
 Hướng này đáng để khám phá khi các ứng dụng AI phát triển từ trả lời câu hỏi sang giúp người dùng hoàn thành công việc thực tế.
 
 ---
+
+![Hình 2. Kiến trúc AgentCore Runtime cho tương tác giọng nói hai chiều bằng Amazon Nova Sonic. Nguồn: AWS Documentation.]( /images/3-BlogsPosted/Blog3_2.jpg)
+
+*Hình 2. Kiến trúc AgentCore Runtime cho tương tác giọng nói hai chiều bằng Amazon Nova Sonic. Nguồn: AWS Documentation.*
 
 ## Tài liệu tham khảo
 

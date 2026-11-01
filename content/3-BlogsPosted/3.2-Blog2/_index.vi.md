@@ -243,6 +243,10 @@ Mô hình tương tự có thể được mở rộng cho các nguồn tài li�
 
 ---
 
+![Hình 2. Các mảnh luồng DynamoDB Stream và xử lý sự kiện AWS Lambda. Nguồn: AWS Database Blog.]( /images/3-BlogsPosted/Blog2_2.jpg)
+
+*Hình 2. Các mảnh luồng DynamoDB Stream và xử lý sự kiện AWS Lambda. Nguồn: AWS Database Blog.*
+
 ## Tài liệu tham khảo
 
 1. [AWS – DynamoDB Streams và Lambda Triggers](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.Lambda.html)

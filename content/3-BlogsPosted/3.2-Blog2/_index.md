@@ -243,6 +243,10 @@ The same pattern can be extended to other document sources (email, support ticke
 
 ---
 
+![Figure 2. DynamoDB stream shards and AWS Lambda event processing. Source: AWS Database Blog.]( /images/3-BlogsPosted/Blog2_2.jpg)
+
+*Figure 2. DynamoDB stream shards and AWS Lambda event processing. Source: AWS Database Blog.*
+
 ## References
 
 1. [AWS – DynamoDB Streams and Lambda Triggers](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.Lambda.html)

@@ -207,6 +207,10 @@ Quyết định đúng đắn phụ thuộc vào chất lượng bản ghi chép
 
 ---
 
+![Hình 2. Kiến trúc mã hóa-giải mã Transformer của OpenAI Whisper cho nhận dạng giọng nói đa ngôn ngữ. Nguồn: OpenAI GitHub.]( /images/3-BlogsPosted/Blog1_2.jpg)
+
+*Hình 2. Kiến trúc mã hóa-giải mã Transformer của OpenAI Whisper cho nhận dạng giọng nói đa ngôn ngữ. Nguồn: OpenAI GitHub.*
+
 ## Tài liệu tham khảo
 
 1. [Amazon Transcribe – Tài liệu](https://docs.aws.amazon.com/transcribe/)

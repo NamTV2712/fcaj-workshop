@@ -5,10 +5,7 @@ weight: 3
 chapter: false
 pre: " <b> 3.3. </b> "
 ---
-
 # Amazon Nova 2.5 Sonic – When a Voice Agent Can Do More Than Talk
-
-**Published: October 28, 2026**
 
 An AI voice assistant is often described as a three-stage pipeline: convert speech to text (Speech-to-Text), send the text to an LLM, and convert the answer back to audio (Text-to-Speech).
 
@@ -130,6 +127,10 @@ Combining Nova Sonic with AgentCore and other AWS services offers developers a p
 This direction is worth exploring as AI applications evolve from answering questions to helping users complete real work.
 
 ---
+
+![Figure 2. AgentCore Runtime architecture for bidirectional voice interactions using Amazon Nova Sonic. Source: AWS Documentation.]( /images/3-BlogsPosted/Blog3_2.jpg)
+
+*Figure 2. AgentCore Runtime architecture for bidirectional voice interactions using Amazon Nova Sonic. Source: AWS Documentation.*
 
 ## References
 
