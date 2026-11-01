@@ -8,6 +8,8 @@ pre: " <b> 3.3. </b> "
 
 # Amazon Nova 2.5 Sonic – When a Voice Agent Can Do More Than Talk
 
+**Published: October 28, 2026**
+
 An AI voice assistant is often described as a three-stage pipeline: convert speech to text (Speech-to-Text), send the text to an LLM, and convert the answer back to audio (Text-to-Speech).
 
 This design is familiar and straightforward. However, chaining different components can increase latency in real-time conversations. It also introduces challenges when a user interrupts a response, changes the question, or asks the assistant to carry out an action.
@@ -18,7 +20,9 @@ The interesting aspect is not only voice generation and understanding but also h
 
 ![Amazon Nova 2.5 Sonic and voice agents on AWS](/images/3-BlogsPosted/Blog3.jpg)
 
-## 1. What makes Amazon Nova 2.5 Sonic different?
+---
+
+## 1. What Makes Amazon Nova 2.5 Sonic Different?
 
 Instead of requiring a separate STT → LLM → TTS pipeline, Nova 2.5 Sonic can take audio input and generate audio output within the same model.
 
@@ -34,21 +38,37 @@ Several features stand out:
 
 Tool calling and barge-in are particularly important for voice agents used in real applications.
 
-## 2. Combining Nova Sonic with AWS services
+---
+
+## 2. Combining Nova Sonic with AWS Services
 
 One possible architecture combines Amazon Nova 2.5 Sonic with Amazon Bedrock AgentCore, AWS Lambda, and Amazon DynamoDB.
+
+### Amazon Bedrock AgentCore Runtime
 
 **Amazon Bedrock AgentCore Runtime** provides a runtime for agents and can support bidirectional WebSocket communication for transmitting and receiving audio. This allows developers to use a managed agent runtime rather than building the entire session infrastructure themselves.
 
 Within the runtime, **Strands BidiAgent** can manage the conversation session, communicate with Nova Sonic, and handle tool requests.
 
+### Amazon Bedrock
+
 **Amazon Bedrock** provides the Nova 2.5 Sonic model, which interprets speech, maintains conversation context, and generates responses.
+
+### AgentCore Gateway and AWS Lambda
 
 When the agent needs external data, **AgentCore Gateway** can provide access to MCP-based tools. Behind the gateway, **AWS Lambda** handles business logic while **Amazon DynamoDB** stores application data.
 
 The model therefore does not need unrestricted direct access to the database. Business APIs can enforce authorization, validation, and other safeguards.
 
-## 3. The interesting part: talking and completing tasks
+### Supporting Services
+
+- **Amazon S3**: Optional audio archive for recorded sessions.
+- **Amazon CloudWatch**: Logs, traces, and metrics for observability.
+- **Amazon Cognito**: User sign-in / JWT / temporary credentials for identity and access.
+
+---
+
+## 3. The Interesting Part: Talking and Completing Tasks
 
 Consider a customer-service voice agent.
 
@@ -72,7 +92,20 @@ Another example is when an agent is explaining a delivery policy and the user in
 
 Barge-in support helps the application respond to this interruption rather than forcing the user to listen to the entire previous answer.
 
-## 4. Should Nova 2.5 Sonic be used for every audio application?
+### Key Capabilities of a Production Voice Agent
+
+A production-ready AI Agent requires more than a Large Language Model. Important components include:
+
+- **LLM:** Processes requests and generates responses.
+- **Runtime:** Provides an environment in which the Agent can execute.
+- **Tools and APIs:** Allow the Agent to interact with external systems.
+- **Memory and Context:** Help retain relevant information across interactions.
+- **Security and Guardrails:** Restrict unsafe operations and protect sensitive resources.
+- **Monitoring and Cost Management:** Help track usage, performance, and operating expenses.
+
+---
+
+## 4. Should Nova 2.5 Sonic Be Used for Every Audio Application?
 
 Not necessarily.
 
@@ -84,7 +117,9 @@ AWS lists seven supported languages for Nova 2.5 Sonic, and Vietnamese was not o
 
 The overall cost is not limited to model usage. AgentCore Runtime, Gateway, Lambda, DynamoDB, and other infrastructure components may add operating costs.
 
-## Conclusion
+---
+
+## 5. Conclusion
 
 The important shift illustrated by Nova 2.5 Sonic is the move from voice assistants to voice agents.
 
@@ -94,6 +129,8 @@ Combining Nova Sonic with AgentCore and other AWS services offers developers a p
 
 This direction is worth exploring as AI applications evolve from answering questions to helping users complete real work.
 
+---
+
 ## References
 
 1. [AWS – Amazon Nova 2.5 Sonic Announcement](https://aws.amazon.com/about-aws/whats-new/2026/10/amazon-nova-2.5-Sonic/)
@@ -101,4 +138,5 @@ This direction is worth exploring as AI applications evolve from answering quest
 3. [AWS Machine Learning Blog – Build a Voice Travel Concierge](https://aws.amazon.com/blogs/machine-learning/build-a-voice-travel-concierge-with-amazon-bedrock-agentcore-managed-knowledge-base-and-nova-sonic/)
 
 ---
+
 **Bài viết đã đăng trên AWS Study Group:** [https://www.facebook.com/groups/awsstudygroupfcj/permalink/2318573642240928/?rdid=KuaalDDzF6dEIiTz#](https://www.facebook.com/groups/awsstudygroupfcj/permalink/2318573642240928/?rdid=KuaalDDzF6dEIiTz#)
