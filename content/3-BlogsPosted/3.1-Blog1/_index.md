@@ -5,16 +5,15 @@ weight: 1
 chapter: false
 pre: " <b> 3.1. </b> "
 ---
-
 # Amazon Transcribe vs OpenAI Whisper: Which Speech-to-Text Solution Is Better Suited to Vietnamese?
-
-**Published: October 22, 2026**
 
 Speech-to-Text technology is increasingly common, from automatic video captions and meeting transcripts to customer support call analysis. Two notable solutions are Amazon Transcribe and OpenAI Whisper. Both convert audio into text, but they differ significantly in their deployment models, capabilities, and costs.
 
 These differences are particularly relevant for Vietnamese, a tonal language with regional accents and frequent mixing of Vietnamese and English technical terms.
 
 This article compares the two options in terms of speech recognition, Vietnamese support, deployment costs, and practical use cases.
+
+![Amazon Transcribe vs OpenAI Whisper – Speech-to-Text](/images/3-BlogsPosted/Blog1.jpg)
 
 ## 1. Overview of Amazon Transcribe and OpenAI Whisper
 
@@ -185,3 +184,6 @@ The right decision depends on transcript quality, cost, performance, scalability
 4. [OpenAI Whisper – GitHub Repository](https://github.com/openai/whisper)
 5. [OpenAI – Introducing Whisper](https://openai.com/index/whisper/)
 6. [OpenAI API – Speech-to-Text](https://developers.openai.com/api/docs/guides/speech-to-text)
+
+---
+**Bài viết đã đăng trên AWS Study Group:** [https://www.facebook.com/groups/awsstudygroupfcj/permalink/2312872199477739/?rdid=D6LZtjRCUfR9S4t9#](https://www.facebook.com/groups/awsstudygroupfcj/permalink/2312872199477739/?rdid=D6LZtjRCUfR9S4t9#)

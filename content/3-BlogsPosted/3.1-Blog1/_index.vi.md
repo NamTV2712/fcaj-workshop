@@ -5,16 +5,15 @@ weight: 1
 chapter: false
 pre: " <b> 3.1. </b> "
 ---
-
 # Amazon Transcribe vs OpenAI Whisper: Giải pháp Nhận dạng Giọng nói-Văn bản nào phù hợp hơn với tiếng Việt?
-
-**Đăng ngày: 22/10/2026**
 
 Công nghệ Speech-to-Text ngày càng phổ biến, từ ghi chú video tự động và phiên cuộc họp đến phân tích cuộc gọi chăm sóc khách hàng. Hai giải pháp đáng chú ý là Amazon Transcribe và OpenAI Whisper. Cả hai đều chuyển đổi âm thanh thành văn bản, nhưng chúng khác biệt đáng kể về mô hình triển khai, khả năng và chi phí.
 
 Những khác biệt này đặc biệt liên quan đến tiếng Việt, một ngôn ngữ thanh điều với nhiềudam fan và việc trộn lẫn tiếng Việt với thuật ngữ kỹ thuật tiếng Anh trong các cuộc trò chuyện, đặc biệt là trong các nhóm công nghệ.
 
 Bài viết này so sánh hai tùy chọn về khả năng nhận dạng giọng nói, hỗ trợ tiếng Việt, chi phí triển khai và các trường hợp sử dụng thực tế.
+
+![Amazon Transcribe vs OpenAI Whisper – Speech-to-Text](/images/3-BlogsPosted/Blog1.jpg)
 
 ## 1. Tổng quan về Amazon Transcribe và OpenAI Whisper
 
@@ -185,3 +184,6 @@ Quyết định đúng đắn phụ thuộc vào chất lượng bản ghi chép
 4. [OpenAI Whisper – Kho lưu trữ GitHub](https://github.com/openai/whisper)
 5. [OpenAI – Giới thiệu Whisper](https://openai.com/index/whisper/)
 6. [OpenAI API – Speech-to-Text](https://developers.openai.com/api/docs/guides/speech-to-text)
+
+---
+**Bài viết đã đăng trên AWS Study Group:** [https://www.facebook.com/groups/awsstudygroupfcj/permalink/2312872199477739/?rdid=D6LZtjRCUfR9S4t9#](https://www.facebook.com/groups/awsstudygroupfcj/permalink/2312872199477739/?rdid=D6LZtjRCUfR9S4t9#)
