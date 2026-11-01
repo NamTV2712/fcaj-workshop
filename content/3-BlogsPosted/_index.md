@@ -6,7 +6,9 @@ chapter: false
 pre: " <b> 3. </b> "
 ---
 
-This section summarizes three technical blog posts shared with the AWS Study Group community. The posts discuss speech recognition for Vietnamese, an event-driven workflow for extracting meeting tasks, and real-time voice agents on AWS.
+During my internship at AWS First Cloud AI Journey, I spent time researching articles from the AWS Blog, combining hands-on lab experience and daily learning to write technical blog posts. Each blog post focuses on a specific topic, helping me consolidate knowledge, share experiences, and introduce solutions and best practices on AWS. My goal is to contribute practical, accessible content to the AWS Study Group community that can be applied directly to real-world work.
+
+The following blog posts were shared on AWS Study Group:
 
 ### [Blog 1 - Amazon Transcribe vs OpenAI Whisper: Which Speech-to-Text Solution Fits Vietnamese?](3.1-Blog1/)
 
