@@ -1,28 +1,104 @@
 ---
 title: "Blog 3"
-date: 2024-01-01
-weight: 1
+date: 2026-10-28
+weight: 3
 chapter: false
 pre: " <b> 3.3. </b> "
 ---
 
-# SESSION POLICIES IN AMAZON EKS POD IDENTITY
+# Amazon Nova 2.5 Sonic – When a Voice Agent Can Do More Than Talk
 
-Amazon EKS Pod Identity has recently added the session policies feature, allowing you to narrow IAM permissions flexibly and precisely for each pod without needing to create many separate IAM roles. This is an important step forward that helps apply the principle of least privilege more effectively in large-scale Kubernetes environments.
+An AI voice assistant is often described as a three-stage pipeline: convert speech to text (Speech-to-Text), send the text to an LLM, and convert the answer back to audio (Text-to-Speech).
 
-Key points to know:
+This design is familiar and straightforward. However, chaining different components can increase latency in real-time conversations. It also introduces challenges when a user interrupts a response, changes the question, or asks the assistant to carry out an action.
 
-* A session policy is an inline IAM policy specified when creating or updating a Pod Identity association.
-* Effective permissions = intersection between the IAM role permissions and the session policy → the session policy can only narrow permissions, not expand them.
-* Helps avoid over-permissioning when reusing a single IAM role for multiple workloads with different needs.
-* Supports both same-account and cross-account (via IAM role chaining).
-* Significantly reduces the number of IAM roles that need to be managed, helping avoid hitting IAM quota limits in large clusters.
-* Easily configured through the AWS Management Console, AWS CLI, or AWS SDK when creating an association between a Kubernetes ServiceAccount and an IAM role.
+On **October 5, 2026**, AWS announced **Amazon Nova 2.5 Sonic**, a new speech-to-speech model available through Amazon Bedrock, designed for natural real-time conversations and task execution through connected tools.
 
-This feature is especially useful when you have many applications running on the same IAM role but need different permission restrictions (for example: one pod only reads a specific S3 bucket, another pod only calls certain APIs).
+The interesting aspect is not only voice generation and understanding but also how the model can work with AWS services to create a complete voice agent.
 
-...Image...
+![Amazon Nova 2.5 Sonic and voice agents on AWS](/images/3-BlogsPosted/Blog3.jpg)
 
-...Link...
+## 1. What makes Amazon Nova 2.5 Sonic different?
 
-...Guide...
+Instead of requiring a separate STT → LLM → TTS pipeline, Nova 2.5 Sonic can take audio input and generate audio output within the same model.
+
+AWS has also improved reasoning, instruction following, and tool-calling capabilities compared with Nova 2 Sonic.
+
+Several features stand out:
+
+- **Real-time speech-to-speech:** Two-way voice interactions with low latency.
+- **Barge-in:** Users can interrupt the agent while it is speaking.
+- **Tool calling:** The model can request that the application call an API to retrieve information or perform an action.
+- **Asynchronous tool calling:** The conversation does not always have to stop completely while external tools are running.
+- **Cross-modal interaction:** Voice and text can be combined in the same session.
+
+Tool calling and barge-in are particularly important for voice agents used in real applications.
+
+## 2. Combining Nova Sonic with AWS services
+
+One possible architecture combines Amazon Nova 2.5 Sonic with Amazon Bedrock AgentCore, AWS Lambda, and Amazon DynamoDB.
+
+**Amazon Bedrock AgentCore Runtime** provides a runtime for agents and can support bidirectional WebSocket communication for transmitting and receiving audio. This allows developers to use a managed agent runtime rather than building the entire session infrastructure themselves.
+
+Within the runtime, **Strands BidiAgent** can manage the conversation session, communicate with Nova Sonic, and handle tool requests.
+
+**Amazon Bedrock** provides the Nova 2.5 Sonic model, which interprets speech, maintains conversation context, and generates responses.
+
+When the agent needs external data, **AgentCore Gateway** can provide access to MCP-based tools. Behind the gateway, **AWS Lambda** handles business logic while **Amazon DynamoDB** stores application data.
+
+The model therefore does not need unrestricted direct access to the database. Business APIs can enforce authorization, validation, and other safeguards.
+
+## 3. The interesting part: talking and completing tasks
+
+Consider a customer-service voice agent.
+
+A customer asks:
+
+> "Can you check my latest order?"
+
+The agent invokes a tool to check order status. While the system is retrieving that information, the customer adds:
+
+> "Actually, can I change the delivery address?"
+
+A well-designed agent must preserve context, understand the new request, and identify the necessary actions.
+
+If an address change is possible, it can request the corresponding API. However, any actual update must follow access controls, business rules, and appropriate confirmation steps.
+
+This separates an AI system that merely speaks from a voice agent that can interact with external systems.
+
+Another example is when an agent is explaining a delivery policy and the user interrupts:
+
+> "Just tell me when it arrives."
+
+Barge-in support helps the application respond to this interruption rather than forcing the user to listen to the entire previous answer.
+
+## 4. Should Nova 2.5 Sonic be used for every audio application?
+
+Not necessarily.
+
+Nova 2.5 Sonic is more suited to live voice interaction, such as customer support, appointment scheduling, and spoken information retrieval.
+
+For a workflow that simply converts a recorded audio file into text for storage or later analysis, Amazon Transcribe remains a reasonable option.
+
+AWS lists seven supported languages for Nova 2.5 Sonic, and Vietnamese was not on the officially supported list at the time of this post. This is an important limitation for applications serving Vietnamese-speaking users.
+
+The overall cost is not limited to model usage. AgentCore Runtime, Gateway, Lambda, DynamoDB, and other infrastructure components may add operating costs.
+
+## Conclusion
+
+The important shift illustrated by Nova 2.5 Sonic is the move from voice assistants to voice agents.
+
+Rather than only listening and responding, the system can maintain a conversation, retrieve information, and invoke authorized tools to carry out tasks.
+
+Combining Nova Sonic with AgentCore and other AWS services offers developers a practical approach to building real-time conversational applications without managing every part of the agent infrastructure on their own.
+
+This direction is worth exploring as AI applications evolve from answering questions to helping users complete real work.
+
+## References
+
+1. [AWS – Amazon Nova 2.5 Sonic Announcement](https://aws.amazon.com/about-aws/whats-new/2026/10/amazon-nova-2.5-Sonic/)
+2. [Amazon Bedrock – Nova 2.5 Sonic Model Card](https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-amazon-nova-2-5-sonic.html)
+3. [AWS Machine Learning Blog – Build a Voice Travel Concierge](https://aws.amazon.com/blogs/machine-learning/build-a-voice-travel-concierge-with-amazon-bedrock-agentcore-managed-knowledge-base-and-nova-sonic/)
+
+---
+**Bài viết đã đăng trên AWS Study Group:** [https://www.facebook.com/groups/awsstudygroupfcj/permalink/2318573642240928/?rdid=KuaalDDzF6dEIiTz#](https://www.facebook.com/groups/awsstudygroupfcj/permalink/2318573642240928/?rdid=KuaalDDzF6dEIiTz#)
