@@ -51,6 +51,10 @@ Không giống như Amazon Transcribe, mô hình mã nguồn mở có thể ch�
 
 ---
 
+![Hình 2. Kiến trúc mã hóa-giải mã Transformer của OpenAI Whisper cho nhận dạng giọng nói đa ngôn ngữ. Nguồn: OpenAI GitHub.]( /images/3-BlogsPosted/Blog1_2.jpg)
+
+*Hình 2. Kiến trúc mã hóa-giải mã Transformer của OpenAI Whisper cho nhận dạng giọng nói đa ngôn ngữ. Nguồn: OpenAI GitHub.*
+
 ## 2. Khả năng nhận dạng giọng nói tiếng Việt
 
 Tiếng Việt là một ngôn ngữ thanh điều với sáu thanh âm, dấu thanh phong phú, nhiều vùng miền (Bắc, Trung, Nam) và việc trộn lẫn tiếng Việt với thuật ngữ kỹ thuật tiếng Anh. Bản ghi âm ồn và phát âm không rõ khiến việc phiên âm chính xác khó khăn hơn.
@@ -206,10 +210,6 @@ Cả hai đều hỗ trợ tiếng Việt, nhưng độ chính xác so sánh c�
 Quyết định đúng đắn phụ thuộc vào chất lượng bản ghi chép, chi phí, hiệu suất, khả năng mở rộng và yêu cầu vận hành. Một bước tiếp theo hữu ích sẽ là so sánh cả hai giải pháp với một tập dữ liệu tiếng Việt chứa nhiều accent vùng miền khác nhau và điều kiện ghi âm.
 
 ---
-
-![Hình 2. Kiến trúc mã hóa-giải mã Transformer của OpenAI Whisper cho nhận dạng giọng nói đa ngôn ngữ. Nguồn: OpenAI GitHub.]( /images/3-BlogsPosted/Blog1_2.jpg)
-
-*Hình 2. Kiến trúc mã hóa-giải mã Transformer của OpenAI Whisper cho nhận dạng giọng nói đa ngôn ngữ. Nguồn: OpenAI GitHub.*
 
 ## Tài liệu tham khảo
 

@@ -60,6 +60,10 @@ Sau khi nhận phản hồi, Lambda xác thực dữ liệu và gọi Notion API
 
 ---
 
+![Hình 2. Các mảnh luồng DynamoDB Stream và xử lý sự kiện AWS Lambda. Nguồn: AWS Database Blog.]( /images/3-BlogsPosted/Blog2_2.jpg)
+
+*Hình 2. Các mảnh luồng DynamoDB Stream và xử lý sự kiện AWS Lambda. Nguồn: AWS Database Blog.*
+
 ## 2. Cách hoạt động từng bước
 
 ### Bước 1: Siêu dữ liệu cuộc họp đến DynamoDB
@@ -242,10 +246,6 @@ Kiến trúc này chuyển đổi bản transcript cuộc họp thành các côn
 Mô hình tương tự có thể được mở rộng cho các nguồn tài liệu khác (email, vé hỗ trợ, bản ghi cuộc gọi trung tâm chăm sóc khách hàng) và các điểm đến nhiệm vụ khác (Jira, Asana, Trello, hoặc cơ sở dữ liệu tùy chỉnh).
 
 ---
-
-![Hình 2. Các mảnh luồng DynamoDB Stream và xử lý sự kiện AWS Lambda. Nguồn: AWS Database Blog.]( /images/3-BlogsPosted/Blog2_2.jpg)
-
-*Hình 2. Các mảnh luồng DynamoDB Stream và xử lý sự kiện AWS Lambda. Nguồn: AWS Database Blog.*
 
 ## Tài liệu tham khảo
 

@@ -41,6 +41,8 @@ Tool calling và barge-in đặc biệt quan trọng đối với các trợ lý
 
 Một kiến trúc có thể kết hợp Amazon Nova 2.5 Sonic với Amazon Bedrock AgentCore, AWS Lambda và Amazon DynamoDB.
 
+![Amazon Nova 2.5 Sonic và trợ lý giọng nói trên AWS](/images/3-BlogsPosted/Blog3.jpg)
+
 ### Amazon Bedrock AgentCore Runtime
 
 **Amazon Bedrock AgentCore Runtime** cung cấp một thời gian chạy cho các trợ lý và có thể hỗ trợ giao tiếp WebSocket hai chiều để truyền và nhận âm thanh. Điều này cho phép các nhà phát triển sử dụng thời gian chạy trợ lý được quản lý thay vì xây dựng toàn bộ cơ sở hạ tầng phiên họp của riêng mình.
@@ -64,6 +66,10 @@ Do đó, mô hình không cần truy cập trực tiếp không hạn chế vào
 - **Amazon Cognito**: Đăng nhập người dùng / JWT / thông tin đăng nhập tạm thời cho danh tính và truy cập.
 
 ---
+
+![Hình 2. Kiến trúc AgentCore Runtime cho tương tác giọng nói hai chiều bằng Amazon Nova Sonic. Nguồn: AWS Documentation.]( /images/3-BlogsPosted/Blog3_2.jpg)
+
+*Hình 2. Kiến trúc AgentCore Runtime cho tương tác giọng nói hai chiều bằng Amazon Nova Sonic. Nguồn: AWS Documentation.*
 
 ## 3. Phần thú vị: nói chuyện và hoàn thành nhiệm vụ
 
@@ -127,10 +133,6 @@ Kết hợp Nova Sonic với AgentCore và các dịch vụ AWS khác mang lại
 Hướng này đáng để khám phá khi các ứng dụng AI phát triển từ trả lời câu hỏi sang giúp người dùng hoàn thành công việc thực tế.
 
 ---
-
-![Hình 2. Kiến trúc AgentCore Runtime cho tương tác giọng nói hai chiều bằng Amazon Nova Sonic. Nguồn: AWS Documentation.]( /images/3-BlogsPosted/Blog3_2.jpg)
-
-*Hình 2. Kiến trúc AgentCore Runtime cho tương tác giọng nói hai chiều bằng Amazon Nova Sonic. Nguồn: AWS Documentation.*
 
 ## Tài liệu tham khảo
 

@@ -5,10 +5,7 @@ weight: 1
 chapter: false
 pre: " <b> 3.1. </b> "
 ---
-
 # Amazon Transcribe vs OpenAI Whisper: Which Speech-to-Text Solution Is Better Suited to Vietnamese?
-
-**Published: October 22, 2026**
 
 Speech-to-Text (STT) technology is increasingly common, from automatic video captions and meeting transcripts to customer support call analysis. Two notable solutions are Amazon Transcribe and OpenAI Whisper. Both convert audio into text, but they differ significantly in their deployment models, capabilities, pricing structures, and operational requirements.
 
@@ -50,6 +47,10 @@ Unlike Amazon Transcribe, the open-source model can run locally or on cloud infr
 This gives developers control over the runtime environment, model selection, versioning, and data processing. In exchange, they must manage the computing resources, dependencies, model weights, application infrastructure, security patches, and scaling themselves.
 
 ---
+
+![Figure 2. OpenAI Whisper's Transformer encoder-decoder architecture for multilingual speech recognition. Source: OpenAI GitHub.](/images/3-BlogsPosted/Blog1_2.jpg)
+
+*Figure 2. OpenAI Whisper's Transformer encoder-decoder architecture for multilingual speech recognition. Source: OpenAI GitHub.*
 
 ## 2. Vietnamese Speech Recognition Capabilities
 
@@ -113,14 +114,14 @@ A fair cost comparison therefore needs to include compute, storage, operations, 
 
 ### Summary Table
 
-| Factor | Amazon Transcribe | OpenAI Whisper (self-hosted) |
-|--------|-------------------|------------------------------|
-| Pricing model | Pay per audio minute | Compute instance cost + engineering time |
-| Infrastructure | Fully managed by AWS | Self-managed on EC2/ECS/EKS |
-| GPU required | No | Recommended for Large models |
-| Scaling | Automatic | Manual or Auto Scaling group |
-| Model updates | Managed by AWS | Manual version management |
-| Data residency | Configurable AWS Region | Full control over deployment location |
+| Factor         | Amazon Transcribe       | OpenAI Whisper (self-hosted)             |
+| -------------- | ----------------------- | ---------------------------------------- |
+| Pricing model  | Pay per audio minute    | Compute instance cost + engineering time |
+| Infrastructure | Fully managed by AWS    | Self-managed on EC2/ECS/EKS              |
+| GPU required   | No                      | Recommended for Large models             |
+| Scaling        | Automatic               | Manual or Auto Scaling group             |
+| Model updates  | Managed by AWS          | Manual version management                |
+| Data residency | Configurable AWS Region | Full control over deployment location    |
 
 ---
 
@@ -206,10 +207,6 @@ Both support Vietnamese, but comparative accuracy needs to be tested on the same
 The right decision depends on transcript quality, cost, performance, scalability, and operational requirements. A useful next step would be to benchmark both solutions against a Vietnamese dataset containing multiple regional accents and recording conditions.
 
 ---
-
-![Figure 2. OpenAI Whisper's Transformer encoder-decoder architecture for multilingual speech recognition. Source: OpenAI GitHub.]( /images/3-BlogsPosted/Blog1_2.jpg)
-
-*Figure 2. OpenAI Whisper's Transformer encoder-decoder architecture for multilingual speech recognition. Source: OpenAI GitHub.*
 
 ## References
 

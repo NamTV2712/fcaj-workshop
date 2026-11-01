@@ -118,6 +118,10 @@ To avoid creating duplicate tasks if the Lambda is retried or the stream event i
 
 ---
 
+![Figure 2. DynamoDB stream shards and AWS Lambda event processing. Source: AWS Database Blog.]( /images/3-BlogsPosted/Blog2_2.jpg)
+
+*Figure 2. DynamoDB stream shards and AWS Lambda event processing. Source: AWS Database Blog.*
+
 ## 3. Example: Lambda Handler (Python)
 
 ```python
@@ -242,10 +246,6 @@ This architecture turns meeting transcripts into structured, trackable work with
 The same pattern can be extended to other document sources (email, support tickets, call center transcripts) and other task destinations (Jira, Asana, Trello, or a custom database).
 
 ---
-
-![Figure 2. DynamoDB stream shards and AWS Lambda event processing. Source: AWS Database Blog.]( /images/3-BlogsPosted/Blog2_2.jpg)
-
-*Figure 2. DynamoDB stream shards and AWS Lambda event processing. Source: AWS Database Blog.*
 
 ## References
 

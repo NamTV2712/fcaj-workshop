@@ -41,6 +41,8 @@ Tool calling and barge-in are particularly important for voice agents used in re
 
 One possible architecture combines Amazon Nova 2.5 Sonic with Amazon Bedrock AgentCore, AWS Lambda, and Amazon DynamoDB.
 
+![Amazon Nova 2.5 Sonic and voice agents on AWS](/images/3-BlogsPosted/Blog3.jpg)
+
 ### Amazon Bedrock AgentCore Runtime
 
 **Amazon Bedrock AgentCore Runtime** provides a runtime for agents and can support bidirectional WebSocket communication for transmitting and receiving audio. This allows developers to use a managed agent runtime rather than building the entire session infrastructure themselves.
@@ -64,6 +66,10 @@ The model therefore does not need unrestricted direct access to the database. Bu
 - **Amazon Cognito**: User sign-in / JWT / temporary credentials for identity and access.
 
 ---
+
+![Figure 2. AgentCore Runtime architecture for bidirectional voice interactions using Amazon Nova Sonic. Source: AWS Documentation.]( /images/3-BlogsPosted/Blog3_2.jpg)
+
+*Figure 2. AgentCore Runtime architecture for bidirectional voice interactions using Amazon Nova Sonic. Source: AWS Documentation.*
 
 ## 3. The Interesting Part: Talking and Completing Tasks
 
@@ -127,10 +133,6 @@ Combining Nova Sonic with AgentCore and other AWS services offers developers a p
 This direction is worth exploring as AI applications evolve from answering questions to helping users complete real work.
 
 ---
-
-![Figure 2. AgentCore Runtime architecture for bidirectional voice interactions using Amazon Nova Sonic. Source: AWS Documentation.]( /images/3-BlogsPosted/Blog3_2.jpg)
-
-*Figure 2. AgentCore Runtime architecture for bidirectional voice interactions using Amazon Nova Sonic. Source: AWS Documentation.*
 
 ## References
 
