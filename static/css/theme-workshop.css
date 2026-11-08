@@ -226,3 +226,27 @@ div.notices.info p {
   border-top: 30px solid #fd9827;
   background: #fff2db;
 }
+
+/* Worklog tables: dash bullets with a hanging indent */
+#body-inner td ul.wl {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#body-inner td ul.wl li {
+  position: relative;
+  margin: 0;
+  padding-left: 1em;
+  line-height: 1.55;
+}
+
+#body-inner td ul.wl li + li {
+  margin-top: 0.35em;
+}
+
+#body-inner td ul.wl li::before {
+  content: "-";
+  position: absolute;
+  left: 0;
+}
