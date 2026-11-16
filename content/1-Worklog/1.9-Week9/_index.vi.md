@@ -1,56 +1,32 @@
 ---
 title: "Worklog Tuần 9"
-date: 2024-01-01
+date: 2026-11-14
 weight: 9
 chapter: false
 pre: " <b> 1.9. </b> "
 ---
-
-
 ### Mục tiêu tuần 9:
 
-* Kết nối, làm quen với các thành viên trong First Cloud AI Journey.
-* Hiểu dịch vụ AWS cơ bản, cách dùng console & CLI.
+* Làm quen và đóng góp vào dự án TINA — hệ thống meeting bot & transcription thời gian thực self-hosted.
+* Triển khai, cải thiện trợ lý giọng nói cuộc họp (meeting voice assistant), Knowledge graph và hạ tầng CI/test.
+* Làm việc theo nhánh/PR, tuân thủ quy trình review và tiêu chuẩn CI của dự án.
 
 ### Các công việc cần triển khai trong tuần này:
-| Thứ | Công việc                                                                                                                                                                                   | Ngày bắt đầu | Ngày hoàn thành | Nguồn tài liệu                            |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | --------------- | ----------------------------------------- |
-| 2   | - Làm quen với các thành viên FCAJ <br> - Đọc và lưu ý các nội quy, quy định tại đơn vị thực tập                                                                                             | 11/08/2025   | 11/08/2025      |
-| 3   | - Tìm hiểu AWS và các loại dịch vụ <br>&emsp; + Compute <br>&emsp; + Storage <br>&emsp; + Networking <br>&emsp; + Database <br>&emsp; + ... <br>                                            | 12/08/2025   | 12/08/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 4   | - Tạo AWS Free Tier account <br> - Tìm hiểu AWS Console & AWS CLI <br> - **Thực hành:** <br>&emsp; + Tạo AWS account <br>&emsp; + Cài AWS CLI & cấu hình <br> &emsp; + Cách sử dụng AWS CLI | 13/08/2025   | 13/08/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 5   | - Tìm hiểu EC2 cơ bản: <br>&emsp; + Instance types <br>&emsp; + AMI <br>&emsp; + EBS <br>&emsp; + ... <br> - Các cách remote SSH vào EC2 <br> - Tìm hiểu Elastic IP   <br>                  | 14/08/2025   | 15/08/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 6   | - **Thực hành:** <br>&emsp; + Tạo EC2 instance <br>&emsp; + Kết nối SSH <br>&emsp; + Gắn EBS volume                                                                                         | 15/08/2025   | 15/08/2025      | <https://cloudjourney.awsstudygroup.com/> |
 
+| Thứ | Công việc | Ngày bắt đầu | Ngày hoàn thành | Nguồn tài liệu |
+| --- | --- | --- | --- | --- |
+| 2 | - Làm quen repository TINA: đọc README, AGENTS.md, CONTRIBUTING.md và tìm hiểu kiến trúc (meeting bot, ASR, translation, Knowledge graph, voice assistant). <br> - Chuẩn bị môi trường development: cài Dotenvx, cấu hình private key, chạy `make plan` / `make all`. <br> - Tìm hiểu luồng retrieval & playback của meeting voice assistant, bắt đầu cải thiện độ chính xác và trải nghiệm phát lại. | 09/11/2026 | 09/11/2026 |  |
+| 3 | - Gia cố runtime voice assistant self-hosted; cải thiện grounded answers và stage diagnostics. <br> - Hiển thị LiveKit voice defaults khi chưa chọn meeting. <br> - Sửa lỗi giữ audio ASR qua cửa sổ 30 giây. <br> - Thêm Knowledge sidebar & graph riêng biệt; chia sẻ root Dotenvx key với TTS. | 10/11/2026 | 10/11/2026 |  |
+| 4 | - Khôi phục CI gates cho PR #9, ổn định fixture voice preview, sửa lỗi CI Python và cài dependency test TTS. <br> - Merge PR #9: thêm self-hosted meeting voice assistant và Knowledge graph. <br> - Ổn định test: renamed speaker transcript event, subscribe acknowledgement, meeting knowledge proposal edit. <br> - Merge PR #10: sửa speaker mapping trong CI. | 11/11/2026 | 11/11/2026 |  |
+| 5 | - Mở rộng governed meeting voice assistant: clarification/progress handling, draft task & decision có owner review, approved-action scoped, retrieval đa meeting, tính toán deterministic, spoken source navigation; giữ meeting-source checks & playback receipts làm nguồn chuẩn. <br> - Cập nhật test coverage cho gateway voice navigation route. <br> - Sửa voice session identifiers thành kiểu string. <br> - Tích hợp trained TINA wakeword models vào repository. | 12/11/2026 | 13/11/2026 |  |
+| 6 | - Tối ưu UI: compact Knowledge YAML metadata. <br> - Rà soát toàn bộ thay đổi, cập nhật tài liệu dự án (README, extension guide, contract docs). <br> - Tổng kết tuần và cập nhật worklog. | 13/11/2026 | 13/11/2026 |  |
 
 ### Kết quả đạt được tuần 9:
 
-* Hiểu AWS là gì và nắm được các nhóm dịch vụ cơ bản: 
-  * Compute
-  * Storage
-  * Networking 
-  * Database
-  * ...
-
-* Đã tạo và cấu hình AWS Free Tier account thành công.
-
-* Làm quen với AWS Management Console và biết cách tìm, truy cập, sử dụng dịch vụ từ giao diện web.
-
-* Cài đặt và cấu hình AWS CLI trên máy tính bao gồm:
-  * Access Key
-  * Secret Key
-  * Region mặc định
-  * ...
-
-* Sử dụng AWS CLI để thực hiện các thao tác cơ bản như:
-
-  * Kiểm tra thông tin tài khoản & cấu hình
-  * Lấy danh sách region
-  * Xem dịch vụ EC2
-  * Tạo và quản lý key pair
-  * Kiểm tra thông tin dịch vụ đang chạy
-  * ...
-
-* Có khả năng kết nối giữa giao diện web và CLI để quản lý tài nguyên AWS song song.
-* ...
-
-
+* Hiểu kiến trúc và quy trình phát triển của TINA, thiết lập được môi trường self-hosted (Docker/WSL2, Dotenvx, Terminal cổng 23000 và API gateway cổng 28056).
+* Xây dựng và merge thành công self-hosted meeting voice assistant cùng Knowledge graph (PR #9), bao gồm Knowledge sidebar/graph riêng biệt.
+* Cải thiện grounded voice answers, stage diagnostics, LiveKit voice defaults và khả năng retrieval/playback của trợ lý giọng nói.
+* Tích hợp trained TINA wakeword models; khắc phục lỗi mất audio ASR qua cửa sổ 30 giây và chuyển voice session identifiers sang kiểu string.
+* Khôi phục và ổn định CI: PR #9/#10, Python/TTS test dependencies, speaker mapping, subscribe/speaker/transcript event tests.
+* Mở rộng governed voice assistant với clarification, owner-reviewed drafts, scoped actions, deterministic calculations và spoken source navigation.
+* Nắm được quy trình PR/review của dự án và cách bảo vệ khóa bí mật (Dotenvx, không commit private key).
