@@ -1,56 +1,31 @@
 ---
 title: "Worklog Tuần 10"
-date: 2024-01-01
+date: 2026-11-21
 weight: 10
 chapter: false
 pre: " <b> 1.10. </b> "
 ---
-
-
 ### Mục tiêu tuần 10:
 
-* Kết nối, làm quen với các thành viên trong First Cloud AI Journey.
-* Hiểu dịch vụ AWS cơ bản, cách dùng console & CLI.
+* Tiếp tục đóng góp vào dự án TINA, tập trung vào các nhánh `demo/aws` và `fix/post-meeting-mail-report`.
+* Khôi phục và cải thiện luồng báo cáo follow-up sau cuộc họp; chuẩn hóa lựa chọn AWS VieGem và đồng bộ voice capture.
+* Rèn luyện quy trình làm việc với nhánh, hợp nhất `main`, xử lý CI và cập nhật tài liệu kiến trúc.
 
 ### Các công việc cần triển khai trong tuần này:
-| Thứ | Công việc                                                                                                                                                                                   | Ngày bắt đầu | Ngày hoàn thành | Nguồn tài liệu                            |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | --------------- | ----------------------------------------- |
-| 2   | - Làm quen với các thành viên FCAJ <br> - Đọc và lưu ý các nội quy, quy định tại đơn vị thực tập                                                                                             | 11/08/2025   | 11/08/2025      |
-| 3   | - Tìm hiểu AWS và các loại dịch vụ <br>&emsp; + Compute <br>&emsp; + Storage <br>&emsp; + Networking <br>&emsp; + Database <br>&emsp; + ... <br>                                            | 12/08/2025   | 12/08/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 4   | - Tạo AWS Free Tier account <br> - Tìm hiểu AWS Console & AWS CLI <br> - **Thực hành:** <br>&emsp; + Tạo AWS account <br>&emsp; + Cài AWS CLI & cấu hình <br> &emsp; + Cách sử dụng AWS CLI | 13/08/2025   | 13/08/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 5   | - Tìm hiểu EC2 cơ bản: <br>&emsp; + Instance types <br>&emsp; + AMI <br>&emsp; + EBS <br>&emsp; + ... <br> - Các cách remote SSH vào EC2 <br> - Tìm hiểu Elastic IP   <br>                  | 14/08/2025   | 15/08/2025      | <https://cloudjourney.awsstudygroup.com/> |
-| 6   | - **Thực hành:** <br>&emsp; + Tạo EC2 instance <br>&emsp; + Kết nối SSH <br>&emsp; + Gắn EBS volume                                                                                         | 15/08/2025   | 15/08/2025      | <https://cloudjourney.awsstudygroup.com/> |
 
+| Thứ | Công việc | Ngày bắt đầu | Ngày hoàn thành | Nguồn tài liệu |
+| --- | --- | --- | --- | --- |
+| 2 | - Khôi phục lựa chọn AWS VieGem và căn chỉnh timing voice capture. <br> - Căn chỉnh endpoint STT theo đồng hồ capture và loại bỏ các biến thể chính tả wake-name thu được từ STT. <br> - Hợp nhất `main` vào nhánh `demo/aws`; đưa shared formatter vào bản build Lite và dọn dẹp voice prefix. <br> - Làm mới code graph sau khi tích hợp `main` và merge PR #12 vào `main`. | 16/11/2026 | 16/11/2026 |  |
+| 3 | - Theo dõi, đối chiếu các thay đổi về mail từ các nhánh `feat/post-meeting-email`, `feat/mail-delivery-config`, `fix/shared-smtp-config`. <br> - Tìm hiểu cấu hình SMTP/Resend dùng chung, email follow-up có thương hiệu và đính kèm artifact link. <br> - Tái tạo lỗi thiếu báo cáo follow-up sau cuộc họp, chuẩn bị nhánh `fix/post-meeting-mail-report`. | 17/11/2026 | 17/11/2026 |  |
+| 4 | - Khôi phục luồng báo cáo follow-up sau cuộc họp (fix(flows): restore post-meeting follow-up reports). <br> - Tạo lại mô hình luồng báo cáo trong tài liệu kiến trúc và làm mới generated follow-up view. <br> - Xử lý trường hợp thiếu behavior capability; hợp nhất `main` vào nhánh fix. <br> - Merge PR #20 (`fix/post-meeting-mail-report`) vào `main`. | 18/11/2026 | 18/11/2026 |  |
+| 5 | - Kiểm tra hồi quy sau khi merge PR #12 và PR #20: luồng ASR/voice, wake-word và báo cáo follow-up. <br> - Đối chiếu fixture và test của luồng mail, đảm bảo module reload không làm sai lệch dữ liệu kiểm thử. <br> - Rà soát CI trên các bản build Lite và bản thường. | 19/11/2026 | 19/11/2026 |  |
+| 6 | - Dọn dẹp, cập nhật tài liệu kiến trúc và worklog dự án. <br> - Tổng kết các thay đổi trong tuần, ghi chú các điểm cần theo dõi cho tuần sau. | 20/11/2026 | 20/11/2026 |  |
 
 ### Kết quả đạt được tuần 10:
 
-* Hiểu AWS là gì và nắm được các nhóm dịch vụ cơ bản: 
-  * Compute
-  * Storage
-  * Networking 
-  * Database
-  * ...
-
-* Đã tạo và cấu hình AWS Free Tier account thành công.
-
-* Làm quen với AWS Management Console và biết cách tìm, truy cập, sử dụng dịch vụ từ giao diện web.
-
-* Cài đặt và cấu hình AWS CLI trên máy tính bao gồm:
-  * Access Key
-  * Secret Key
-  * Region mặc định
-  * ...
-
-* Sử dụng AWS CLI để thực hiện các thao tác cơ bản như:
-
-  * Kiểm tra thông tin tài khoản & cấu hình
-  * Lấy danh sách region
-  * Xem dịch vụ EC2
-  * Tạo và quản lý key pair
-  * Kiểm tra thông tin dịch vụ đang chạy
-  * ...
-
-* Có khả năng kết nối giữa giao diện web và CLI để quản lý tài nguyên AWS song song.
-* ...
-
-
+* Đưa nhánh `demo/aws` vào `main` thông qua PR #12: khôi phục lựa chọn AWS VieGem, đồng bộ STT với capture clock, loại bỏ wake-name sai chính tả và dọn voice prefix.
+* Đưa shared formatter vào bản build Lite, làm mới code graph và giữ CI ổn định sau khi tích hợp `main`.
+* Khôi phục thành công báo cáo follow-up sau cuộc họp và merge PR #20 từ nhánh `fix/post-meeting-mail-report`.
+* Cập nhật mô hình luồng báo cáo trong tài liệu kiến trúc, làm mới follow-up view và xử lý trường hợp thiếu behavior capability.
+* Phối hợp review các PR về mail của team (SMTP/Resend dùng chung, email follow-up có thương hiệu và artifact link).
+* Thành thạo hơn quy trình merge nhiều nhánh với `main`, xử lý xung đột và kiểm tra hồi quy trước khi merge.
