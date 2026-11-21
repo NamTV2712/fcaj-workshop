@@ -17,7 +17,7 @@ pre: " <b> 4. </b> "
 > * Outcomes or value gained (lessons learned, new skills, contribution to the team/project)
 > * This listing helps demonstrate your actual participation as well as the soft skills and experience you have gained from each event.
 
-During my internship, I participated in four events. Each one was a memorable experience that provided new, interesting, and useful knowledge, along with gifts and wonderful moments.
+During my internship, I participated in six events. Each one was a memorable experience that provided new, interesting, and useful knowledge, along with gifts and wonderful moments.
 
 ### [Event 1](4.1-Event1/)
 
@@ -61,5 +61,29 @@ During my internship, I participated in four events. Each one was a memorable ex
 &emsp;**Date & Time:** 09:00, October 31, 2026
 
 &emsp;**Location:** 26th Floor, Bitexco Tower, 02 Hai Trieu Street, Saigon Ward, Ho Chi Minh City
+
+&emsp;**Role:** Attendee
+
+---
+
+### [Event 5](4.5-Event5/)
+
+&emsp;**Event Name:** Cloud Mastery
+
+&emsp;**Date & Time:** Saturday morning, November 14, 2026
+
+&emsp;**Location:** AWS Vietnam Office, 26th Floor, Bitexco Financial Tower, 2 Hai Trieu Street, District 1, Ho Chi Minh City
+
+&emsp;**Role:** Attendee
+
+---
+
+### [Event 6](4.6-Event6/)
+
+&emsp;**Event Name:** AWS Student Community Day Vietnam 2026
+
+&emsp;**Date & Time:** 9:00 AM – 11:30 AM, Saturday, November 21, 2026
+
+&emsp;**Location:** 26th Floor, Bitexco Financial Tower, 02 Hai Trieu Street, Saigon Ward, Ho Chi Minh City
 
 &emsp;**Role:** Attendee
