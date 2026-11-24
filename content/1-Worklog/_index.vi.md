@@ -1,6 +1,6 @@
 ---
 title: "Nhật ký công việc"
-date: 2026-11-27
+date: 2026-11-24
 weight: 1
 chapter: false
 pre: " <b> 1. </b> "
