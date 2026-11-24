@@ -1,12 +1,12 @@
 ---
 title: "Các events đã tham gia"
-date: 2024-01-01
+date: 2026-10-02
 weight: 4
 chapter: false
 pre: " <b> 4. </b> "
 ---
 
-Trong quá trình thực tập, em đã tham gia 6 events, với mỗi event là một trải nghiệm đáng nhớ với những kiến thức mới, hay và bổ ích, cùng với đó là nhứng món quà và những khoảnh khắc rất tuyệt vời.
+Trong suốt quá trình thực tập và tham gia chương trình First Cloud AI Journey, tôi đã tích cực góp mặt trong 6 sự kiện lớn. Mỗi sự kiện đều là một trải nghiệm đáng nhớ, mang lại cho tôi nhiều kiến thức kỹ thuật mới mẻ, kỹ năng mềm hữu ích cùng những khoảnh khắc giao lưu tuyệt vời với cộng đồng.
 
 ### [Event 1](4.1-Event1/)
 

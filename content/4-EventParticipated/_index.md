@@ -5,8 +5,7 @@ weight: 4
 chapter: false
 pre: " <b> 4. </b> "
 ---
-
-During my internship, I participated in six events. Each one was a memorable experience that provided new, interesting, and useful knowledge, along with gifts and wonderful moments.
+Throughout my internship and participation in the First Cloud AI Journey program, I actively took part in six major events. Each event was a memorable experience that brought me fresh technical knowledge, useful soft skills, and wonderful moments of connection with the community.
 
 ### [Event 1](4.1-Event1/)
 

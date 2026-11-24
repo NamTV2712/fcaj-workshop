@@ -1,11 +1,10 @@
 ---
 title: "Internship Report"
-date: 2026-__-__
+date: 2026-11-24
 weight: 1
 chapter: false
 ---
 # Internship Report
-
 
 ### Student Information:
 
@@ -15,7 +14,7 @@ chapter: false
 
 &emsp; **Email:** vnam27122005@gmail.com
 
-&emsp; **University:** FPT University 
+&emsp; **University:** FPT University
 
 &emsp; **Major:** Artification Intelligent
 
@@ -25,7 +24,7 @@ chapter: false
 
 &emsp; **Internship Position:** Workforce Bootcamp - First Cloud AI Journey
 
-&emsp; **Internship Duration:** From 14/09/2025 to --/--/2026
+&emsp; **Internship Duration:** From 14/09/2026 to 30/11/2026
 
 ![Your profile picture](/images/avatar.jpg)
 
