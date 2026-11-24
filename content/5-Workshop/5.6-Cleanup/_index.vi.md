@@ -1,37 +1,58 @@
 ---
-title : "Dọn dẹp tài nguyên"
-date : 2024-01-01
-weight : 6
-chapter : false
-pre : " <b> 5.6. </b> "
+title: "Dọn dẹp"
+date: 2026-11-24
+weight: 6
+chapter: false
+pre: " <b> 5.6. </b> "
 ---
 
-#### Dọn dẹp tài nguyên
+#### Dừng môi trường
 
-Xin chúc mừng bạn đã hoàn thành xong lab này!
-Trong lab này, bạn đã học về các mô hình kiến trúc để truy cập Amazon S3 mà không sử dụng Public Internet.
+```bash
+make down
+make ps
+```
 
-+ Bằng cách tạo Gateway endpoint, bạn đã cho phép giao tiếp trực tiếp giữa các tài nguyên EC2 và Amazon S3, mà không đi qua Internet Gateway.
-Bằng cách tạo Interface endpoint, bạn đã mở rộng kết nối S3 đến các tài nguyên chạy trên trung tâm dữ liệu trên chỗ của bạn thông qua AWS Site-to-Site VPN hoặc Direct Connect.
+`make down` giữ database, bản ghi âm và workspace — chỉ dừng service thuộc quyền quản lý của deployment này và xóa LaunchAgent MPS native trên macOS nhưng vẫn giữ file model. `make ps` sau đó không nên còn container thuộc quyền quản lý.
 
-#### Dọn dẹp
-1. Điều hướng đến Hosted Zones trên phía trái của bảng điều khiển Route 53. Nhấp vào tên của  s3.us-east-1.amazonaws.com zone. Nhấp vào Delete và xác nhận việc xóa bằng cách nhập từ khóa "delete".
+- **Ảnh cần chụp:** `screenshot-14-make-down.png`, `screenshot-15-after-down.png`.
 
-![hosted zone](/images/5-Workshop/5.6-Cleanup/delete-zone.png)
+#### Xóa hoàn toàn (chỉ khi thật sự muốn mất dữ liệu)
 
-2. Disassociate Route 53 Resolver Rule - myS3Rule from "VPC Onprem" and Delete it. 
+```bash
+make -C deploy/compose destroy DESTROY=yes
+```
 
-![hosted zone](/images/5-Workshop/5.6-Cleanup/vpc.png)
+Lệnh này xóa volume Compose — thao tác phá hủy. **Không** chạy trong buổi thực hành trừ khi được yêu cầu rõ ràng.
 
-4.Mở console của CloudFormation và xóa hai stack CloudFormation mà bạn đã tạo cho bài thực hành này:
-+ PLOnpremSetup
-+ PLCloudSetup
+#### Tóm tắt xử lý sự cố
 
-![delete stack](/images/5-Workshop/5.6-Cleanup/delete-stack.png)
+| Triệu chứng | Cách sửa |
+| --- | --- |
+| Docker < 26 | Khởi động Docker/OrbStack/WSL; `docker context show`; `DOCKER_CONTEXT=orbstack make all` |
+| Dotenvx không giải mã | Copy đúng `.env.keys`, `chmod 600` |
+| Bot kẹt ở `requested` | `make bot`; kiểm tra `docker image inspect "$BROWSER_IMAGE"` và log `runtime` |
+| `POST /bots` → 503 thiếu backend phiên âm | Cấu hình trong Settings → Models / `.env`, hoặc gửi `{"transcribe_enabled":false}` |
+| Cổng 18002 xung đột | Dừng LaunchAgent host trước khi chạy Compose |
+| VieGem `auto` lỗi trên Windows | Chạy WSL2 với driver NVIDIA + Docker GPU integration, hoặc `TINA_VIEGEM_DEVICE=cpu make all` |
+| Thiếu model KWS | Cung cấp `hey_tina.onnx`, `tina_oi.onnx` trong `TINA_KWS_MODELS_DIR` |
+| Agent "No model credentials" | Cấu hình provider trong Settings → Models |
 
-5. Xóa các S3 bucket
+#### Checklist ảnh cuối cùng cho báo cáo
 
-+ Mở bảng điều khiển S3
-+ Chọn bucket chúng ta đã tạo cho lab, nhấp chuột và xác nhận là empty. Nhấp Delete và xác nhận delete.
-+ 
-![delete s3](/images/5-Workshop/5.6-Cleanup/delete-s3.png)
+1. `screenshot-00-architecture-and-plan.png`
+2. `screenshot-01-prereqs.png`
+3. `screenshot-02-env-keys-oauth.png` (che bí mật)
+4. `screenshot-03-clone.png`
+5. `screenshot-04-make-plan.png`
+6. `screenshot-05-make-all-success.png` (che bí mật)
+7. `screenshot-06-containers-healthy.png`
+8. `screenshot-07-terminal-signed-in.png`
+9. `screenshot-08-gateway-health.png`
+10. `screenshot-09-asr-status.png`
+11. `screenshot-10-tts-agent-ready.png`
+12. `screenshot-11-make-probe.png`
+13. `screenshot-12-waf-iam-budgets.png`
+14. `screenshot-13-aws-services.png` (nếu có)
+15. `screenshot-14-make-down.png`
+16. `screenshot-15-after-down.png`

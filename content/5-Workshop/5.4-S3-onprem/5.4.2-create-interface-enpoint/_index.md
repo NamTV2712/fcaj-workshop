@@ -1,40 +1,30 @@
 ---
-title : "Create an S3 Interface endpoint"
-date : 2024-01-01
-weight : 2
-chapter : false
-pre : " <b> 5.4.2 </b> "
+title: "Terminal UI and API Gateway"
+date: 2026-11-24
+weight: 2
+chapter: false
+pre: " <b> 5.4.2 </b> "
 ---
 
-In this section you will create and test an S3 interface endpoint using the simulated on-premises environment deployed as part of this workshop.
+#### Sign in
 
-1. Return to the Amazon VPC menu. In the navigation pane, choose Endpoints, then click Create Endpoint.
+Open the Terminal URL printed by `make all` and sign in with Google. The first successful sign-in becomes administrator. Google callback URI must be:
 
-2. In Create endpoint console:
-+ Name the interface endpoint
-+ In Service category, choose **aws services** 
+- `http://127.0.0.1:13000/api/auth/callback/google` (fresh clone), or
+- `http://127.0.0.1:23000/api/auth/callback/google` (tina-production).
 
-![name](/images/5-Workshop/5.4-S3-onprem/s3-interface-endpoint1.png)
+#### Check the API
 
-3.  In the Search box, type S3 and press Enter. Select the endpoint named com.amazonaws.us-east-1.s3. Ensure that the Type column indicates Interface.
+```bash
+export API_KEY=tina_...
+export API=http://127.0.0.1:18056
+curl -sS -o /dev/null -w '%{http_code}\n' "$API/health"
+curl -sS -H "X-API-Key: $API_KEY" "$API/meetings"
+curl -sS http://127.0.0.1:18057/health
+curl -sS http://127.0.0.1:18080/health
+curl -sS http://127.0.0.1:18090/health
+curl -sS http://127.0.0.1:18100/health
+curl -sS http://127.0.0.1:18200/health
+```
 
-![service](/images/5-Workshop/5.4-S3-onprem/s3-interface-endpoint2.png)
-
-4. For VPC, select VPC Cloud from the drop-down.
-+ Expand **Additional settings** and ensure that Enable DNS name is *not* selected (we will use this in the next part of the workshop)
-
-![vpc](/images/5-Workshop/5.4-S3-onprem/s3-interface-endpoint3.png)
-
-5. Select 2 subnets in the following AZs: us-east-1a and us-east-1b
-
-![subnets](/images/5-Workshop/5.4-S3-onprem/s3-interface-endpoint4.png)
-
-6. For Security group, choose SGforS3Endpoint:
-
-![sg](/images/5-Workshop/5.4-S3-onprem/s3-interface-endpoint5.png)
-
-7. Keep the default policy - full access and click Create endpoint
-
-![success](/images/5-Workshop/5.4-S3-onprem/s3-interface-endpoint-success.png)
-
-Congratulation on successfully creating S3 interface endpoint. In the next step, we will test the interface endpoint.
+- **Screenshots:** `screenshot-07-terminal-signed-in.png`, `screenshot-08-gateway-health.png`.
