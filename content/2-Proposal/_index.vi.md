@@ -6,100 +6,176 @@ chapter: false
 pre: " <b> 2. </b> "
 ---
 
-Tại phần này, bạn cần tóm tắt các nội dung trong workshop mà bạn **dự tính** sẽ làm.
+# TINA – Trợ lý cuộc họp AI trên AWS
+## Giải pháp AWS dạng container cho phiên âm, ghi chú và theo dõi cuộc họp theo thời gian thực
 
-# IoT Weather Platform for Lab Research  
-## Giải pháp AWS Serverless hợp nhất cho giám sát thời tiết thời gian thực  
+### 1. Tóm tắt điều hành
+TINA là trợ lý cuộc họp AI do nhóm 4 thành viên xây dựng trong kỳ thực tập First Cloud AI Journey (FCAJ). Bot của TINA tham gia Google Meet, Zoom hoặc Microsoft Teams, phiên âm hội thoại theo thời gian thực (ưu tiên tiếng Việt, có chế độ xem tiếng Anh và song ngữ), tạo ghi chú và tóm tắt trực tiếp, đồng thời cho phép người tham gia đặt câu hỏi về cuộc họp ("Ask TINA"), kể cả trả lời bằng giọng nói khi gọi wake word. Khi cuộc họp kết thúc, mỗi người tham dự nhận được email follow-up kèm link tới bản tóm tắt và bản ghi âm.
 
-### 1. Tóm tắt điều hành  
-IoT Weather Platform được thiết kế dành cho nhóm *ITea Lab* tại TP. Hồ Chí Minh nhằm nâng cao khả năng thu thập và phân tích dữ liệu thời tiết. Nền tảng hỗ trợ tối đa 5 trạm thời tiết, có khả năng mở rộng lên 10–15 trạm, sử dụng thiết bị biên Raspberry Pi kết hợp cảm biến ESP32 để truyền dữ liệu qua MQTT. Nền tảng tận dụng các dịch vụ AWS Serverless để cung cấp giám sát thời gian thực, phân tích dự đoán và tiết kiệm chi phí, với quyền truy cập giới hạn cho 5 thành viên phòng lab thông qua Amazon Cognito.  
+Nền tảng chạy trên AWS tại `us-east-1`. Các dịch vụ được đóng gói container, chạy trên Amazon ECS với AWS Fargate, phía sau CloudFront, AWS WAF và Application Load Balancer. Amazon Cognito (liên kết Google OAuth) xử lý đăng nhập. Amazon RDS và Amazon ElastiCache lưu transcript và trạng thái trực tiếp, Amazon S3 lưu bản ghi âm, Amazon Bedrock tạo tóm tắt và vận hành agent, Amazon SES gửi email follow-up. Phiên bản đầu hướng tới nhóm thí điểm nội bộ khoảng 10 người dùng với khoảng 5 cuộc họp mỗi tuần.
 
-### 2. Tuyên bố vấn đề  
-*Vấn đề hiện tại*  
-Các trạm thời tiết hiện tại yêu cầu thu thập dữ liệu thủ công, khó quản lý khi có nhiều trạm. Không có hệ thống tập trung cho dữ liệu hoặc phân tích thời gian thực, và các nền tảng bên thứ ba thường tốn kém và quá phức tạp.  
+### 2. Tuyên bố vấn đề
+### Vấn đề hiện tại
+Các nhóm làm việc thường bị thất lạc thông tin trong cuộc họp. Phải có người ghi chép thủ công nên quyết định, người phụ trách và deadline dễ bị bỏ sót hoặc ghi không thống nhất. Người vào muộn hoặc vắng mặt không có bản ghi đáng tin cậy để nắm lại nội dung. Phần lớn trợ lý cuộc họp thương mại tính phí theo từng người dùng, xử lý tiếng Việt chưa tốt và lưu dữ liệu cuộc họp trên máy chủ bên thứ ba mà nhóm không kiểm soát được.
 
-*Giải pháp*  
-Nền tảng sử dụng AWS IoT Core để tiếp nhận dữ liệu MQTT, AWS Lambda và API Gateway để xử lý, Amazon S3 để lưu trữ (bao gồm data lake), và AWS Glue Crawlers cùng các tác vụ ETL để trích xuất, chuyển đổi, tải dữ liệu từ S3 data lake sang một S3 bucket khác để phân tích. AWS Amplify với Next.js cung cấp giao diện web, và Amazon Cognito đảm bảo quyền truy cập an toàn. Tương tự như Thingsboard và CoreIoT, người dùng có thể đăng ký thiết bị mới và quản lý kết nối, nhưng nền tảng này hoạt động ở quy mô nhỏ hơn và phục vụ mục đích sử dụng nội bộ. Các tính năng chính bao gồm bảng điều khiển thời gian thực, phân tích xu hướng và chi phí vận hành thấp.  
+### Giải pháp
+TINA đưa một bot vào cuộc họp thông qua trình duyệt headless (Playwright). Bot stream âm thanh cuộc họp tới dịch vụ speech-to-text tự vận hành (VieGem, tối ưu cho tiếng Việt). Các đoạn transcript đã xác nhận được lưu vào Amazon RDS, cập nhật trực tiếp được đẩy qua Amazon ElastiCache tới ứng dụng web. Dịch vụ Agent dùng Amazon Bedrock để cập nhật ghi chú và tóm tắt, dịch transcript cho chế độ xem tiếng Anh/song ngữ và trả lời câu hỏi về cuộc họp đang chọn. Dịch vụ TTS (VieNeu) giúp TINA trả lời bằng giọng nói khi có người gọi wake word. Sau cuộc họp, bản ghi âm được lưu vào Amazon S3 và Amazon SES gửi email follow-up cho từng người tham dự, với link chỉ truy cập được bằng tài khoản đã đăng nhập của người nhận.
 
-*Lợi ích và hoàn vốn đầu tư (ROI)*  
-Giải pháp tạo nền tảng cơ bản để các thành viên phòng lab phát triển một nền tảng IoT lớn hơn, đồng thời cung cấp nguồn dữ liệu cho những người nghiên cứu AI phục vụ huấn luyện mô hình hoặc phân tích. Nền tảng giảm bớt báo cáo thủ công cho từng trạm thông qua hệ thống tập trung, đơn giản hóa quản lý và bảo trì, đồng thời cải thiện độ tin cậy dữ liệu. Chi phí hàng tháng ước tính 0,66 USD (theo AWS Pricing Calculator), tổng cộng 7,92 USD cho 12 tháng. Tất cả thiết bị IoT đã được trang bị từ hệ thống trạm thời tiết hiện tại, không phát sinh chi phí phát triển thêm. Thời gian hoàn vốn 6–12 tháng nhờ tiết kiệm đáng kể thời gian thao tác thủ công.  
+Tính năng chính:
+- Bot cuộc họp cho Google Meet, Zoom và Teams; transcript trực tiếp với chế độ xem tiếng Việt, tiếng Anh và song ngữ.
+- Ghi chú trực tiếp, tóm tắt cuối buổi và tìm kiếm transcript.
+- Agent "Ask TINA" hiểu ngữ cảnh cuộc họp, hỗ trợ wake word và trả lời bằng giọng nói.
+- Email follow-up sau cuộc họp kèm link tóm tắt và bản ghi âm.
+- Đăng nhập Google qua Cognito; bí mật lưu trong AWS Secrets Manager, mã hóa bằng AWS KMS.
 
-### 3. Kiến trúc giải pháp  
-Nền tảng áp dụng kiến trúc AWS Serverless để quản lý dữ liệu từ 5 trạm dựa trên Raspberry Pi, có thể mở rộng lên 15 trạm. Dữ liệu được tiếp nhận qua AWS IoT Core, lưu trữ trong S3 data lake và xử lý bởi AWS Glue Crawlers và ETL jobs để chuyển đổi và tải vào một S3 bucket khác cho mục đích phân tích. Lambda và API Gateway xử lý bổ sung, trong khi Amplify với Next.js cung cấp bảng điều khiển được bảo mật bởi Cognito.  
+### Lợi ích và hoàn vốn đầu tư (ROI)
+- **Tiết kiệm thời gian**: Bỏ việc ghi chép và soạn follow-up thủ công, tiết kiệm khoảng 15–30 phút mỗi cuộc họp cho người ghi chép; với ~5 cuộc họp/tuần là 5–10 giờ mỗi tháng cho nhóm thí điểm.
+- **Theo dõi công việc tốt hơn**: Quyết định và đầu việc được lưu thành bản ghi có thể tìm kiếm và gửi tới mọi người tham dự.
+- **Làm chủ dữ liệu**: Toàn bộ dữ liệu cuộc họp, bản ghi âm và mô hình nằm trong tài khoản AWS của nhóm.
+- **Giá trị học tập**: Nhóm có kinh nghiệm thực tế với ECS/Fargate, networking, cơ sở dữ liệu managed, generative AI trên Bedrock và CI/CD — nền tảng tái sử dụng cho các sản phẩm AI sau này.
+- **Chi phí**: Khoảng **148 USD/tháng** (on-demand) khi toàn bộ kiến trúc chạy 24/7 (xem mục 6). Khi tắt dịch vụ ngoài giờ, chi phí nằm trong hạn mức AWS credits của nhóm cho giai đoạn thực tập và thí điểm, thấp hơn nhiều so với license SaaS tính theo đầu người cho 10 người dùng.
 
-![IoT Weather Station Architecture](/images/2-Proposal/edge_architecture.jpeg)
+### 3. Kiến trúc giải pháp
+TINA sử dụng kiến trúc container trên Amazon ECS (AWS Fargate) trong một VPC trải trên 2 Availability Zone tại `us-east-1`. Lưu lượng công khai đi vào qua CloudFront và AWS WAF, rồi tới Application Load Balancer. Mọi task ứng dụng chạy trong private subnet. Các kho dữ liệu nằm trong private data subnet riêng, và lưu lượng đi ra ngoài (nền tảng họp, Google OAuth) đi qua NAT Gateway.
 
-![IoT Weather Platform Architecture](/images/2-Proposal/platform_architecture.jpeg)
+![TINA AWS Architecture](/images/2-Proposal/tina_aws_architecture.png)
 
-*Dịch vụ AWS sử dụng*  
-- *AWS IoT Core*: Tiếp nhận dữ liệu MQTT từ 5 trạm, mở rộng lên 15.  
-- *AWS Lambda*: Xử lý dữ liệu và kích hoạt Glue jobs (2 hàm).  
-- *Amazon API Gateway*: Giao tiếp với ứng dụng web.  
-- *Amazon S3*: Lưu trữ dữ liệu thô (data lake) và dữ liệu đã xử lý (2 bucket).  
-- *AWS Glue*: Crawlers lập chỉ mục dữ liệu, ETL jobs chuyển đổi và tải dữ liệu.  
-- *AWS Amplify*: Lưu trữ giao diện web Next.js.  
-- *Amazon Cognito*: Quản lý quyền truy cập cho người dùng phòng lab.  
+**Luồng xử lý (số thứ tự khớp với sơ đồ):**
+1. Người dùng truy cập TINA qua **CloudFront** (được bảo vệ bởi **WAF**) và đăng nhập qua **Cognito** bằng Google OAuth.
+2. CloudFront chuyển request vào VPC qua **Internet Gateway**.
+3. Lưu lượng tới **Application Load Balancer**.
+4. ALB định tuyến HTTPS tới task **Web serving** (Next.js terminal, API, WebSocket gateway).
+5. Khi cuộc họp bắt đầu, task Web khởi chạy task **Bot** (Playwright).
+6. Bot tham gia Google Meet / Zoom / Teams qua **NAT Gateway** bằng HTTPS/WebRTC.
+7. Bot stream âm thanh tới task **STT (VieGem)** (7.1) và lưu bản ghi âm vào **Amazon S3** (7.2).
+8. Các đoạn transcript được ghi vào **RDS**, trạng thái trực tiếp vào **ElastiCache**.
+9. Task Web và Bot gọi task **Agent** để tạo ghi chú, tóm tắt, bản dịch và trả lời Ask TINA.
+10. Agent gọi **Amazon Bedrock** để suy luận LLM.
+11. Cập nhật trực tiếp từ ElastiCache/RDS được trả về task Web (11.1); task **TTS (VieNeu)** phát câu trả lời của agent vào cuộc họp qua bot (11.2).
+12. Sau cuộc họp, task Web gửi email follow-up qua **Amazon SES** tới người tham dự.
 
-*Thiết kế thành phần*  
-- *Thiết bị biên*: Raspberry Pi thu thập và lọc dữ liệu cảm biến, gửi tới IoT Core.  
-- *Tiếp nhận dữ liệu*: AWS IoT Core nhận tin nhắn MQTT từ thiết bị biên.  
-- *Lưu trữ dữ liệu*: Dữ liệu thô lưu trong S3 data lake; dữ liệu đã xử lý lưu ở một S3 bucket khác.  
-- *Xử lý dữ liệu*: AWS Glue Crawlers lập chỉ mục dữ liệu; ETL jobs chuyển đổi để phân tích.  
-- *Giao diện web*: AWS Amplify lưu trữ ứng dụng Next.js cho bảng điều khiển và phân tích thời gian thực.  
-- *Quản lý người dùng*: Amazon Cognito giới hạn 5 tài khoản hoạt động.  
+**CI/CD:** GitHub Actions build image container, đẩy lên **Amazon ECR**, và **ECS** triển khai task revision mới. **CloudWatch** thu thập log, metric và cảnh báo cho ALB, ECS task, RDS, ElastiCache và Bedrock.
 
-### 4. Triển khai kỹ thuật  
-*Các giai đoạn triển khai*  
-Dự án gồm 2 phần — thiết lập trạm thời tiết biên và xây dựng nền tảng thời tiết — mỗi phần trải qua 4 giai đoạn:  
-1. *Nghiên cứu và vẽ kiến trúc*: Nghiên cứu Raspberry Pi với cảm biến ESP32 và thiết kế kiến trúc AWS Serverless (1 tháng trước kỳ thực tập).  
-2. *Tính toán chi phí và kiểm tra tính khả thi*: Sử dụng AWS Pricing Calculator để ước tính và điều chỉnh (Tháng 1).  
-3. *Điều chỉnh kiến trúc để tối ưu chi phí/giải pháp*: Tinh chỉnh (ví dụ tối ưu Lambda với Next.js) để đảm bảo hiệu quả (Tháng 2).  
-4. *Phát triển, kiểm thử, triển khai*: Lập trình Raspberry Pi, AWS services với CDK/SDK và ứng dụng Next.js, sau đó kiểm thử và đưa vào vận hành (Tháng 2–3).  
+### Dịch vụ AWS sử dụng
+- **Amazon CloudFront + AWS WAF**: Điểm truy cập toàn cầu, TLS, cache tài nguyên tĩnh và chống các tấn công web phổ biến.
+- **Amazon VPC, Internet Gateway, NAT Gateway**: Cô lập mạng với public, private và private data subnet trên 2 AZ; kiểm soát truy cập ra ngoài.
+- **Application Load Balancer**: Định tuyến HTTPS/WebSocket tới task Web kèm health check.
+- **Amazon ECS trên AWS Fargate**: Chạy 5 dịch vụ — Web serving, Bot (Playwright), STT (VieGem), TTS (VieNeu), Agent — không cần quản lý máy chủ.
+- **Amazon ECR**: Registry riêng cho image container.
+- **Amazon Cognito**: User pool liên kết Google OAuth; cấp JWT cho ứng dụng web.
+- **Amazon RDS (PostgreSQL)**: Lưu cuộc họp, transcript, ghi chú, người dùng và cấu hình.
+- **Amazon ElastiCache (Redis)**: Stream transcript trực tiếp, pub/sub và trạng thái ngắn hạn.
+- **Amazon S3**: Lưu bản ghi âm cuộc họp và tệp xuất.
+- **Amazon Bedrock**: LLM cho ghi chú, tóm tắt, dịch và agent cuộc họp.
+- **Amazon SES**: Gửi email follow-up sau cuộc họp.
+- **IAM, AWS Secrets Manager, AWS KMS**: Role tối thiểu quyền cho từng task, lưu bí mật (mật khẩu DB, OAuth client secret, token dịch vụ) và khóa mã hóa.
+- **Amazon CloudWatch**: Log, metric, dashboard và cảnh báo.
+- **AWS Cost Explorer, AWS Budgets**: Theo dõi chi phí và cảnh báo ngân sách.
 
-*Yêu cầu kỹ thuật*  
-- *Trạm thời tiết biên*: Cảm biến (nhiệt độ, độ ẩm, lượng mưa, tốc độ gió), vi điều khiển ESP32, Raspberry Pi làm thiết bị biên. Raspberry Pi chạy Raspbian, sử dụng Docker để lọc dữ liệu và gửi 1 MB/ngày/trạm qua MQTT qua Wi-Fi.  
-- *Nền tảng thời tiết*: Kiến thức thực tế về AWS Amplify (lưu trữ Next.js), Lambda (giảm thiểu do Next.js xử lý), AWS Glue (ETL), S3 (2 bucket), IoT Core (gateway và rules), và Cognito (5 người dùng). Sử dụng AWS CDK/SDK để lập trình (ví dụ IoT Core rules tới S3). Next.js giúp giảm tải Lambda cho ứng dụng web fullstack.  
+### Thiết kế thành phần
+- **Client**: Ứng dụng web (TINA Terminal) và Chrome extension; người dùng đăng nhập Google qua Cognito.
+- **Lớp biên**: CloudFront + WAF đứng trước ALB; chỉ mở HTTPS ra Internet.
+- **Task Web serving**: Giao diện, REST API, WebSocket gateway cho transcript trực tiếp, điều phối cuộc họp và gửi email.
+- **Task Bot**: Mỗi cuộc họp một trình duyệt Playwright; thu âm theo kênh từng người tham gia và phát âm thanh TTS vào cuộc họp.
+- **Task giọng nói**: STT (VieGem) chuyển các cửa sổ âm thanh thành đoạn transcript nháp/đã xác nhận; TTS (VieNeu) tạo câu trả lời bằng giọng nói.
+- **Task Agent**: Xây dựng ngữ cảnh cuộc họp và gọi Bedrock để tạo ghi chú, tóm tắt, bản dịch song ngữ và câu trả lời Ask TINA.
+- **Lớp dữ liệu**: RDS cho dữ liệu bền vững, ElastiCache cho stream thời gian thực, S3 cho bản ghi âm — tất cả trong private data subnet, mã hóa bằng KMS.
+- **Vận hành**: Triển khai GitHub Actions → ECR → ECS; giám sát bằng CloudWatch; cảnh báo bằng Budgets.
 
-### 5. Lộ trình & Mốc triển khai  
-- *Trước thực tập (Tháng 0)*: 1 tháng lên kế hoạch và đánh giá trạm cũ.  
-- *Thực tập (Tháng 1–3)*:  
-    - Tháng 1: Học AWS và nâng cấp phần cứng.  
-    - Tháng 2: Thiết kế và điều chỉnh kiến trúc.  
-    - Tháng 3: Triển khai, kiểm thử, đưa vào sử dụng.  
-- *Sau triển khai*: Nghiên cứu thêm trong vòng 1 năm.  
+### 4. Triển khai kỹ thuật
+**Các giai đoạn triển khai**
+Dự án gồm 4 giai đoạn:
+1. **Nghiên cứu và thiết kế kiến trúc** (Tuần 1–6): Học các dịch vụ AWS cốt lõi qua lab FCAJ; tìm hiểu codebase TINA (meeting bot, ASR, agent); vẽ kiến trúc AWS.
+2. **Ước tính chi phí và kiểm tra tính khả thi** (Tuần 7–8): Ước tính bằng AWS Pricing Calculator; thử nghiệm model Bedrock và chất lượng ASR tiếng Việt; điều chỉnh cấu hình để phù hợp ngân sách credits.
+3. **Tinh chỉnh kiến trúc** (Tuần 8–9): Đóng gói container cho mọi dịch vụ, chuyển bí mật sang Secrets Manager, tách mạng thành public/private/data subnet và định nghĩa IAM role cho từng task.
+4. **Phát triển, kiểm thử và triển khai** (Tuần 9–12): Xây dựng tính năng (trợ lý giọng nói, wake word, email sau cuộc họp, dịch song ngữ), thiết lập CI/CD với GitHub Actions và ECR, triển khai lên ECS Fargate, kiểm thử end-to-end với cuộc họp thật và tối ưu chi phí.
 
-### 6. Ước tính ngân sách  
-Có thể xem chi phí trên [AWS Pricing Calculator](https://calculator.aws/#/estimate?id=621f38b12a1ef026842ba2ddfe46ff936ed4ab01)  
-Hoặc tải [tệp ước tính ngân sách](../attachments/budget_estimation.pdf).  
+**Yêu cầu kỹ thuật**
+- **Ứng dụng**: TypeScript/Next.js (web), Python (meeting API, agent), Playwright (bot), Docker image cho mọi dịch vụ; monorepo pnpm/turbo.
+- **Giọng nói**: Model STT VieGem và TTS VieNeu phục vụ qua HTTP có xác thực bên trong VPC; artifact model lưu trên S3/ECR.
+- **AWS**: Task definition và service ECS Fargate, target group ALB có health check, RDS PostgreSQL, ElastiCache Redis, S3 bucket có mã hóa và lifecycle rule, Cognito user pool với Google IdP, quyền truy cập model Bedrock, domain đã xác minh trên SES.
+- **Bảo mật**: IAM task role tối thiểu quyền, Secrets Manager cho thông tin xác thực, mã hóa KMS khi lưu trữ, TLS khi truyền, security group chỉ cho phép ALB → Web và lưu lượng nội bộ giữa các dịch vụ.
+- **DevOps**: GitHub Actions để build/test, đẩy image lên ECR và triển khai ECS; log và cảnh báo trên CloudWatch.
 
-*Chi phí hạ tầng*  
-- AWS Lambda: 0,00 USD/tháng (1.000 request, 512 MB lưu trữ).  
-- S3 Standard: 0,15 USD/tháng (6 GB, 2.100 request, 1 GB quét).  
-- Truyền dữ liệu: 0,02 USD/tháng (1 GB vào, 1 GB ra).  
-- AWS Amplify: 0,35 USD/tháng (256 MB, request 500 ms).  
-- Amazon API Gateway: 0,01 USD/tháng (2.000 request).  
-- AWS Glue ETL Jobs: 0,02 USD/tháng (2 DPU).  
-- AWS Glue Crawlers: 0,07 USD/tháng (1 crawler).  
-- MQTT (IoT Core): 0,08 USD/tháng (5 thiết bị, 45.000 tin nhắn).  
+### 5. Lộ trình & Mốc triển khai
+**Lộ trình dự án**
+- **Tuần 1–4 (14/09 – 09/10/2026)**: Onboarding FCAJ, kiến thức nền tảng AWS (IAM, VPC, EC2, S3, RDS), làm lab.
+- **Tuần 5–8 (12/10 – 06/11/2026)**: Tham gia dự án TINA, phân tích yêu cầu, thiết kế kiến trúc AWS, ước tính chi phí, thử nghiệm Bedrock và ASR.
+- **Tuần 9–10 (09/11 – 20/11/2026)**: Phát triển trợ lý giọng nói, wake word, luồng email sau cuộc họp và nhánh triển khai AWS; thiết lập CI.
+- **Tuần 11–12 (23/11 – 04/12/2026)**: Triển khai lên ECS Fargate, kiểm thử end-to-end với cuộc họp thật, tối ưu chi phí, hoàn thiện tài liệu và demo cuối kỳ.
+- **Sau thực tập**: Chạy thí điểm với nhóm nội bộ, thu thập số liệu về độ chính xác, độ trễ và chi phí.
 
-*Tổng*: 0,7 USD/tháng, 8,40 USD/12 tháng  
-- *Phần cứng*: 265 USD một lần (Raspberry Pi 5 và cảm biến).  
+**Mốc chính**
+- M1: Kiến trúc AWS được duyệt, hoàn thành ước tính chi phí.
+- M2: Meeting bot + phiên âm tiếng Việt trực tiếp chạy end-to-end trên AWS.
+- M3: Agent (ghi chú, tóm tắt, Ask TINA, trả lời bằng giọng nói) và email follow-up hoạt động.
+- M4: Hoàn thiện CI/CD, giám sát và ngân sách; demo cuối kỳ.
 
-### 7. Đánh giá rủi ro  
-*Ma trận rủi ro*  
-- Mất mạng: Ảnh hưởng trung bình, xác suất trung bình.  
-- Hỏng cảm biến: Ảnh hưởng cao, xác suất thấp.  
-- Vượt ngân sách: Ảnh hưởng trung bình, xác suất thấp.  
+### 6. Ước tính ngân sách
+Ước tính dùng giá on-demand tại `us-east-1` (US East – N. Virginia) với tải thí điểm: ~10 người dùng, ~5 cuộc họp/tuần, mỗi cuộc khoảng 1 giờ (~20 giờ họp/tháng). Các dịch vụ thường trực chạy 24/7; dịch vụ cuộc họp (Bot, STT, TTS) chỉ chạy khi có cuộc họp. Con số cuối cùng cần được xác nhận lại bằng AWS Pricing Calculator.
 
-*Chiến lược giảm thiểu*  
-- Mạng: Lưu trữ cục bộ trên Raspberry Pi với Docker.  
-- Cảm biến: Kiểm tra định kỳ, dự phòng linh kiện.  
-- Chi phí: Cảnh báo ngân sách AWS, tối ưu dịch vụ.  
+### Chi phí hạ tầng
+- **Tính toán (ECS Fargate)**:
+    - Web serving (0,5 vCPU, 1 GB, 24/7): 18,02 USD/tháng.
+    - Agent (0,5 vCPU, 1 GB, 24/7): 18,02 USD/tháng.
+    - Bot – Playwright (1 vCPU, 2 GB, 20 giờ): 0,99 USD/tháng.
+    - STT – VieGem (2 vCPU, 4 GB, 20 giờ): 1,97 USD/tháng.
+    - TTS – VieNeu (1 vCPU, 2 GB, 20 giờ): 0,99 USD/tháng.
+- **Mạng**:
+    - Application Load Balancer (1 ALB, LCU thấp): 18,00 USD/tháng.
+    - NAT Gateway (1 gateway, ~10 GB xử lý): 33,30 USD/tháng.
+    - Địa chỉ IPv4 công khai (3): 10,95 USD/tháng.
+    - CloudFront: 1,00 USD/tháng (phần lớn nằm trong free tier).
+- **Dữ liệu**:
+    - Amazon RDS PostgreSQL (db.t4g.micro, Single-AZ, 20 GB gp3): 14,00 USD/tháng.
+    - Amazon ElastiCache Redis (cache.t4g.micro): 11,68 USD/tháng.
+    - Amazon S3 (~10 GB bản ghi âm + request): 0,33 USD/tháng.
+- **AI và gửi thư**:
+    - Amazon Bedrock (ghi chú, tóm tắt, dịch, hỏi đáp): ~3,00 USD/tháng.
+    - Amazon SES (~200 email): 0,01 USD/tháng.
+- **Bảo mật và vận hành**:
+    - AWS WAF (1 web ACL, 3 rule): 8,00 USD/tháng.
+    - AWS Secrets Manager (5 secret): 2,00 USD/tháng.
+    - AWS KMS (1 customer managed key): 1,00 USD/tháng.
+    - Amazon CloudWatch (~5 GB log, cảnh báo): 3,50 USD/tháng.
+    - Amazon ECR (~10 GB image): 1,00 USD/tháng.
+    - Amazon Cognito (dưới 10.000 MAU): 0,00 USD/tháng.
 
-*Kế hoạch dự phòng*  
-- Quay lại thu thập thủ công nếu AWS gặp sự cố.  
-- Sử dụng CloudFormation để khôi phục cấu hình liên quan đến chi phí.  
+**Tổng: ~147,76 USD/tháng, ~1.773 USD/12 tháng** (toàn bộ kiến trúc, chạy 24/7).
 
-### 8. Kết quả kỳ vọng  
-*Cải tiến kỹ thuật*: Dữ liệu và phân tích thời gian thực thay thế quy trình thủ công. Có thể mở rộng tới 10–15 trạm.  
-*Giá trị dài hạn*: Nền tảng dữ liệu 1 năm cho nghiên cứu AI, có thể tái sử dụng cho các dự án tương lai.
+**Tối ưu chi phí**: Tắt task Web/Agent, RDS và ElastiCache ngoài giờ làm việc (~10 giờ/ngày, các ngày trong tuần) và bỏ WAF ở môi trường phát triển giúp giảm chi phí demo/thí điểm xuống khoảng **70–80 USD/tháng**. Các lựa chọn khác: Fargate Spot cho task Bot/STT/TTS, VPC endpoint cho S3/ECR để giảm phí dữ liệu qua NAT, và lifecycle rule trên S3 để chuyển bản ghi âm cũ sang lớp lưu trữ rẻ hơn. AWS Budgets cảnh báo ở mức 50%, 80% và 100% hạn mức tháng.
+
+### 7. Đánh giá rủi ro
+#### Ma trận rủi ro
+- **Vượt ngân sách** (NAT Gateway, ALB, task chạy 24/7): Ảnh hưởng cao, xác suất trung bình.
+- **Độ chính xác ASR tiếng Việt** (giọng vùng miền, tiếng ồn, thuật ngữ tiếng Anh): Ảnh hưởng cao, xác suất trung bình.
+- **Thay đổi từ nền tảng họp** (giao diện Meet/Zoom/Teams thay đổi hoặc chặn bot): Ảnh hưởng cao, xác suất trung bình.
+- **Độ trễ thời gian thực** (âm thanh → transcript → ghi chú): Ảnh hưởng trung bình, xác suất trung bình.
+- **Quyền riêng tư dữ liệu** (bản ghi âm, transcript cuộc họp nội bộ): Ảnh hưởng cao, xác suất thấp.
+- **Hạn mức hoặc khả dụng model Bedrock**: Ảnh hưởng trung bình, xác suất thấp.
+
+#### Chiến lược giảm thiểu
+- **Chi phí**: Cảnh báo AWS Budgets, theo dõi Cost Explorer, tắt dịch vụ ngoài giờ, dùng Fargate Spot cho task cuộc họp, chỉ chạy task cuộc họp khi cần.
+- **Độ chính xác ASR**: Dùng VieGem tối ưu cho tiếng Việt, cơ chế endpointing xác nhận phần text ổn định, đo độ chính xác trên các cuộc họp mẫu đã ghi.
+- **Thay đổi nền tảng**: Adapter thu âm riêng cho từng nền tảng, regression test cho luồng Playwright, cập nhật image nhanh qua CI/CD.
+- **Độ trễ**: Đặt STT trong VPC, stream kết quả tạm thời, dùng model Bedrock nhanh/chi phí thấp cho ghi chú trực tiếp.
+- **Quyền riêng tư**: Thông báo xin đồng ý trước khi ghi âm, xác thực qua Cognito, link gắn với người nhận, mã hóa KMS, private subnet, IAM tối thiểu quyền, quy tắc lưu giữ trên S3.
+- **Bedrock**: Đăng ký hạn mức trước, cấu hình sẵn model dự phòng.
+
+#### Kế hoạch dự phòng
+- Nếu ngân sách gần chạm hạn mức, scale các dịch vụ ECS về 0 và dừng RDS/ElastiCache; chỉ giữ S3 và snapshot cơ sở dữ liệu.
+- Nếu triển khai lỗi, rollback về task definition revision trước đó trên ECS.
+- Nếu phiên âm trực tiếp không khả dụng, bot vẫn ghi âm vào S3 và phiên âm sau cuộc họp.
+- Nếu Bedrock không khả dụng, vẫn gửi transcript và link bản ghi âm, chưa kèm tóm tắt AI.
+
+### 8. Kết quả kỳ vọng
+#### Cải tiến kỹ thuật
+- Cuộc họp được phiên âm và tóm tắt tự động theo thời gian thực, tiếng Việt là ngôn ngữ ưu tiên.
+- Người tham dự nhận ghi chú và bản ghi âm ngay sau cuộc họp, không cần ghi chép thủ công.
+- Hệ thống container trên AWS bảo mật, có giám sát và CI/CD tự động.
+- Mỗi dịch vụ mở rộng độc lập; task cuộc họp chỉ chạy khi cần.
+
+#### Giá trị dài hạn
+- Nền tảng tái sử dụng cho các sản phẩm AI về cuộc họp: thêm tích hợp (Notion, Calendar), trích xuất đầu việc, phân tách người nói.
+- Kho dữ liệu cuộc họp ngày càng lớn để cải thiện ASR tiếng Việt và đánh giá chất lượng đầu ra của LLM.
+- Kinh nghiệm thực tế của nhóm về kiến trúc AWS, quản lý chi phí và generative AI trên Bedrock.
