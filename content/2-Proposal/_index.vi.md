@@ -98,18 +98,34 @@ Dự án gồm 4 giai đoạn:
 - **DevOps**: GitHub Actions để build/test, đẩy image lên ECR và triển khai ECS; log và cảnh báo trên CloudWatch.
 
 ### 5. Lộ trình & Mốc triển khai
-**Lộ trình dự án**
-- **Tuần 1–4 (14/09 – 09/10/2026)**: Onboarding FCAJ, kiến thức nền tảng AWS (IAM, VPC, EC2, S3, RDS), làm lab.
-- **Tuần 5–8 (12/10 – 06/11/2026)**: Tham gia dự án TINA, phân tích yêu cầu, thiết kế kiến trúc AWS, ước tính chi phí, thử nghiệm Bedrock và ASR.
-- **Tuần 9–10 (09/11 – 20/11/2026)**: Phát triển trợ lý giọng nói, wake word, luồng email sau cuộc họp và nhánh triển khai AWS; thiết lập CI.
-- **Tuần 11–12 (23/11 – 04/12/2026)**: Triển khai lên ECS Fargate, kiểm thử end-to-end với cuộc họp thật, tối ưu chi phí, hoàn thiện tài liệu và demo cuối kỳ.
-- **Sau thực tập**: Chạy thí điểm với nhóm nội bộ, thu thập số liệu về độ chính xác, độ trễ và chi phí.
-
-**Mốc chính**
-- M1: Kiến trúc AWS được duyệt, hoàn thành ước tính chi phí.
-- M2: Meeting bot + phiên âm tiếng Việt trực tiếp chạy end-to-end trên AWS.
-- M3: Agent (ghi chú, tóm tắt, Ask TINA, trả lời bằng giọng nói) và email follow-up hoạt động.
-- M4: Hoàn thiện CI/CD, giám sát và ngân sách; demo cuối kỳ.
+| Tuần | Thành viên | Công việc dự kiến |
+| --- | --- | --- |
+| Tuần 7 | **Cả nhóm** | Họp kickoff, thống nhất phạm vi MVP (bot, transcript trực tiếp, ghi chú/tóm tắt, Ask TINA, email follow-up), chốt sơ đồ kiến trúc, tạo Git repo chung và tài khoản IAM. |
+| | Trần Kiến Quốc | Phân tích luồng giọng nói (wake word → Agent → TTS) và yêu cầu email sau cuộc họp. |
+| | Thái Việt Nam | Hoàn thiện tài liệu kiến trúc, quy hoạch VPC/subnet trên 2 AZ và soạn thảo IAM policy. |
+| | Hoàng Đình Quang | Đánh giá độ chính xác và độ trễ của STT tiếng Việt (VieGem) trên các bản ghi cuộc họp mẫu. |
+| | Lê Hoài Thanh Quang | Thử nghiệm model Bedrock cho ghi chú/tóm tắt và ước tính chi phí bằng AWS Pricing Calculator. |
+| Tuần 8 | **Cả nhóm** | Thống nhất contract giữa Web, Bot, STT, TTS và Agent (đoạn transcript, sự kiện, API); đóng gói container cho mọi dịch vụ. |
+| | Trần Kiến Quốc | Đóng gói container dịch vụ TTS (VieNeu), thiết lập GitHub Actions để build và đẩy image lên ECR. |
+| | Thái Việt Nam | Dựng VPC, NAT Gateway, ALB, ECS cluster, CloudFront + WAF và Cognito User Pool liên kết Google OAuth. |
+| | Hoàng Đình Quang | Đóng gói container Bot (Playwright) và STT, viết task definition Fargate. |
+| | Lê Hoài Thanh Quang | Thiết lập RDS PostgreSQL, ElastiCache Redis và S3 bucket lưu bản ghi âm có mã hóa. |
+| Tuần 9 | **Cả nhóm** | Review chéo code; tích hợp luồng transcript trực tiếp Bot → STT → RDS/ElastiCache → Web. |
+| | Trần Kiến Quốc | Xây dựng trợ lý giọng nói và wake word; phát câu trả lời TTS vào cuộc họp qua bot. |
+| | Thái Việt Nam | Cấu hình Secrets Manager, KMS, IAM task role tối thiểu quyền và security group. |
+| | Hoàng Đình Quang | Thu âm theo kênh từng người tham gia, tinh chỉnh endpointing và thêm chế độ xem transcript song ngữ. |
+| | Lê Hoài Thanh Quang | Xây dựng Agent: ghi chú trực tiếp, tóm tắt cuối buổi và Ask TINA qua Bedrock. |
+| Tuần 10 | **Cả nhóm** | Kiểm thử end-to-end với cuộc họp Google Meet thật và sửa lỗi. |
+| | Trần Kiến Quốc | Gửi email follow-up sau cuộc họp qua Amazon SES, kèm link tóm tắt/bản ghi âm gắn với người nhận. |
+| | Thái Việt Nam | Dashboard và cảnh báo CloudWatch, cảnh báo chi phí bằng AWS Budgets. |
+| | Hoàng Đình Quang | Hỗ trợ thu âm Zoom/Teams và giảm độ trễ STT. |
+| | Lê Hoài Thanh Quang | Tinh chỉnh prompt, thêm tìm kiếm transcript và theo dõi chi phí token Bedrock. |
+| Tuần 11 | **Cả nhóm** | Đánh giá kết quả kiểm thử, tìm điểm nghẽn và tối ưu chi phí. |
+| | Trần Kiến Quốc | Regression test cho luồng giọng nói, wake word và email; giữ CI ổn định. |
+| | Thái Việt Nam | Tắt dịch vụ ngoài giờ, dùng Fargate Spot, VPC endpoint; kiểm tra bảo mật cơ bản (WAF, IAM). |
+| | Hoàng Đình Quang | Load test nhiều cuộc họp đồng thời, tinh chỉnh CPU/memory Fargate cho Bot và STT. |
+| | Lê Hoài Thanh Quang | Đánh giá chất lượng ghi chú/tóm tắt tiếng Việt và tiếng Anh; cấu hình model dự phòng. |
+| Tuần 12 | **Cả nhóm** | Chạy toàn bộ hệ thống, quay video demo, hoàn thiện tài liệu và slide thuyết trình, nộp bài. |
 
 ### 6. Ước tính ngân sách
 Ước tính dùng giá on-demand tại `us-east-1` (US East – N. Virginia) với tải thí điểm: ~10 người dùng, ~5 cuộc họp/tuần, mỗi cuộc khoảng 1 giờ (~20 giờ họp/tháng). Các dịch vụ thường trực chạy 24/7; dịch vụ cuộc họp (Bot, STT, TTS) chỉ chạy khi có cuộc họp. Con số cuối cùng cần được xác nhận lại bằng AWS Pricing Calculator.

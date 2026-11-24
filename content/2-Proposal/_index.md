@@ -98,18 +98,34 @@ The project follows four phases:
 - **DevOps**: GitHub Actions for build/test, image push to ECR and ECS deployment; CloudWatch logs and alarms.
 
 ### 5. Timeline & Milestones
-**Project Timeline**
-- **Weeks 1–4 (14/09 – 09/10/2026)**: FCAJ onboarding, AWS fundamentals (IAM, VPC, EC2, S3, RDS), labs.
-- **Weeks 5–8 (12/10 – 06/11/2026)**: Join the TINA project, analyse requirements, design the AWS architecture, estimate costs, test Bedrock and ASR.
-- **Weeks 9–10 (09/11 – 20/11/2026)**: Implement the voice assistant, wake word, post-meeting email flow and AWS deployment branch; set up CI.
-- **Weeks 11–12 (23/11 – 04/12/2026)**: Deploy to ECS Fargate, end-to-end testing with real meetings, cost tuning, documentation and final demo.
-- **Post-internship**: Run the pilot with the internal team and collect accuracy, latency and cost metrics.
-
-**Milestones**
-- M1: AWS architecture approved and cost estimate complete.
-- M2: Meeting bot + live Vietnamese transcription working end-to-end on AWS.
-- M3: Agent (notes, summary, Ask TINA, voice reply) and follow-up email working.
-- M4: CI/CD, monitoring and budgets in place; final demo.
+| Week | Team Member | Planned Tasks |
+| --- | --- | --- |
+| Week 7 | **All Members** | Kickoff meeting, agree on MVP scope (bot, live transcript, notes/summary, Ask TINA, follow-up email), finalize the architecture diagram, set up the shared Git repo and IAM accounts. |
+| | Trần Kiến Quốc | Analyse the voice flow (wake word → Agent → TTS) and the post-meeting email requirements. |
+| | Thái Việt Nam | Finalize architecture documentation, plan the VPC/subnets across 2 AZs and draft IAM policies. |
+| | Hoàng Đình Quang | Evaluate Vietnamese STT (VieGem) accuracy and latency on sample meeting recordings. |
+| | Lê Hoài Thanh Quang | Test Bedrock models for notes/summaries and estimate costs with the AWS Pricing Calculator. |
+| Week 8 | **All Members** | Agree on contracts between Web, Bot, STT, TTS and Agent (transcript segments, events, APIs); containerize every service. |
+| | Trần Kiến Quốc | Containerize the TTS (VieNeu) service and set up GitHub Actions to build and push images to ECR. |
+| | Thái Việt Nam | Provision VPC, NAT Gateway, ALB, ECS cluster, CloudFront + WAF and the Cognito User Pool with Google OAuth. |
+| | Hoàng Đình Quang | Containerize the Bot (Playwright) and STT services and write their Fargate task definitions. |
+| | Lê Hoài Thanh Quang | Set up RDS PostgreSQL, ElastiCache Redis and the S3 recordings bucket with encryption. |
+| Week 9 | **All Members** | Peer code review; integrate the Bot → STT → RDS/ElastiCache → Web live transcript flow. |
+| | Trần Kiến Quốc | Build the voice assistant and wake word; play TTS replies into the meeting through the bot. |
+| | Thái Việt Nam | Configure Secrets Manager, KMS, least-privilege IAM task roles and security groups. |
+| | Hoàng Đình Quang | Capture audio per participant channel, tune endpointing and add the bilingual transcript view. |
+| | Lê Hoài Thanh Quang | Build the Agent: live notes, end-of-meeting summary and Ask TINA via Bedrock. |
+| Week 10 | **All Members** | End-to-end tests with real Google Meet meetings and bug fixes. |
+| | Trần Kiến Quốc | Post-meeting follow-up email via Amazon SES with recipient-bound summary/recording links. |
+| | Thái Việt Nam | CloudWatch dashboards/alarms and AWS Budgets cost alerts. |
+| | Hoàng Đình Quang | Support Zoom/Teams capture and reduce STT latency. |
+| | Lê Hoài Thanh Quang | Tune prompts, add transcript search and track Bedrock token cost. |
+| Week 11 | **All Members** | Review test results, find bottlenecks and optimize costs. |
+| | Trần Kiến Quốc | Regression tests for the voice, wake word and email flows; keep CI green. |
+| | Thái Việt Nam | Off-hours scale-down, Fargate Spot, VPC endpoints; basic security audit (WAF, IAM). |
+| | Hoàng Đình Quang | Load test concurrent meetings and tune Fargate CPU/memory for Bot and STT. |
+| | Lê Hoài Thanh Quang | Evaluate notes/summary quality in Vietnamese and English; configure a fallback model. |
+| Week 12 | **All Members** | Full system run, record the demo video, complete documentation and presentation, and submit. |
 
 ### 6. Budget Estimation
 Estimates use on-demand prices in `us-east-1` (US East – N. Virginia) and the pilot workload: ~10 users, ~5 meetings/week of about 1 hour (~20 meeting-hours/month). Always-on services run 24/7; meeting services (Bot, STT, TTS) run only while a meeting is active. Final figures should be confirmed with the AWS Pricing Calculator.
