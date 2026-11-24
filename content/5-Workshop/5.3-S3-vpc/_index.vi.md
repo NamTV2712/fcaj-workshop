@@ -1,69 +1,32 @@
 ---
-title: "Build từ source"
+title: "Dựng VPC và mạng trên Console"
 date: 2026-11-24
 weight: 3
 chapter: false
 pre: " <b> 5.3. </b> "
 ---
 
-#### 1. Pull code
+Dựng nền tảng mạng **bằng tay trên AWS Management Console** (vùng `us-east-1`): VPC trải 2 Availability Zone với subnet public, private-app và private-data; Internet Gateway, NAT Gateway, route table và security group. VPC endpoint cho S3/ECR do template CloudFormation tạo ở bước sau.
 
-```bash
-git clone https://github.com/poor-frog/TINA.git
-cd TINA
-git rev-parse --short HEAD
-```
+> Không dùng CLI ở các bước này — trang con mô tả đúng thao tác click trên console.
 
-Repo cung cấp Dockerfile, Compose file và build script — đây là source đầu vào, không phải bản deploy hoàn chỉnh.
+#### Những gì cần tạo
 
-#### 2. Khôi phục cấu hình
-
-Copy `.env.keys` tương ứng vào gốc repo rồi bảo vệ:
-
-```bash
-chmod 600 .env.keys
-```
-
-Key tự tạo không giải mã được config đã mã hóa. Không commit hay dán key.
-
-#### 3. Xem kế hoạch build
-
-```bash
-make plan
-```
-
-Output chỉ đọc gồm `project`, `services`, `images`, `volumes`, `viegem_device` và các dòng capability. Ghi lại danh sách `images` sắp build.
-
-- **Ảnh cần chụp:** `screenshot-02-make-plan.png`.
-
-#### 4. Build từng service từ Dockerfile
-
-```bash
-make build       # mọi image Compose service
-make bot         # riêng image bot Playwright (BROWSER_IMAGE)
-```
-
-Bước này biên dịch từng service locally — **không** kéo image `ghcr.io/poor-frog/tina-*:prod` cho các service ứng dụng. Tag local tạo ra gồm `tina/v012-<service>:dev` và `tina/tina-bot:dev`. Các job cài model (`viegem-models`, `gipformer-models`, `tts-models`, `meeting-voice-models`) chạy trong bản deploy đầy đủ.
-
-- **Ảnh cần chụp:** `screenshot-03-docker-build.png`, `screenshot-04-images-built.png` (`docker images | grep tina`).
-
-#### 5. Chạy và kiểm tra trong một lệnh (tùy chọn)
-
-```bash
-make all
-```
-
-Build nếu cần, tạo `.env` với secret được mint, chạy stack với `up -d --wait`, kiểm tra health, cài/restore controller ASR ở `18007`, cấp API key scoped (`SCOPES=bot,tx`) và in URL Terminal/API.
-
-- **Ảnh cần chụp:** `screenshot-05-make-all-success.png` (che key).
-
-#### Biến thể hữu ích
-
-- `TINA_VIEGEM_DEVICE=cpu make all` — build/chạy CPU rõ ràng (không có fallback tự động khi lỗi GPU).
-- `DOCKER_CONTEXT=orbstack make all` — chọn context OrbStack.
-- `make doctor` — kiểm tra readiness read-only.
+| Tài nguyên | Giá trị |
+| --- | --- |
+| VPC | `tina-vpc`, `10.0.0.0/16`, bật DNS hostnames |
+| Subnet (6) | 2 public (`10.0.1.0/24`, `10.0.2.0/24`), 2 app (`10.0.11.0/24`, `10.0.12.0/24`), 2 data (`10.0.21.0/24`, `10.0.22.0/24`) |
+| Availability Zone | `us-east-1a` và `us-east-1b` — chọn trong form tạo subnet |
+| Internet Gateway | `tina-igw`, gắn vào `tina-vpc` |
+| NAT Gateway | `tina-nat` ở `tina-public-1a` với 1 EIP |
+| Route table | `tina-public-rt` (→ IGW), `tina-app-rt` (→ NAT), `tina-data-rt` (không có `0.0.0.0/0`) |
+| Security group | `tina-alb-sg`, `tina-web-sg`, `tina-data-sg` |
 
 #### Nội dung
 
-- [Chuẩn bị](../5.2-Prerequiste/)
-- [Kiểm tra dịch vụ](../5.4-s3-onprem/)
+- [Tạo VPC và subnet trên console](5.3.1-create-gwe/)
+- [Route table và security group trên console](5.3.2-test-gwe/)
+
+Ghi lại VPC ID, 6 subnet ID, `AppRouteTableId` và `DataRouteTableId` — lệnh deploy CloudFormation cần các giá trị này làm parameter.
+
+- **Ảnh cần chụp:** `screenshot-02-vpc-subnets.png`, `screenshot-02b-igw-nat.png`, `screenshot-03-route-tables.png`.

@@ -103,9 +103,9 @@ aws configure            # region us-east-1, never paste secrets into screenshot
 ```
 - **Screenshots:** `screenshot-00-prereqs.png`, `screenshot-01-clone.png`.
 
-**Step 1 — Build VPC and networking by hand**
-Create the VPC, 6 subnets, IGW, NAT and 3 route tables. Public `0.0.0.0/0 → IGW`; app `0.0.0.0/0 → NAT`; data has no `0.0.0.0/0`.
-- **Screenshots:** `screenshot-02-vpc-subnets.png`, `screenshot-03-route-tables.png`.
+**Step 1 — Build VPC and networking in the AWS Console**
+Do this by clicking in the console, not with the CLI: create `tina-vpc` (`10.0.0.0/16`), the 6 subnets across `us-east-1a`/`us-east-1b`, `tina-igw`, `tina-nat` (+ EIP), the 3 route tables and the security groups. Public `0.0.0.0/0 → IGW`; app `0.0.0.0/0 → NAT`; data has no `0.0.0.0/0`. Full click-by-click instructions are in [5.3](5.3-s3-vpc/).
+- **Screenshots:** `screenshot-02-vpc-subnets.png`, `screenshot-02b-igw-nat.png`, `screenshot-03-route-tables.png`.
 
 **Step 2 — Create ECR repos, build from source, push images**
 ```bash

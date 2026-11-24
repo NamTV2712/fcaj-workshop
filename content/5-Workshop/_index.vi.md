@@ -103,9 +103,9 @@ aws configure            # us-east-1, không dán bí mật vào ảnh
 ```
 - **Ảnh cần chụp:** `screenshot-00-prereqs.png`, `screenshot-01-clone.png`.
 
-**Bước 1 — Dựng VPC và mạng bằng tay**
-Tạo VPC, 6 subnet, IGW, NAT, 3 route table. Public `0.0.0.0/0 → IGW`; app `0.0.0.0/0 → NAT`; data không có route ra Internet.
-- **Ảnh cần chụp:** `screenshot-02-vpc-subnets.png`, `screenshot-03-route-tables.png`.
+**Bước 1 — Dựng VPC và mạng trên AWS Console**
+Làm bằng click trên console, không dùng CLI: tạo `tina-vpc` (`10.0.0.0/16`), 6 subnet trải `us-east-1a`/`us-east-1b`, `tina-igw`, `tina-nat` (+ EIP), 3 route table và security group. Public `0.0.0.0/0 → IGW`; app `0.0.0.0/0 → NAT`; data không có `0.0.0.0/0`. Hướng dẫn click chi tiết ở [5.3](5.3-s3-vpc/).
+- **Ảnh cần chụp:** `screenshot-02-vpc-subnets.png`, `screenshot-02b-igw-nat.png`, `screenshot-03-route-tables.png`.
 
 **Bước 2 — Tạo ECR, build từ source, push image**
 ```bash
