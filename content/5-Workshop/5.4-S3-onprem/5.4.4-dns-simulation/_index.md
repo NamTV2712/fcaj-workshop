@@ -1,29 +1,36 @@
 ---
-title: "Full Journey Probe"
+title: "Verify the Running System"
 date: 2026-11-24
 weight: 4
 chapter: false
 pre: " <b> 5.4.4 </b> "
 ---
 
-#### Run the journey probe
+#### Application checks
+
+Get the CloudFront domain from the stack output, then open it in a browser:
 
 ```bash
-make probe
+aws cloudformation describe-stacks --stack-name tina-infra \
+  --query 'Stacks[0].Outputs'
+curl -sS -o /dev/null -w '%{http_code}\n' https://<cloudfront-domain>/health
 ```
 
-Stages: **S0** ready → **S1** spawn → **S2** schedule → **S3** boot → **S4** join → **S5** transcribe/WS → **S6** SSE live view → **S7** stop → **S8** log sweep. Each stage prints Expected / Actual / Verdict.
+1. Sign in through Cognito/Google (first user becomes admin).
+2. In **Settings → Models**, select a model provider so the agent can answer.
+3. Confirm the live transcript, notes, summary and the **Tiếng Việt / English / Song ngữ** dropdown.
+4. Check the wake word and spoken reply through the bot.
 
-- With `BROWSER_IMAGE=mock-bot:dev` the run is deterministically GREEN.
-- With the real bot at a dead synthetic meeting URL, a named `join_failure` is the truthful GREEN outcome.
-
-#### CLI extras
+#### Data-path checks
 
 ```bash
-make cli-install && export PATH="$HOME/.local/bin:$PATH"
-tina status
-tina doctor --full
-tina logs runtime --tail 50
+aws s3 ls s3://tina-<name>-recordings
+aws rds describe-db-instances --db-instance-identifier tina-db
+aws elasticache describe-cache-clusters --cache-cluster-id tina-cache
 ```
+Recording uploads should land in S3 through the gateway endpoint (no NAT data charges); transcripts go to RDS and live state to ElastiCache in the private data subnets.
 
-- **Screenshot:** `screenshot-11-make-probe.png`.
+#### Screenshots
+
+- `screenshot-17-app-running.png`
+- `screenshot-18-transcript.png`

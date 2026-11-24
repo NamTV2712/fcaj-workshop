@@ -42,14 +42,16 @@ This deletes the Compose volumes — a destructive operation. Do **not** run it 
 
 1. `screenshot-00-prereqs.png`
 2. `screenshot-01-clone.png`
-3. `screenshot-02-make-plan.png`
-4. `screenshot-03-docker-build.png`
-5. `screenshot-04-images-built.png`
-6. `screenshot-05-make-all-success.png` (redact API key)
-7. `screenshot-06-containers-healthy.png`
-8. `screenshot-07-service-logs.png`
-9. `screenshot-08-terminal.png`
-10. `screenshot-09-asr-status.png`
-11. `screenshot-10-make-probe.png`
-12. `screenshot-11-make-down.png`
-13. `screenshot-12-waf-iam-budgets.png` / `screenshot-13-aws-services.png` (if applicable)
+3. `screenshot-02-vpc-subnets.png`
+4. `screenshot-03-route-tables.png`
+5. `screenshot-04-ecr-repos.png`
+6. `screenshot-05-images-built.png`
+7. `screenshot-06-stack-complete.png`
+8. `screenshot-07-bedrock-ses.png`
+9. `screenshot-08-cost-explorer.png`
+10. `screenshot-13-ecs-alb-healthy.png`
+11. `screenshot-14-cloudfront-waf.png`
+12. `screenshot-15-cloudwatch-budgets-cost-explorer.png`
+13. `screenshot-16-iam-secrets-kms.png`
+14. `screenshot-17-app-running.png`
+15. `screenshot-18-transcript.png`

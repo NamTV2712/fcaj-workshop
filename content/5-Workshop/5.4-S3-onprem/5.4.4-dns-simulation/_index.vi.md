@@ -1,29 +1,36 @@
 ---
-title: "Chạy toàn bộ hành trình"
+title: "Kiểm tra hệ thống đang chạy"
 date: 2026-11-24
 weight: 4
 chapter: false
 pre: " <b> 5.4.4 </b> "
 ---
 
-#### Chạy probe
+#### Kiểm tra ứng dụng
+
+Lấy domain CloudFront từ output của stack rồi mở trên trình duyệt:
 
 ```bash
-make probe
+aws cloudformation describe-stacks --stack-name tina-infra \
+  --query 'Stacks[0].Outputs'
+curl -sS -o /dev/null -w '%{http_code}\n' https://<cloudfront-domain>/health
 ```
 
-Các bước: **S0** ready → **S1** spawn → **S2** schedule → **S3** boot → **S4** join → **S5** transcribe/WS → **S6** SSE live view → **S7** stop → **S8** log sweep. Mỗi bước in Expected / Actual / Verdict.
+1. Đăng nhập qua Cognito/Google (user đầu tiên thành admin).
+2. Trong **Settings → Models**, chọn provider để agent trả lời được.
+3. Xác nhận transcript trực tiếp, ghi chú, tóm tắt và dropdown **Tiếng Việt / English / Song ngữ**.
+4. Kiểm tra wake word và câu trả lời bằng giọng nói qua bot.
 
-- Với `BROWSER_IMAGE=mock-bot:dev` kết quả GREEN ổn định.
-- Với bot thật tại URL cuộc họp giả, `join_failure` có tên là kết quả GREEN trung thực.
-
-#### CLI bổ sung
+#### Kiểm tra luồng dữ liệu
 
 ```bash
-make cli-install && export PATH="$HOME/.local/bin:$PATH"
-tina status
-tina doctor --full
-tina logs runtime --tail 50
+aws s3 ls s3://tina-<ten>-recordings
+aws rds describe-db-instances --db-instance-identifier tina-db
+aws elasticache describe-cache-clusters --cache-cluster-id tina-cache
 ```
+Bản ghi âm lên S3 qua gateway endpoint (không tốn phí NAT); transcript vào RDS và trạng thái trực tiếp vào ElastiCache ở private data subnet.
 
-- **Ảnh cần chụp:** `screenshot-11-make-probe.png`.
+#### Ảnh cần chụp
+
+- `screenshot-17-app-running.png`
+- `screenshot-18-transcript.png`

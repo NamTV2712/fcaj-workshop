@@ -1,30 +1,28 @@
 ---
-title: "ASR, TTS and Agent"
+title: "ALB and ECS Services"
 date: 2026-11-24
 weight: 3
 chapter: false
 pre: " <b> 5.4.3 </b> "
 ---
 
-#### STT backends
+The CloudFormation template creates the ALB, target group, ECS cluster and the five Fargate services. Verify them with:
 
 ```bash
-curl -sS http://127.0.0.1:18002/health
-curl -sS http://127.0.0.1:18002/status
-curl -sS http://127.0.0.1:18005/health
-curl -sS http://127.0.0.1:18005/status
+aws elbv2 describe-load-balancers --names tina-alb
+aws elbv2 describe-target-groups --names tina-web-tg
+aws elbv2 describe-target-health --target-group-arn <tg-arn>
+aws ecs describe-services --cluster tina-cluster \
+  --services tina-web tina-bot tina-stt tina-tts tina-agent
+aws ecs list-tasks --cluster tina-cluster
 ```
 
-In Terminal: **Settings → Models → Transcription**. Selecting a managed model starts it and verifies authenticated audio; the account switch only affects the signed-in account. The UI shows physical worker state separately from the account's enabled state. A worker with no demand retires after ten idle seconds.
+Expected: all five services have `RUNNING` count equal to desired count, the target group shows `healthy`, and tasks use private subnets with `tina-web-sg` / `tina-data-sg`.
 
-#### TTS and Agent
+If a service cannot pull its image, confirm the matching ECR repository exists and the image with tag `:prod` was pushed before the stack was deployed — ECS does not wait for images.
 
 ```bash
-docker compose exec -T tts python -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8000/health').status)"
-curl -sS http://127.0.0.1:18100/health
-tina asr verify
+aws logs tail /ecs/tina --follow
 ```
 
-Configure a provider in **Settings → Models** before testing Ask TINA. Then check the live transcript, notes, summary and the **Tiếng Việt / English / Song ngữ** dropdown.
-
-- **Screenshots:** `screenshot-09-asr-status.png`, `screenshot-10-tts-agent-ready.png`.
+- **Screenshot:** `screenshot-13-ecs-alb-healthy.png`.
