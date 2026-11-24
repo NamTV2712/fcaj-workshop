@@ -1,29 +1,29 @@
 ---
-title: "Clone repo & khôi phục key"
+title: "Tạo VPC và subnet"
 date: 2026-11-24
 weight: 1
 chapter: false
 pre: " <b> 5.3.1 </b> "
 ---
 
-#### Clone
+#### Các bước trên Console
+
+1. **VPC → Create VPC** → `tina-vpc`, `10.0.0.0/16`, bật DNS hostnames.
+2. **Subnets → Create subnet** ×6 theo CIDR ở trang cha, chọn đúng AZ.
+3. **Internet Gateways → Create internet gateway** `tina-igw` → Attach vào `tina-vpc`.
+4. **Elastic IPs → Allocate** → ghi lại địa chỉ.
+5. **NAT Gateways → Create** `tina-nat`, subnet `tina-public-1a`, gắn EIP đó.
+
+#### Lệnh CLI tương đương
 
 ```bash
-git clone https://github.com/poor-frog/TINA.git
-cd TINA
-git rev-parse --short HEAD
+VPC=$(aws ec2 create-vpc --cidr-block 10.0.0.0/16 --query 'Vpc.VpcId' --output text)
+aws ec2 modify-vpc-attribute --vpc-id $VPC --enable-dns-hostnames
+aws ec2 create-subnet --vpc-id $VPC --cidr-block 10.0.1.0/24 --availability-zone us-east-1a
+aws ec2 create-internet-gateway
+aws ec2 create-nat-gateway --subnet-id <public-subnet> --allocation-id <eipalloc>
 ```
 
-Ghi lại commit ngắn vào notes.
+Ghi VPC ID và 6 subnet ID vào notes.
 
-#### Khôi phục key riêng
-
-Copy `.env.keys` tương ứng từ nơi lưu trữ bảo mật vào gốc repo, rồi:
-
-```bash
-chmod 600 .env.keys
-```
-
-Key tự tạo không giải mã được `deploy/compose/.env` đã mã hóa Dotenvx. Không commit hay dán giá trị key.
-
-- **Ảnh cần chụp:** `screenshot-03-clone.png`.
+- **Ảnh cần chụp:** `screenshot-02-vpc-subnets.png`.

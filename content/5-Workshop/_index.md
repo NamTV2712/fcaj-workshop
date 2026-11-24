@@ -6,127 +6,157 @@ chapter: false
 pre: " <b> 5. </b> "
 ---
 
-# Workshop: Build and Run Every TINA Service from Source
+# Workshop: Build the Whole TINA Architecture from Scratch
 
 #### Overview
 
-This workshop rebuilds the **entire TINA service stack from source code**. The GitHub repository is pulled only to provide the code — every service is then built locally from its Dockerfile and started as a container. The goal is to prove that the architecture in the proposal is reproducible: you do not rely on pre-built images, you construct and verify each component yourself.
+This workshop rebuilds **everything** in the TINA proposal: the AWS infrastructure (VPC, networking, data stores, identity, AI, email, edge) **and** the application services compiled from source code. The GitHub repository is pulled only as source input — you create the AWS resources yourself, build each service from its Dockerfile, push the images to ECR, deploy them on ECS Fargate, then verify and capture screenshots.
 
-The proposal defines five application services on Amazon ECS/Fargate — **Web serving, Bot (Playwright), STT (VieGem), TTS (VieNeu) and Agent** — plus supporting services and data stores. In this local workshop you build all of them from the cloned source:
+Nothing is assumed to exist beforehand. You start from an empty AWS account in `us-east-1`.
 
-| Architecture service | Built from source in this workshop |
-| --- | --- |
-| Web serving | `terminal`, `gateway`, `meeting-api`, `admin-api`, `dashboard` |
-| Bot (Playwright) | `tina-bot` from the bot Dockerfile (`BROWSER_IMAGE`) |
-| STT | `viegem` and/or `gipformer` from their service directories |
-| TTS | `tts` (VieNeu) and `tts-models` |
-| Agent | `agent-api`, `agent-worker`, `agent-reach`, `runtime`, `mcp` |
-| Follow-up/flows | `flows-api`, `flows-worker`, `flows-mailbox` |
-| Data stores | `postgres` (PostgreSQL), `redis` (Redis-compatible), `storage` (S3-compatible versitygw) |
-| Identity/email/edge | Google OAuth in Terminal, Flows/Resend/SMTP mail, Caddy/gateway — plus the AWS equivalents documented in the proposal |
+#### What you will create (in order)
 
-#### What "build from scratch" means here
-
-1. **Pull the code** — clone `https://github.com/poor-frog/TINA.git`; the repo supplies Dockerfiles, Compose files and build scripts, not a finished system.
-2. **Restore configuration** — place the matching `.env.keys` at the repo root so encrypted config can be read.
-3. **Build every image locally** — `make build` (or `make all`, which builds before starting) compiles each service from its Dockerfile. Local tags follow `tina/v012-<service>:dev`; `BROWSER_IMAGE` defaults to `tina/tina-bot:dev`.
-4. **Start and verify** — bring up the full stack, then inspect each container, health endpoint and log to confirm every service runs.
-5. **Tear down** — `make down` stops the services while keeping data.
-
-Pre-built registry images (`ghcr.io/poor-frog/tina-*:prod`) exist in the project, but this workshop deliberately **does not rely on them** — the build step is the point of the exercise.
-
-#### Ports — important
-
-| Service | Fresh clone | Pre-configured `tina-production` |
+| # | Layer | Resources you create |
 | --- | --- | --- |
-| Terminal UI | `13000` | `23000` |
-| API gateway | `18056` | `28056` |
-| ASR control | `18007` | `18007` |
-| VieGem | `18005` | `18005` |
-| Gipformer | `18002` | `18002` |
+| 1 | Account & tools | IAM admin user, AWS CLI, Docker, Dotenvx, local source clone |
+| 2 | Network | VPC `tina-vpc` (`10.0.0.0/16`), 6 subnets across 2 AZs, Internet Gateway, NAT Gateway, 3 route tables, security groups |
+| 3 | Private connectivity | Gateway endpoint for S3, Interface endpoints for ECR (VPC endpoints from the proposal's cost section) |
+| 4 | Storage | S3 buckets for recordings/exports with encryption and lifecycle rule |
+| 5 | Images | Build every service from Dockerfile (`make build`) and push to ECR repositories |
+| 6 | Compute | ECS cluster, task definitions and services: Web, Bot, STT, TTS, Agent; Application Load Balancer + target group + health check |
+| 7 | Data | RDS PostgreSQL, ElastiCache Redis |
+| 8 | Identity & AI | Cognito user pool with Google OAuth, Bedrock model access |
+| 9 | Email & edge | SES verified domain, CloudFront distribution, AWS WAF web ACL |
+| 10 | Security & cost | IAM task roles, Secrets Manager, KMS, CloudWatch logs/alarms, AWS Budgets |
+| 11 | Verify | Health endpoints, live transcript, `make probe`, AWS CLI checks |
+| 12 | Clean up | Delete services, load balancer, databases, VPC and buckets |
 
-Always trust the `Terminal UI:` / `API gateway:` lines printed by `make all`.
+![TINA AWS Architecture](/images/2-Proposal/tina_aws_architecture.png)
 
-#### Step-by-step guide for the practice day (25/11/2026)
+#### Naming convention (use these consistently)
 
-**Step 0 — Pull the code and prepare**
+| Resource | Name / value |
+| --- | --- |
+| Region | `us-east-1` |
+| VPC | `tina-vpc`, `10.0.0.0/16` |
+| Public subnets | `tina-public-1a` `10.0.1.0/24`, `tina-public-1b` `10.0.2.0/24` |
+| Private app subnets | `tina-app-1a` `10.0.11.0/24`, `tina-app-1b` `10.0.12.0/24` |
+| Private data subnets | `tina-data-1a` `10.0.21.0/24`, `tina-data-1b` `10.0.22.0/24` |
+| IGW / NAT | `tina-igw`, `tina-nat` (one EIP) |
+| Route tables | `tina-public-rt`, `tina-app-rt`, `tina-data-rt` |
+| S3 | `tina-<name>-recordings`, `tina-<name>-exports` |
+| ECR | `tina-<service>` (terminal, gateway, bot, stt, tts, agent, …) |
+| ECS cluster / services | `tina-cluster`; `tina-web`, `tina-bot`, `tina-stt`, `tina-tts`, `tina-agent` |
+| ALB / target group | `tina-alb`, `tina-web-tg` |
+| RDS / ElastiCache | `tina-db` (db.t4g.micro), `tina-cache` (cache.t4g.micro) |
+| Cognito / Bedrock | `tina-users`, Claude/Nova model access |
+| SES / CloudFront / WAF | verified domain, `tina-cdn`, `tina-waf-acl` |
+| Secrets / KMS / Budgets | `tina/*`, `tina-key`, `tina-monthly` |
+
+#### Manual vs CloudFormation
+
+Only **three things are done by hand**; everything else comes from one CloudFormation template:
+
+- **By hand:** `tina-vpc` (CIDR `10.0.0.0/16`), the 6 subnets across 2 AZs, and the NAT Gateway + Internet Gateway (including its EIP). Create these first and record the IDs.
+- **By CloudFormation:** all remaining resources — S3, ECR, IAM, Secrets Manager, KMS, RDS, ElastiCache, Cognito, ALB, ECS + 5 Fargate services, CloudFront, WAF, CloudWatch, Budgets.
+
+Template path: `static/cloudformation/tina-infrastructure.yaml` (copy it into the cloned repo or reference it by local path).
+
+```bash
+aws cloudformation deploy \
+  --template-file tina-infrastructure.yaml \
+  --stack-name tina-infra \
+  --capabilities CAPABILITY_NAMED_IAM \
+  --region us-east-1 \
+  --parameter-overrides \
+      VpcId=<vpc-id> PublicSubnet1=<public-1a> PublicSubnet2=<public-1b> \
+      PrivateSubnet1=<private-1a> PrivateSubnet2=<private-1b> \
+      DBPassword='<strong-password>' CertificateArn=<acm-cert-arn> \
+      GitHubOAuthClientId=<client-id> GitHubOAuthClientSecret=<client-secret>
+```
+
+If you prefer a fully manual walkthrough, every resource is documented in the child pages — the template only speeds up creation.
+
+#### Service coverage check
+
+| Service in the request | Where it is created | Method |
+| --- | --- | --- |
+| VPC | Step 1 | Manual |
+| 2 Availability Zones | Step 1 (`us-east-1a`, `us-east-1b`) | Manual |
+| Public subnet + 2 private subnets | Step 1 (`tina-public-*`, `tina-private-*`) | Manual |
+| Internet Gateway | Step 1 (`tina-igw`) | Manual |
+| NAT Gateway | Step 1 (`tina-nat`) | Manual |
+| S3 | Step 2 (recordings/exports) | CloudFormation |
+| ECR | Step 2 (6 repositories) | CloudFormation |
+| IAM | Step 5 (task roles) | CloudFormation |
+| Secrets Manager | Step 5 (`tina/core`) | CloudFormation |
+| KMS | Step 5 (`tina-key`) | CloudFormation |
+| RDS | Step 3 (`tina-db`) | CloudFormation |
+| ElastiCache | Step 3 (`tina-cache`) | CloudFormation |
+| Cognito | Step 3 (`tina-users`) | CloudFormation |
+| ALB | Step 4 (`tina-alb`) | CloudFormation |
+| ECS + 5 Fargate services | Step 4 (`tina-cluster`) | CloudFormation |
+| Bedrock | Step 3 (model access) | Console |
+| SES | Step 3 (verified domain) | Console |
+| CloudFront | Step 5 (`tina-cdn`) | CloudFormation |
+| WAF | Step 5 (`tina-waf-acl`) | CloudFormation |
+| CloudWatch | Step 5 (log group/alarm) | CloudFormation |
+| AWS Budgets | Step 5 (`tina-monthly`) | CloudFormation |
+| Cost Explorer | Step 5 (console review) | Console |
+
+#### Step-by-step guide
+
+**Step 0 — Prepare account, tools and source**
 
 ```bash
 git clone https://github.com/poor-frog/TINA.git
 cd TINA
 git rev-parse --short HEAD
-cp <your-secure-location>/.env.keys .   # matching private key
 chmod 600 .env.keys
+aws configure            # region us-east-1, never paste secrets in screenshots
+docker version --format '{{.Server.Version}}'   # >= 26
 ```
-Verify Docker ≥ 26, `docker compose` with `up --wait`, Python 3.10+, `make`, Dotenvx and (on Linux/WSL2) NVIDIA driver visibility.
-
 - **Screenshots:** `screenshot-00-prereqs.png`, `screenshot-01-clone.png`.
 
-**Step 1 — Preview the build plan**
+**Step 1 — Build the VPC and networking**
 
-```bash
-make plan
-```
-Note `project`, `services`, `images`, `volumes`, `viegem_device` and the capability lines. This is read-only.
+Create `tina-vpc`, 6 subnets, IGW, NAT Gateway, route tables and security groups as in the naming table. Attach public route `0.0.0.0/0 → IGW`, app route `0.0.0.0/0 → NAT`, data route with **no** internet route; add S3 gateway endpoint and ECR interface endpoints.
+- **Screenshots:** `screenshot-02-vpc-subnets.png`, `screenshot-03-route-tables.png`, `screenshot-04-vpc-endpoints.png`.
 
-- **Screenshot:** `screenshot-02-make-plan.png`.
+**Step 2 — Storage, ECR and images**
 
-**Step 2 — Build every service from source**
+Create the S3 buckets (encryption + lifecycle) and ECR repositories. Build all services locally from source (`make build`, `make bot`), then tag and push each image to ECR.
+- **Screenshots:** `screenshot-05-s3-buckets.png`, `screenshot-06-ecr-repos.png`, `screenshot-07-images-built.png`.
 
-```bash
-make build      # builds all Compose service images from Dockerfiles
-make bot        # builds the Playwright bot image explicitly
-```
-If you prefer a single command that builds, starts and verifies: `make all`. On a fresh install it also mints the required secrets, runs model-install jobs, waits for health and provisions a scoped API key.
+**Step 3 — Data, identity and AI**
 
-- **Screenshots:** `screenshot-03-docker-build.png`, `screenshot-04-images-built.png` (`docker images | grep tina`).
+Create RDS PostgreSQL, ElastiCache Redis, Cognito user pool with Google OAuth callback, enable Bedrock models, verify SES domain.
+- **Screenshots:** `screenshot-08-rds-redis.png`, `screenshot-09-cognito.png`, `screenshot-10-bedrock-ses.png`.
 
-**Step 3 — Start the full stack**
+**Step 4 — Compute and load balancing**
 
-```bash
-make all
-```
-Capture the final `Terminal UI:` / `API gateway:` / `TINA Compose ready:` lines. Keep the printed API key private.
+Create the ALB + target group with health check, then ECS cluster and five task definitions/services using the ECR images, placing tasks in private app subnets with IAM task roles and secrets from Secrets Manager/KMS.
+- **Screenshots:** `screenshot-11-alb.png`, `screenshot-12-ecs-cluster.png`, `screenshot-13-task-definitions.png`.
 
-- **Screenshot:** `screenshot-05-make-all-success.png` (redact the key).
+**Step 5 — Edge, security and cost**
 
-**Step 4 — Verify every service**
+Create CloudFront + WAF, CloudWatch log groups/alarms and AWS Budgets at 50/80/100%.
+- **Screenshots:** `screenshot-14-cloudfront-waf.png`, `screenshot-15-budgets.png`.
 
-```bash
-make ps
-docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
-docker logs --tail 100 <container-name>
-```
-Check every service in the table above: Web serving, Bot, STT, TTS, Agent, flows, data stores, plus the health endpoints in the [Verify the services](5.4-s3-onprem/) page.
+**Step 6 — Verify**
 
-- **Screenshots:** `screenshot-06-containers-healthy.png`, `screenshot-07-service-logs.png`.
+Use the [Verify the services](5.4-s3-onprem/) page: ECS service events, ALB health, logs, app URLs, live transcript and `make probe`. Confirm S3/RDS/ElastiCache traffic stays on VPC endpoints (no NAT charges).
+- **Screenshots:** `screenshot-16-ecs-healthy.png`, `screenshot-17-app-running.png`.
 
-**Step 5 — Verify the AI/data flow**
+**Step 7 — Clean up**
 
-Sign in to Terminal, check Settings → Models, live transcript, notes/summary, language dropdown (`Tiếng Việt / English / Song ngữ`), wake word and spoken replies; then run `make probe` for the S0–S8 journey.
+Delete in reverse order: ECS services → ALB → RDS/ElastiCache → endpoints → NAT/IGW → subnets → VPC → S3/ECR. Locally run `make down`.
 
-- **Screenshots:** `screenshot-08-terminal.png`, `screenshot-09-asr-status.png`, `screenshot-10-make-probe.png`.
-
-**Step 6 — Stop and clean up**
-
-```bash
-make down
-```
-Confirm services are stopped and data volumes preserved.
-
-- **Screenshot:** `screenshot-11-make-down.png`.
-
-#### Tips
-
-* Native Windows Python/PowerShell is unsupported — use WSL2; Apple Silicon uses MPS; Linux/WSL2 with NVIDIA uses Docker CUDA. No automatic CPU fallback — use `TINA_VIEGEM_DEVICE=cpu make all` explicitly.
-* A source build needs roughly **8 vCPUs / 16 GB RAM**; model install jobs download weights, so allow time.
-* Never commit or screenshot `.env.keys`, API keys or OAuth secrets.
-
-#### Content
+#### Contents
 
 1. [Workshop overview](5.1-workshop-overview/)
-2. [Prerequiste](5.2-prerequiste/)
-3. [Build from source](5.3-s3-vpc/)
-4. [Verify the services](5.4-s3-onprem/)
-5. [Cost and security checks](5.5-policy/)
+2. [Prerequisites](5.2-prerequiste/)
+3. [Build VPC & networking](5.3-s3-vpc/)
+4. [Build data, identity & compute](5.4-s3-onprem/)
+5. [Security & cost](5.5-policy/)
 6. [Clean up](5.6-cleanup/)

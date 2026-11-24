@@ -1,83 +1,50 @@
 ---
-title: "Verify the Services"
+title: "Dựng dữ liệu, định danh và compute"
 date: 2026-11-24
 weight: 4
 chapter: false
 pre: " <b> 5.4. </b> "
 ---
 
-After building every image from source, confirm that each service in the architecture is actually running.
+#### 1. Lưu trữ và registry
 
-#### 1. Containers built from source
+Tạo 2 bucket S3 `tina-<ten>-recordings` và `tina-<ten>-exports`, bật mã hóa KMS (`tina-key`) và lifecycle rule chuyển bản ghi cũ sang lớp rẻ hơn. Tạo repository ECR: `tina-terminal`, `tina-gateway`, `tina-bot`, `tina-stt`, `tina-tts`, `tina-agent`, …
+
+#### 2. Build image từ source và push lên ECR
 
 ```bash
-make ps
-docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+make build        # build mọi service từ Dockerfile
+make bot          # image bot Playwright
 docker images | grep tina
-docker logs --tail 100 <container-name>
+# với mỗi service: tag và push
+docker tag tina/v012-terminal:dev <account>.dkr.ecr.us-east-1.amazonaws.com/tina-terminal:prod
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <account>.dkr.ecr.us-east-1.amazonaws.com
+docker push <account>.dkr.ecr.us-east-1.amazonaws.com/tina-terminal:prod
 ```
 
-Expected long-running services: `terminal`, `gateway`, `meeting-api`, `admin-api`, `dashboard`, `agent-api`, `agent-reach`, `runtime`, `mcp`, `flows-api`, `flows-worker`, `postgres`, `redis`, `storage`, `storage-init`, `tts`, plus `viegem` and/or `gipformer` depending on profiles. One-shot model jobs should show `Exited (0)`. Meeting bots appear as `tina-mtg-*` containers.
+#### 3. Dữ liệu, định danh và AI
 
-- **Screenshots:** `screenshot-06-containers-healthy.png`, `screenshot-07-service-logs.png`.
+- **RDS** `tina-db`: PostgreSQL `db.t4g.micro`, 20 GB gp3, ở data subnet, mã hóa KMS.
+- **ElastiCache** `tina-cache`: Redis `cache.t4g.micro`, ở data subnet.
+- **Cognito** `tina-users`: user pool với Google IdP, callback `https://<cloudfront>/api/auth/callback/google`.
+- **Bedrock**: cấp quyền các model dùng cho ghi chú/tóm tắt/agent.
+- **SES**: xác minh domain gửi.
 
-#### 2. Web serving and API gateway
+#### 4. Tính toán và cân bằng tải
 
-Open the Terminal URL printed by `make all`, sign in with Google (first user becomes admin), then check the API:
+- **ALB** `tina-alb`: internet-facing ở public subnet, listener HTTPS, target group `tina-web-tg` health check `/health`.
+- **ECS cluster** `tina-cluster` trên Fargate.
+- 5 service với task definition trỏ image ECR: `tina-web`, `tina-bot`, `tina-stt`, `tina-tts`, `tina-agent`, đặt ở private app subnet dùng `tina-web-sg`/`tina-data-sg`, IAM task role và secret từ Secrets Manager.
 
 ```bash
-export API_KEY=tina_...       # from make all or make -C deploy/compose provision-token
-export API=http://127.0.0.1:18056
-curl -sS -o /dev/null -w '%{http_code}\n' "$API/health"                  # 200
-curl -sS -H "X-API-Key: $API_KEY" "$API/meetings"                       # 2xx
-curl -sS http://127.0.0.1:18057/health   # admin-api
-curl -sS http://127.0.0.1:18080/health   # meeting-api
-curl -sS http://127.0.0.1:18090/health   # runtime
-curl -sS http://127.0.0.1:18100/health   # agent-api
-curl -sS http://127.0.0.1:18200/health   # flows-api
-curl -sS http://127.0.0.1:18900/health   # versitygw storage
+aws ecs list-services --cluster tina-cluster
+aws ecs describe-services --cluster tina-cluster --services tina-web
+aws elbv2 describe-target-health --target-group-arn <tg-arn>
 ```
 
-- **Screenshots:** `screenshot-08-terminal.png`.
+#### Nội dung
 
-#### 3. STT backends (VieGem / Gipformer)
-
-```bash
-curl -sS http://127.0.0.1:18002/health   # Gipformer (asr profile)
-curl -sS http://127.0.0.1:18002/status
-curl -sS http://127.0.0.1:18005/health   # VieGem (viegem profile / native)
-curl -sS http://127.0.0.1:18005/status
-```
-
-Then in Terminal: **Settings → Models → Transcription** — select a managed model, confirm the account switch is on, and observe that the UI shows physical worker state separately from the account's enabled state. The controller on `18007` is authenticated; verify through the UI or `tina asr verify`.
-
-- **Screenshot:** `screenshot-09-asr-status.png`.
-
-#### 4. TTS and Agent
-
-```bash
-docker compose exec -T tts python -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8000/health').status)"
-curl -sS http://127.0.0.1:18100/health
-tina asr verify
-```
-
-Configure a model provider in **Settings → Models** before testing Ask TINA. Then check the live transcript, notes, summary and the **Tiếng Việt / English / Song ngữ** dropdown.
-
-#### 5. Full journey probe
-
-```bash
-make probe
-```
-
-Stages S0 ready → S1 spawn → S2 schedule → S3 boot → S4 join → S5 transcribe/WS → S6 SSE live view → S7 stop → S8 log sweep, each with Expected / Actual / Verdict. With `BROWSER_IMAGE=mock-bot:dev` the run is deterministically GREEN; with the real bot at a dead synthetic URL, a named `join_failure` is the truthful GREEN outcome.
-
-- **Screenshot:** `screenshot-10-make-probe.png`.
-
-#### CLI helper
-
-```bash
-make cli-install && export PATH="$HOME/.local/bin:$PATH"
-tina status
-tina doctor --full
-tina logs runtime --tail 50
-```
+- [S3, ECR và image](5.4.1-prepare/)
+- [RDS, ElastiCache, Cognito, Bedrock, SES](5.4.2-create-interface-enpoint/)
+- [ALB và ECS service](5.4.3-test-endpoint/)
+- [Kiểm tra hệ thống](5.4.4-dns-simulation/)

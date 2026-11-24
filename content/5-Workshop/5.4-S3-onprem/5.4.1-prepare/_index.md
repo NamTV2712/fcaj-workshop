@@ -1,28 +1,41 @@
 ---
-title: "Containers and Ports"
+title: "S3, ECR and Images"
 date: 2026-11-24
 weight: 1
 chapter: false
 pre: " <b> 5.4.1 </b> "
 ---
 
-#### List the running stack
+#### Create S3 buckets
 
 ```bash
-make ps
-docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+aws s3api create-bucket --bucket tina-<name>-recordings --region us-east-1
+aws s3api put-bucket-encryption --bucket tina-<name>-recordings \
+  --server-side-encryption-configuration '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"aws:kms","KMSMasterKeyID":"<tina-key-arn>"}}]}'
+aws s3api put-bucket-lifecycle-configuration --bucket tina-<name>-recordings \
+  --lifecycle-configuration '{"Rules":[{"ID":"archive","Status":"Enabled","Filter":{"Prefix":"recordings/"},"Transitions":[{"Days":30,"StorageClass":"STANDARD_IA"}]}]}'
+```
+Repeat for `tina-<name>-exports`.
+
+#### Create ECR repositories
+
+```bash
+for s in terminal gateway bot stt tts agent; do
+  aws ecr create-repository --repository-name tina-$s --region us-east-1
+done
 ```
 
-Expect `terminal`, `gateway`, `meeting-api`, `agent-api`, `admin-api`, `runtime`, `mcp`, `flows-api`, `postgres`, `redis`, `storage`, `storage-init` to be up. One-shot model jobs should have exited 0.
+#### Build from source and push
 
-#### Ports to record
+```bash
+make build && make bot
+docker images | grep tina
+ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
+aws ecr get-login-password --region us-east-1 | \
+  docker login --username AWS --password-stdin $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com
+docker tag tina/v012-terminal:dev $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/tina-terminal:prod
+docker push $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/tina-terminal:prod
+# repeat for every service
+```
 
-| Service | Fresh clone | tina-production |
-| --- | --- | --- |
-| Terminal | 13000 | 23000 |
-| API gateway | 18056 | 28056 |
-| ASR control | 18007 | 18007 |
-| VieGem | 18005 | 18005 |
-| Gipformer | 18002 | 18002 |
-
-- **Screenshot:** `screenshot-06-containers-healthy.png`.
+- **Screenshots:** `screenshot-05-s3-buckets.png`, `screenshot-06-ecr-repos.png`, `screenshot-07-images-built.png`.

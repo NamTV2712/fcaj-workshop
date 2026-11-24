@@ -1,69 +1,58 @@
 ---
-title: "Build from Source"
+title: "Build VPC and Networking"
 date: 2026-11-24
 weight: 3
 chapter: false
 pre: " <b> 5.3. </b> "
 ---
 
-#### 1. Pull the code
+Tạo nền tảng mạng theo proposal: VPC trải 2 AZ với subnet public, private-app và private-data; egress có kiểm soát qua NAT; VPC endpoint để lưu lượng S3/ECR không đi Internet công cộng.
+
+#### 1. VPC và subnet
+
+- VPC: `tina-vpc`, CIDR `10.0.0.0/16`, bật DNS hostnames và DNS resolution.
+- `us-east-1a`: `tina-public-1a` `10.0.1.0/24`, `tina-app-1a` `10.0.11.0/24`, `tina-data-1a` `10.0.21.0/24`
+- `us-east-1b`: `tina-public-1b` `10.0.2.0/24`, `tina-app-1b` `10.0.12.0/24`, `tina-data-1b` `10.0.22.0/24`
 
 ```bash
-git clone https://github.com/poor-frog/TINA.git
-cd TINA
-git rev-parse --short HEAD
+aws ec2 create-vpc --cidr-block 10.0.0.0/16 --region us-east-1
+aws ec2 create-subnet --vpc-id <vpc> --cidr-block 10.0.1.0/24 --availability-zone us-east-1a
+# lặp cho 5 subnet còn lại
 ```
 
-The repository supplies Dockerfiles, Compose files and build scripts — it is the source input, not a finished deployment.
+#### 2. Ra Internet
 
-#### 2. Restore configuration
+Tạo `tina-igw`, gắn vào VPC; cấp Elastic IP và tạo `tina-nat` ở subnet **public**.
 
-Copy the matching `.env.keys` to the repository root and protect it:
+#### 3. Route table và security group
+
+- `tina-public-rt`: `0.0.0.0/0 → tina-igw`, gắn 2 subnet public.
+- `tina-app-rt`: `0.0.0.0/0 → tina-nat`, gắn 2 subnet app.
+- `tina-data-rt`: **không** có route `0.0.0.0/0`, gắn 2 subnet data.
+- Security group: `tina-alb-sg` (443 từ Internet), `tina-web-sg` (443/8080 chỉ từ ALB), `tina-data-sg` (cổng DB/cache chỉ từ app SG).
+
+#### 4. VPC endpoint (tối ưu chi phí trong proposal)
+
+- **Gateway endpoint** `tina-s3-gwe` cho `com.amazonaws.us-east-1.s3`, thêm route vào app/data route table.
+- **Interface endpoint** `tina-ecr-api` / `tina-ecr-dkr` cho ECR ở subnet app, dùng SG interface.
 
 ```bash
-chmod 600 .env.keys
+aws ec2 create-vpc-endpoint --vpc-id <vpc> --service-name com.amazonaws.us-east-1.s3 \
+  --vpc-endpoint-type Gateway --route-table-ids <app-rt> <data-rt>
 ```
 
-A newly generated key cannot decrypt the repository's encrypted config. Never commit or paste the key.
-
-#### 3. Preview the build plan
+#### Kiểm tra
 
 ```bash
-make plan
+aws ec2 describe-vpcs --vpc-ids <vpc>
+aws ec2 describe-subnets --filters "Name=vpc-id,Values=<vpc>"
+aws ec2 describe-route-tables --filters "Name=vpc-id,Values=<vpc>"
+aws ec2 describe-vpc-endpoints --filters "Name=vpc-id,Values=<vpc>"
 ```
 
-Read-only output: `project`, `services`, `images`, `volumes`, `viegem_device`, capability lines. Note the full list of `images` you are about to build.
+- **Ảnh cần chụp:** `screenshot-02-vpc-subnets.png`, `screenshot-03-route-tables.png`, `screenshot-04-vpc-endpoints.png`.
 
-- **Screenshot:** `screenshot-02-make-plan.png`.
+#### Nội dung
 
-#### 4. Build every service from its Dockerfile
-
-```bash
-make build       # all Compose service images
-make bot         # Playwright bot image explicitly (BROWSER_IMAGE)
-```
-
-This compiles each service locally — no `ghcr.io/poor-frog/tina-*:prod` image is pulled for the application services. Resulting local tags include `tina/v012-<service>:dev` and `tina/tina-bot:dev`. Model-install jobs (`viegem-models`, `gipformer-models`, `tts-models`, `meeting-voice-models`) run as part of the full deployment.
-
-- **Screenshots:** `screenshot-03-docker-build.png`, `screenshot-04-images-built.png` (`docker images | grep tina`).
-
-#### 5. Start and verify in one command (optional)
-
-```bash
-make all
-```
-
-Builds (if needed), seeds ignored `.env` with minted secrets, starts the stack with `up -d --wait`, checks health, installs/restores the ASR controller on `18007`, provisions a scoped API key (`SCOPES=bot,tx`) and prints the Terminal/API URLs.
-
-- **Screenshot:** `screenshot-05-make-all-success.png` (redact the key).
-
-#### Useful variants
-
-- `TINA_VIEGEM_DEVICE=cpu make all` — explicit CPU build/run (no automatic fallback after a failed GPU check).
-- `DOCKER_CONTEXT=orbstack make all` — select the OrbStack context.
-- `make doctor` — read-only readiness check.
-
-#### Content
-
-- [Prerequisites](../5.2-Prerequiste/)
-- [Verify the services](../5.4-s3-onprem/)
+- [Tạo VPC và subnet](5.3.1-create-gwe/)
+- [Route table và endpoint](5.3.2-test-gwe/)

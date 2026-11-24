@@ -6,127 +6,157 @@ chapter: false
 pre: " <b> 5. </b> "
 ---
 
-# Workshop: Dựng lại toàn bộ service TINA từ source
+# Workshop: Dựng toàn bộ kiến trúc TINA từ đầu
 
 #### Tổng quan
 
-Workshop này **dựng lại toàn bộ stack service TINA từ mã nguồn**. Code trên GitHub chỉ được pull về để cung cấp source — mỗi service sau đó được build locally từ Dockerfile của chính nó và khởi chạy dưới dạng container. Mục tiêu là chứng minh kiến trúc trong Proposal có thể tái tạo được: bạn không dùng image đóng gói sẵn, mà tự dựng và kiểm chứng từng thành phần.
+Workshop này dựng lại **mọi thứ** trong proposal TINA: hạ tầng AWS (VPC, mạng, kho dữ liệu, định danh, AI, email, biên) **và** các service ứng dụng biên dịch từ source. Repo GitHub chỉ được pull về làm source — bạn tự tạo tài nguyên AWS, build từng service từ Dockerfile, đẩy image lên ECR, deploy lên ECS Fargate, rồi kiểm tra và chụp ảnh.
 
-Proposal định nghĩa 5 service ứng dụng trên ECS/Fargate — **Web serving, Bot (Playwright), STT (VieGem), TTS (VieNeu) và Agent** — cùng các service hỗ trợ và kho dữ liệu. Trong workshop local này bạn build tất cả từ source vừa clone:
+Không có gì được giả định tồn tại sẵn. Bạn bắt đầu từ tài khoản AWS trống tại `us-east-1`.
 
-| Service kiến trúc | Build từ source trong workshop |
-| --- | --- |
-| Web serving | `terminal`, `gateway`, `meeting-api`, `admin-api`, `dashboard` |
-| Bot (Playwright) | `tina-bot` từ Dockerfile của bot (`BROWSER_IMAGE`) |
-| STT | `viegem` và/hoặc `gipformer` từ thư mục service tương ứng |
-| TTS | `tts` (VieNeu) và `tts-models` |
-| Agent | `agent-api`, `agent-worker`, `agent-reach`, `runtime`, `mcp` |
-| Follow-up/flows | `flows-api`, `flows-worker`, `flows-mailbox` |
-| Kho dữ liệu | `postgres` (PostgreSQL), `redis`, `storage` (versitygw tương đương S3) |
-| Định danh/email/biên | Google OAuth trong Terminal, Flows/Resend/SMTP, Caddy/gateway — cùng bản AWS tương ứng trong proposal |
+#### Những gì sẽ tạo (theo thứ tự)
 
-#### "Dựng từ đầu" nghĩa là gì ở đây
-
-1. **Pull code** — clone `https://github.com/poor-frog/TINA.git`; repo chỉ cung cấp Dockerfile, Compose file và build script, không phải hệ thống hoàn chỉnh.
-2. **Khôi phục cấu hình** — đặt `.env.keys` tương ứng ở gốc repo để đọc config đã mã hóa.
-3. **Build mọi image locally** — `make build` (hoặc `make all` build trước khi chạy) biên dịch từng service từ Dockerfile. Tag local dạng `tina/v012-<service>:dev`; `BROWSER_IMAGE` mặc định `tina/tina-bot:dev`.
-4. **Khởi chạy & kiểm tra** — chạy toàn bộ stack rồi soi từng container, health endpoint và log để xác nhận mọi service chạy được.
-5. **Dừng/dọn** — `make down` dừng service nhưng giữ dữ liệu.
-
-Repo có sẵn image registry (`ghcr.io/poor-frog/tina-*:prod`), nhưng workshop này **cố tình không dùng** — bước build chính là nội dung cần thực hành.
-
-#### Cổng — lưu ý quan trọng
-
-| Dịch vụ | Fresh clone | `tina-production` cấu hình sẵn |
+| # | Lớp | Tài nguyên tạo |
 | --- | --- | --- |
-| Terminal UI | `13000` | `23000` |
-| API gateway | `18056` | `28056` |
-| ASR control | `18007` | `18007` |
-| VieGem | `18005` | `18005` |
-| Gipformer | `18002` | `18002` |
+| 1 | Tài khoản & công cụ | IAM admin user, AWS CLI, Docker, Dotenvx, clone source |
+| 2 | Mạng | VPC `tina-vpc` (`10.0.0.0/16`), 6 subnet qua 2 AZ, Internet Gateway, NAT Gateway, 3 route table, security group |
+| 3 | Kết nối riêng | Gateway endpoint cho S3, Interface endpoint cho ECR |
+| 4 | Lưu trữ | Bucket S3 cho bản ghi âm/exports, mã hóa + lifecycle rule |
+| 5 | Image | Build mọi service từ Dockerfile (`make build`) rồi push lên ECR |
+| 6 | Tính toán | ECS cluster, task definition/service cho Web, Bot, STT, TTS, Agent; ALB + target group + health check |
+| 7 | Dữ liệu | RDS PostgreSQL, ElastiCache Redis |
+| 8 | Định danh & AI | Cognito user pool với Google OAuth, cấp quyền model Bedrock |
+| 9 | Email & biên | SES verified domain, CloudFront, AWS WAF |
+| 10 | Bảo mật & chi phí | IAM task role, Secrets Manager, KMS, CloudWatch, AWS Budgets |
+| 11 | Kiểm tra | Health endpoint, transcript trực tiếp, `make probe`, AWS CLI |
+| 12 | Dọn dẹp | Xóa service, ALB, database, VPC, bucket |
 
-Luôn tin vào dòng `Terminal UI:` / `API gateway:` do `make all` in ra.
+![Kiến trúc AWS của TINA](/images/2-Proposal/tina_aws_architecture.png)
 
-#### Hướng dẫn thực hành ngày 25/11/2026
+#### Quy ước đặt tên
 
-**Bước 0 — Pull code & chuẩn bị**
+| Tài nguyên | Tên / giá trị |
+| --- | --- |
+| Region | `us-east-1` |
+| VPC | `tina-vpc`, `10.0.0.0/16` |
+| Subnet public | `tina-public-1a` `10.0.1.0/24`, `tina-public-1b` `10.0.2.0/24` |
+| Subnet private app | `tina-app-1a` `10.0.11.0/24`, `tina-app-1b` `10.0.12.0/24` |
+| Subnet private data | `tina-data-1a` `10.0.21.0/24`, `tina-data-1b` `10.0.22.0/24` |
+| IGW / NAT | `tina-igw`, `tina-nat` (1 EIP) |
+| Route table | `tina-public-rt`, `tina-app-rt`, `tina-data-rt` |
+| S3 | `tina-<ten>-recordings`, `tina-<ten>-exports` |
+| ECR | `tina-<service>` (terminal, gateway, bot, stt, tts, agent, …) |
+| ECS cluster/service | `tina-cluster`; `tina-web`, `tina-bot`, `tina-stt`, `tina-tts`, `tina-agent` |
+| ALB / target group | `tina-alb`, `tina-web-tg` |
+| RDS / ElastiCache | `tina-db` (db.t4g.micro), `tina-cache` (cache.t4g.micro) |
+| Cognito / Bedrock | `tina-users`, quyền model Claude/Nova |
+| SES / CloudFront / WAF | domain đã xác minh, `tina-cdn`, `tina-waf-acl` |
+| Secret / KMS / Budgets | `tina/*`, `tina-key`, `tina-monthly` |
+
+#### Làm tay hay dùng CloudFormation
+
+Chỉ **3 việc làm tay**; mọi thứ còn lại dùng một template CloudFormation:
+
+- **Làm tay:** `tina-vpc` (`10.0.0.0/16`), 6 subnet trải 2 AZ, và NAT Gateway + Internet Gateway (kèm EIP). Tạo trước và ghi lại ID.
+- **CloudFormation:** toàn bộ resource còn lại — S3, ECR, IAM, Secrets Manager, KMS, RDS, ElastiCache, Cognito, ALB, ECS + 5 service Fargate, CloudFront, WAF, CloudWatch, Budgets.
+
+Đường dẫn template: `static/cloudformation/tina-infrastructure.yaml` (copy vào repo đã clone hoặc dùng đường dẫn local).
+
+```bash
+aws cloudformation deploy \
+  --template-file tina-infrastructure.yaml \
+  --stack-name tina-infra \
+  --capabilities CAPABILITY_NAMED_IAM \
+  --region us-east-1 \
+  --parameter-overrides \
+      VpcId=<vpc-id> PublicSubnet1=<public-1a> PublicSubnet2=<public-1b> \
+      PrivateSubnet1=<private-1a> PrivateSubnet2=<private-1b> \
+      DBPassword='<mat-khau-manh>' CertificateArn=<acm-cert-arn> \
+      GitHubOAuthClientId=<client-id> GitHubOAuthClientSecret=<client-secret>
+```
+
+Nếu muốn đi tay từng resource, child page có đầy đủ hướng dẫn — template chỉ để tạo nhanh.
+
+#### Bảng kiểm tra đủ dịch vụ
+
+| Dịch vụ yêu cầu | Tạo ở đâu | Cách |
+| --- | --- | --- |
+| VPC | Bước 1 | Tay |
+| 2 Availability Zone | Bước 1 (`us-east-1a`, `us-east-1b`) | Tay |
+| Public subnet + 2 private subnet | Bước 1 (`tina-public-*`, `tina-private-*`) | Tay |
+| Internet Gateway | Bước 1 (`tina-igw`) | Tay |
+| NAT Gateway | Bước 1 (`tina-nat`) | Tay |
+| S3 | Bước 2 (recordings/exports) | CloudFormation |
+| ECR | Bước 2 (6 repository) | CloudFormation |
+| IAM | Bước 5 (task role) | CloudFormation |
+| Secrets Manager | Bước 5 (`tina/core`) | CloudFormation |
+| KMS | Bước 5 (`tina-key`) | CloudFormation |
+| RDS | Bước 3 (`tina-db`) | CloudFormation |
+| ElastiCache | Bước 3 (`tina-cache`) | CloudFormation |
+| Cognito | Bước 3 (`tina-users`) | CloudFormation |
+| ALB | Bước 4 (`tina-alb`) | CloudFormation |
+| ECS + 5 Fargate service | Bước 4 (`tina-cluster`) | CloudFormation |
+| Bedrock | Bước 3 (cấp quyền model) | Console |
+| SES | Bước 3 (xác minh domain) | Console |
+| CloudFront | Bước 5 (`tina-cdn`) | CloudFormation |
+| WAF | Bước 5 (`tina-waf-acl`) | CloudFormation |
+| CloudWatch | Bước 5 (log group/alarm) | CloudFormation |
+| AWS Budgets | Bước 5 (`tina-monthly`) | CloudFormation |
+| Cost Explorer | Bước 5 (xem console) | Console |
+
+#### Hướng dẫn từng bước
+
+**Bước 0 — Chuẩn bị tài khoản, công cụ và source**
 
 ```bash
 git clone https://github.com/poor-frog/TINA.git
 cd TINA
 git rev-parse --short HEAD
-cp <duong-dan-bao-mat>/.env.keys .   # key riêng tương ứng
 chmod 600 .env.keys
+aws configure            # region us-east-1, không dán bí mật vào ảnh
+docker version --format '{{.Server.Version}}'   # >= 26
 ```
-Kiểm tra Docker ≥ 26, Compose hỗ trợ `up --wait`, Python 3.10+, `make`, Dotenvx và (Linux/WSL2) driver NVIDIA.
-
 - **Ảnh cần chụp:** `screenshot-00-prereqs.png`, `screenshot-01-clone.png`.
 
-**Bước 1 — Xem kế hoạch build**
+**Bước 1 — Dựng VPC và mạng**
 
-```bash
-make plan
-```
-Ghi lại `project`, `services`, `images`, `volumes`, `viegem_device` và các dòng capability. Lệnh chỉ đọc.
+Tạo `tina-vpc`, 6 subnet, IGW, NAT Gateway, 3 route table và security group theo bảng tên. Public route `0.0.0.0/0 → IGW`, app route `0.0.0.0/0 → NAT`, data route **không** có đường ra Internet; thêm gateway endpoint cho S3 và interface endpoint cho ECR.
+- **Ảnh cần chụp:** `screenshot-02-vpc-subnets.png`, `screenshot-03-route-tables.png`, `screenshot-04-vpc-endpoints.png`.
 
-- **Ảnh cần chụp:** `screenshot-02-make-plan.png`.
+**Bước 2 — Lưu trữ, ECR và image**
 
-**Bước 2 — Build từng service từ source**
+Tạo bucket S3 (mã hóa + lifecycle) và repository ECR. Build mọi service locally từ source (`make build`, `make bot`), rồi tag và push từng image lên ECR.
+- **Ảnh cần chụp:** `screenshot-05-s3-buckets.png`, `screenshot-06-ecr-repos.png`, `screenshot-07-images-built.png`.
 
-```bash
-make build      # build mọi image Compose từ Dockerfile
-make bot        # build riêng image bot Playwright
-```
-Nếu muốn một lệnh build + chạy + kiểm tra: `make all`. Ở bản cài mới, lệnh này cũng mint secret cần thiết, chạy job cài model, chờ health và cấp API key scoped.
+**Bước 3 — Dữ liệu, định danh và AI**
 
-- **Ảnh cần chụp:** `screenshot-03-docker-build.png`, `screenshot-04-images-built.png` (`docker images | grep tina`).
+Tạo RDS PostgreSQL, ElastiCache Redis, Cognito user pool với Google OAuth callback, cấp quyền model Bedrock, xác minh domain SES.
+- **Ảnh cần chụp:** `screenshot-08-rds-redis.png`, `screenshot-09-cognito.png`, `screenshot-10-bedrock-ses.png`.
 
-**Bước 3 — Khởi chạy toàn bộ stack**
+**Bước 4 — Tính toán và cân bằng tải**
 
-```bash
-make all
-```
-Chụp các dòng `Terminal UI:` / `API gateway:` / `TINA Compose ready:`. Giữ API key bí mật.
+Tạo ALB + target group với health check, rồi ECS cluster và 5 task definition/service dùng image từ ECR, đặt task ở private app subnet với IAM task role và secret từ Secrets Manager/KMS.
+- **Ảnh cần chụp:** `screenshot-11-alb.png`, `screenshot-12-ecs-cluster.png`, `screenshot-13-task-definitions.png`.
 
-- **Ảnh cần chụp:** `screenshot-05-make-all-success.png` (che key).
+**Bước 5 — Biên, bảo mật và chi phí**
 
-**Bước 4 — Kiểm tra từng service**
+Tạo CloudFront + WAF, CloudWatch log group/alarm và AWS Budgets ở 50/80/100%.
+- **Ảnh cần chụp:** `screenshot-14-cloudfront-waf.png`, `screenshot-15-budgets.png`.
 
-```bash
-make ps
-docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
-docker logs --tail 100 <ten-container>
-```
-Kiểm tra mọi service trong bảng trên: Web serving, Bot, STT, TTS, Agent, flows, kho dữ liệu cùng các health endpoint ở trang [Kiểm tra dịch vụ](5.4-s3-onprem/).
+**Bước 6 — Kiểm tra**
 
-- **Ảnh cần chụp:** `screenshot-06-containers-healthy.png`, `screenshot-07-service-logs.png`.
+Dùng trang [Kiểm tra dịch vụ](5.4-s3-onprem/): ECS service events, ALB health, log, URL ứng dụng, transcript trực tiếp và `make probe`. Xác nhận lưu lượng S3/RDS/ElastiCache đi qua VPC endpoint (không tốn phí NAT).
+- **Ảnh cần chụp:** `screenshot-16-ecs-healthy.png`, `screenshot-17-app-running.png`.
 
-**Bước 5 — Kiểm tra luồng AI/dữ liệu**
+**Bước 7 — Dọn dẹp**
 
-Đăng nhập Terminal, kiểm tra Settings → Models, transcript trực tiếp, ghi chú/tóm tắt, dropdown ngôn ngữ (**Tiếng Việt / English / Song ngữ**), wake word và câu trả lời bằng giọng nói; rồi chạy `make probe` cho hành trình S0–S8.
-
-- **Ảnh cần chụp:** `screenshot-08-terminal.png`, `screenshot-09-asr-status.png`, `screenshot-10-make-probe.png`.
-
-**Bước 6 — Dừng và dọn**
-
-```bash
-make down
-```
-Xác nhận service đã dừng và volume dữ liệu vẫn giữ lại.
-
-- **Ảnh cần chụp:** `screenshot-11-make-down.png`.
-
-#### Mẹo
-
-* Windows native Python/PowerShell không được hỗ trợ — dùng WSL2; Apple Silicon dùng MPS; Linux/WSL2 có NVIDIA dùng Docker CUDA. Không có fallback CPU tự động — dùng rõ `TINA_VIEGEM_DEVICE=cpu make all`.
-* Build từ source cần khoảng **8 vCPU / 16 GB RAM**; job cài model tải weight nên cần thời gian.
-* Không commit hay chụp `.env.keys`, API key hay secret OAuth.
+Xóa theo thứ tự ngược: ECS service → ALB → RDS/ElastiCache → endpoint → NAT/IGW → subnet → VPC → bucket/ECR. Local chạy `make down`.
 
 #### Nội dung
 
 1. [Tổng quan workshop](5.1-workshop-overview/)
 2. [Chuẩn bị](5.2-prerequiste/)
-3. [Build từ source](5.3-s3-vpc/)
-4. [Kiểm tra dịch vụ](5.4-s3-onprem/)
-5. [Kiểm tra chi phí & bảo mật](5.5-policy/)
+3. [Dựng VPC & mạng](5.3-s3-vpc/)
+4. [Dựng dữ liệu, định danh & compute](5.4-s3-onprem/)
+5. [Bảo mật & chi phí](5.5-policy/)
 6. [Dọn dẹp](5.6-cleanup/)

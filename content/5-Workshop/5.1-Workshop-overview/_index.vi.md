@@ -6,41 +6,33 @@ chapter: false
 pre: " <b> 5.1. </b> "
 ---
 
-#### Workshop này làm gì
+#### Kiến trúc mục tiêu
 
-Chúng ta **dựng lại toàn bộ stack service TINA từ mã nguồn**. Repo GitHub chỉ được pull về làm source; mỗi service sau đó được build locally từ Dockerfile và chạy như một container. Điều này chứng minh kiến trúc trong proposal tái tạo được mà không phụ thuộc vào image đóng gói sẵn.
+Bạn dựng lại toàn bộ kiến trúc trong proposal trên AWS tại `us-east-1`, bắt đầu từ tài khoản trống:
 
-#### Các service sẽ build
-
-| Nhóm | Service build từ Dockerfile |
-| --- | --- |
-| Web / API | `terminal`, `gateway`, `meeting-api`, `admin-api`, `dashboard` |
-| Bot | `tina-bot` (Playwright), tên image lấy từ `BROWSER_IMAGE` |
-| STT | `viegem`, `gipformer` cùng job cài model `viegem-models`, `gipformer-models` |
-| TTS | `tts` (VieNeu), `tts-models`, `meeting-voice-models` |
-| Agent / runtime | `agent-api`, `agent-worker`, `agent-reach`, `runtime`, `mcp` |
-| Follow-up / mail | `flows-api`, `flows-worker`, `flows-mailbox` |
-| Kho dữ liệu | `postgres`, `redis`, `storage` (versitygw) + `storage-init` |
-| Hỗ trợ | `meet-join-env`, host controller ASR ở `18007` |
+1. **Mạng:** VPC `10.0.0.0/16` trải `us-east-1a`/`us-east-1b` — subnet public, private-app, private-data; Internet Gateway; NAT Gateway; route table; security group; VPC endpoint cho S3 và ECR.
+2. **Biên:** CloudFront + AWS WAF trước Application Load Balancer.
+3. **Định danh:** Cognito user pool với Google OAuth.
+4. **Tính toán:** ECS cluster trên Fargate với 5 service — Web serving, Bot (Playwright), STT (VieGem), TTS (VieNeu), Agent.
+5. **Dữ liệu:** RDS PostgreSQL (transcript), ElastiCache Redis (trạng thái trực tiếp), S3 (bản ghi âm/exports).
+6. **AI/email:** Amazon Bedrock (agent, ghi chú, tóm tắt, dịch), Amazon SES (email follow-up).
+7. **Vận hành:** ECR, IAM task role, Secrets Manager, KMS, CloudWatch, Budgets/Cost Explorer.
 
 ![Kiến trúc AWS của TINA](/images/2-Proposal/tina_aws_architecture.png)
 
-Sơ đồ là kiến trúc AWS đích. Ở local, Compose service thay cho ECS task; `postgres`/`redis`/`storage` thay cho RDS/ElastiCache/S3; Google OAuth và Flows mail thay cho Cognito/SES. CloudFront/WAF/ALB/Bedrock được mô tả trong proposal và chỉ kiểm tra bằng AWS CLI khi có credentials.
+#### Source code chỉ là đầu vào
 
-#### Build hay image đóng gói
+Pull `https://github.com/poor-frog/TINA.git` để lấy Dockerfile, Compose file và build script. Sau đó bạn:
 
-Repo có đẩy image GHCR với tag `:prod` / `:latest`, nhưng **workshop này không dùng**. `make build` biên dịch từng service từ Dockerfile, tạo tag local như `tina/v012-terminal:dev`, `tina/v012-gateway:dev`, `tina/v012-viegem:dev` và `tina/tina-bot:dev`. `make all` chạy cùng bước build trước khi khởi động và kiểm tra stack.
+- build từng image từ Dockerfile (`make build`, `make bot`),
+- push image lên repository ECR tự tạo,
+- viết task definition ECS tham chiếu các image đó,
+- để ứng dụng dùng tài nguyên AWS bạn tạo (RDS, ElastiCache, S3, Bedrock, SES, Cognito).
 
-#### Cổng
+Workshop **không dùng** image có sẵn `ghcr.io/poor-frog/tina-*:prod`.
 
-| Dịch vụ | Fresh clone | tina-production |
-| --- | --- | --- |
-| Terminal UI | 13000 | 23000 |
-| API gateway | 18056 | 28056 |
-| ASR control | 18007 | 18007 |
-| VieGem | 18005 | 18005 |
-| Gipformer | 18002 | 18002 |
+#### Tư duy kiểm chứng
 
-Luôn tin vào URL do `make all` in ra.
+Với mỗi tài nguyên, hãy chụp bằng chứng: trang console hoặc output `aws … describe-*`, health check tương ứng và hành vi của ứng dụng. Checklist cuối trong [Dọn dẹp](../5.6-cleanup/) liệt kê đúng tên ảnh cần chụp.
 
-- **Ảnh cần chụp:** `screenshot-00-prereqs.png`, `screenshot-02-make-plan.png`.
+- **Ảnh cần chụp:** `screenshot-00-prereqs.png`.

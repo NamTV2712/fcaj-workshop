@@ -1,55 +1,61 @@
 ---
-title: "Cost and Security Checks"
+title: "Security, Monitoring and Cost"
 date: 2026-11-24
 weight: 5
 chapter: false
 pre: " <b> 5.5. </b> "
 ---
 
-#### What to check against the proposal
+All resources in this section are created by the CloudFormation template (`tina-infrastructure.yaml`). Your job is to verify them.
 
-The proposal lists explicit security and cost controls. Verify them rather than assuming from the diagram.
-
-**Security**
-
-- **Edge:** CloudFront in front of the ALB, AWS WAF web ACL attached, only HTTPS exposed publicly.
-- **Identity:** Cognito user pool federated with Google OAuth, JWT issued to the web app.
-- **Least privilege:** one IAM task role per service; secrets in Secrets Manager, encryption with KMS; TLS in transit; security groups allowing ALB → Web and internal service-to-service traffic only.
-
-**Cost**
-
-- AWS Budgets alerts at **50%, 80% and 100%** of the monthly limit.
-- Off-hours scale-down of Web/Agent, RDS and ElastiCache; Fargate Spot for meeting tasks; VPC endpoints for S3/ECR; S3 lifecycle rules.
-
-#### Local evidence (no AWS account required)
+#### IAM
 
 ```bash
-make plan
-make doctor
-make -C deploy/compose provision-token   # fresh scoped API key (scopes bot,tx)
-docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+aws iam get-role --role-name tina-task-execution-role
+aws iam get-role --role-name tina-task-role
 ```
+Check the task execution role can read Secrets Manager and decrypt with KMS; the task role allows S3, Bedrock and SES only.
 
-Review `.env` / `deploy/compose/.env` for `SCOPES=bot,tx`, internal secrets and the transcription `TOKEN` — all secret values should be redacted in screenshots.
-
-#### AWS evidence (only if the practice account has credentials)
-
-Never paste credentials or secret values.
+#### Secrets Manager and KMS
 
 ```bash
-aws wafv2 list-web-acls --scope CLOUDFRONT
-aws elbv2 describe-load-balancers
+aws secretsmanager describe-secret --secret-id tina/core
+aws kms describe-key --key-id <tina-key-id>
+```
+Verify secrets are not written into task definitions or code and that S3/RDS use `tina-key`.
+
+#### CloudFront and WAF
+
+```bash
 aws cloudfront list-distributions
-aws cognito-idp list-user-pools --max-results 10
-aws rds describe-db-instances
-aws elasticache describe-cache-clusters
-aws s3 ls
-aws bedrock list-foundation-models --region us-east-1
-aws sesv2 get-account
-aws ecr describe-repositories --region us-east-1
+aws wafv2 list-web-acls --scope CLOUDFRONT --region us-east-1
+```
+Confirm the CloudFront distribution points to the ALB, `ViewerProtocolPolicy` redirects to HTTPS, and the WAF ACL `tina-waf-acl` is associated in CLOUDFRONT scope.
+
+#### CloudWatch
+
+```bash
+aws logs describe-log-groups --log-group-name-prefix /ecs/tina
+aws cloudwatch describe-alarms --alarm-names tina-ecs-high-cpu
+aws logs tail /ecs/tina --follow
+```
+Verify logs from all five ECS services arrive under `/ecs/tina` and the CPU alarm exists.
+
+#### AWS Budgets and Cost Explorer
+
+```bash
+aws budgets describe-budgets --account-id <account-id>
+```
+The budget `tina-monthly` alerts at 80%. In the **Cost Explorer** console, filter by the last 7 days and by service to confirm costs for ECS, RDS, NAT Gateway, S3 and Bedrock are visible; compare with the proposal's ~$148/month estimate and note the off-hours saving.
+
+#### HTTPS/edge check
+
+```bash
+curl -sS -o /dev/null -w '%{http_code}\n' https://<cloudfront-domain>/health
 ```
 
 #### Screenshots
 
-- `screenshot-12-waf-iam-budgets.png`
-- `screenshot-13-aws-services.png` (if credentials exist)
+- `screenshot-14-cloudfront-waf.png`
+- `screenshot-15-cloudwatch-budgets-cost-explorer.png`
+- `screenshot-16-iam-secrets-kms.png`
