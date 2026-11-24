@@ -8,7 +8,7 @@ pre: " <b> 4. </b> "
 
 Trong suốt quá trình thực tập và tham gia chương trình First Cloud AI Journey, tôi đã tích cực góp mặt trong 6 sự kiện lớn. Mỗi sự kiện đều là một trải nghiệm đáng nhớ, mang lại cho tôi nhiều kiến thức kỹ thuật mới mẻ, kỹ năng mềm hữu ích cùng những khoảnh khắc giao lưu tuyệt vời với cộng đồng.
 
-### [Event 1](4.1-Event1/)
+### [Event 1](4.1-event1/)
 
 &emsp;**Tên sự kiện:** Buildrathon Kickoff: Code the Future with CMC Global
 
@@ -18,7 +18,7 @@ Trong suốt quá trình thực tập và tham gia chương trình First Cloud A
 
 &emsp;**Vai trò trong sự kiện:** Người tham dự
 
-### [Event 2](4.2-Event2/)
+### [Event 2](4.2-event2/)
 
 &emsp;**Tên sự kiện:** AWS Cloud & AI Day 2026: HCMC Watch Party
 
@@ -28,7 +28,7 @@ Trong suốt quá trình thực tập và tham gia chương trình First Cloud A
 
 &emsp;**Vai trò trong sự kiện:** Người tham dự
 
-### [Event 3](4.3-Event3/)
+### [Event 3](4.3-event3/)
 
 &emsp;**Tên sự kiện:** Mini Meetup – First Cloud AI Journey
 
@@ -38,7 +38,7 @@ Trong suốt quá trình thực tập và tham gia chương trình First Cloud A
 
 &emsp;**Vai trò trong sự kiện:** Người tham dự
 
-### [Event 4](4.4-Event4/)
+### [Event 4](4.4-event4/)
 
 &emsp;**Tên sự kiện:** AWS First Cloud AI Journey Community Day
 
@@ -48,7 +48,7 @@ Trong suốt quá trình thực tập và tham gia chương trình First Cloud A
 
 &emsp;**Vai trò trong sự kiện:** Người tham dự
 
-### [Event 5](4.5-Event5/)
+### [Event 5](4.5-event5/)
 
 &emsp;**Tên sự kiện:** Cloud Mastery
 
@@ -58,7 +58,7 @@ Trong suốt quá trình thực tập và tham gia chương trình First Cloud A
 
 &emsp;**Vai trò trong sự kiện:** Người tham dự
 
-### [Event 6](4.6-Event6/)
+### [Event 6](4.6-event6/)
 
 &emsp;**Tên sự kiện:** AWS Student Community Day Vietnam 2026
 
