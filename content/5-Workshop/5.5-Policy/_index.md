@@ -1,40 +1,40 @@
 ---
-title: "Kiểm tra chi phí & bảo mật"
+title: "Cost and Security Checks"
 date: 2026-11-24
 weight: 5
 chapter: false
 pre: " <b> 5.5. </b> "
 ---
 
-#### Đối chiếu với proposal
+#### What to check against the proposal
 
-Proposal nêu rõ các kiểm soát bảo mật và chi phí. Hãy kiểm chứng thay vì chỉ tin vào sơ đồ.
+The proposal lists explicit security and cost controls. Verify them rather than assuming from the diagram.
 
-**Bảo mật**
+**Security**
 
-- **Biên:** CloudFront trước ALB, web ACL WAF gắn vào, chỉ HTTPS mở ra Internet.
-- **Định danh:** Cognito user pool liên kết Google OAuth, JWT cấp cho web app.
-- **Tối thiểu quyền:** IAM task role riêng cho từng service, secret trong Secrets Manager, mã hóa KMS, TLS khi truyền, security group chỉ cho ALB → Web và luồng nội bộ.
+- **Edge:** CloudFront in front of the ALB, AWS WAF web ACL attached, only HTTPS exposed publicly.
+- **Identity:** Cognito user pool federated with Google OAuth, JWT issued to the web app.
+- **Least privilege:** one IAM task role per service; secrets in Secrets Manager, encryption with KMS; TLS in transit; security groups allowing ALB → Web and internal service-to-service traffic only.
 
-**Chi phí**
+**Cost**
 
-- AWS Budgets alert ở **50%, 80%, 100%** hạn mức tháng.
-- Tắt Web/Agent, RDS, ElastiCache ngoài giờ; Fargate Spot cho task cuộc họp; VPC endpoint cho S3/ECR; lifecycle rule trên S3.
+- AWS Budgets alerts at **50%, 80% and 100%** of the monthly limit.
+- Off-hours scale-down of Web/Agent, RDS and ElastiCache; Fargate Spot for meeting tasks; VPC endpoints for S3/ECR; S3 lifecycle rules.
 
-#### Bằng chứng local (không cần tài khoản AWS)
+#### Local evidence (no AWS account required)
 
 ```bash
 make plan
 make doctor
-make -C deploy/compose provision-token   # API key scoped mới (scopes bot,tx)
+make -C deploy/compose provision-token   # fresh scoped API key (scopes bot,tx)
 docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
 ```
 
-Xem `.env` / `deploy/compose/.env` để thấy `SCOPES=bot,tx`, internal secrets và `TOKEN` phiên âm — mọi giá trị bí mật phải được che trong ảnh.
+Review `.env` / `deploy/compose/.env` for `SCOPES=bot,tx`, internal secrets and the transcription `TOKEN` — all secret values should be redacted in screenshots.
 
-#### Bằng chứng AWS (chỉ khi có credentials của tài khoản thực hành)
+#### AWS evidence (only if the practice account has credentials)
 
-Không dán credentials hay giá trị bí mật.
+Never paste credentials or secret values.
 
 ```bash
 aws wafv2 list-web-acls --scope CLOUDFRONT
@@ -49,7 +49,7 @@ aws sesv2 get-account
 aws ecr describe-repositories --region us-east-1
 ```
 
-#### Ảnh cần chụp
+#### Screenshots
 
 - `screenshot-12-waf-iam-budgets.png`
-- `screenshot-13-aws-services.png` (nếu có credentials)
+- `screenshot-13-aws-services.png` (if credentials exist)

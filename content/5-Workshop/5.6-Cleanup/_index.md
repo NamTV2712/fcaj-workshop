@@ -1,58 +1,55 @@
 ---
-title: "Dọn dẹp"
+title: "Clean Up"
 date: 2026-11-24
 weight: 6
 chapter: false
 pre: " <b> 5.6. </b> "
 ---
 
-#### Dừng môi trường
+#### Stop the environment
 
 ```bash
 make down
 make ps
 ```
 
-`make down` giữ database, bản ghi âm và workspace — chỉ dừng service thuộc quyền quản lý của deployment này và xóa LaunchAgent MPS native trên macOS nhưng vẫn giữ file model. `make ps` sau đó không nên còn container thuộc quyền quản lý.
+`make down` preserves database, recordings and workspaces — it only stops the services owned by this deployment and removes the owned native MPS LaunchAgent on macOS while keeping model files. `make ps` afterwards should show no owned containers running.
 
-- **Ảnh cần chụp:** `screenshot-14-make-down.png`, `screenshot-15-after-down.png`.
+- **Screenshots:** `screenshot-11-make-down.png`.
 
-#### Xóa hoàn toàn (chỉ khi thật sự muốn mất dữ liệu)
+#### Full teardown (only if you really want to delete data)
 
 ```bash
 make -C deploy/compose destroy DESTROY=yes
 ```
 
-Lệnh này xóa volume Compose — thao tác phá hủy. **Không** chạy trong buổi thực hành trừ khi được yêu cầu rõ ràng.
+This deletes the Compose volumes — a destructive operation. Do **not** run it during the practice session unless explicitly instructed.
 
-#### Tóm tắt xử lý sự cố
+#### Troubleshooting quick reference
 
-| Triệu chứng | Cách sửa |
+| Symptom | Fix |
 | --- | --- |
-| Docker < 26 | Khởi động Docker/OrbStack/WSL; `docker context show`; `DOCKER_CONTEXT=orbstack make all` |
-| Dotenvx không giải mã | Copy đúng `.env.keys`, `chmod 600` |
-| Bot kẹt ở `requested` | `make bot`; kiểm tra `docker image inspect "$BROWSER_IMAGE"` và log `runtime` |
-| `POST /bots` → 503 thiếu backend phiên âm | Cấu hình trong Settings → Models / `.env`, hoặc gửi `{"transcribe_enabled":false}` |
-| Cổng 18002 xung đột | Dừng LaunchAgent host trước khi chạy Compose |
-| VieGem `auto` lỗi trên Windows | Chạy WSL2 với driver NVIDIA + Docker GPU integration, hoặc `TINA_VIEGEM_DEVICE=cpu make all` |
-| Thiếu model KWS | Cung cấp `hey_tina.onnx`, `tina_oi.onnx` trong `TINA_KWS_MODELS_DIR` |
-| Agent "No model credentials" | Cấu hình provider trong Settings → Models |
+| Docker engine < 26 | Start Docker/OrbStack/WSL integration; `docker context show`; `DOCKER_CONTEXT=orbstack make all` |
+| Dotenvx cannot decrypt | Restore the matching root `.env.keys`, `chmod 600` |
+| Bot stuck at `requested` | `make bot`; check `docker image inspect "$BROWSER_IMAGE"` and `runtime` logs |
+| `POST /bots` → 503 no transcription backend | Configure transcription in Settings → Models / `.env`, or send `{"transcribe_enabled":false}` |
+| Port 18002 conflict | Stop the host LaunchAgent before Compose |
+| VieGem `auto` fails on Windows | Run in WSL2 with NVIDIA driver + Docker GPU integration, or `TINA_VIEGEM_DEVICE=cpu make all` |
+| KWS models missing | Provide `hey_tina.onnx` and `tina_oi.onnx` under `TINA_KWS_MODELS_DIR` |
+| Agent: "No model credentials" | Configure a provider in Settings → Models |
 
-#### Checklist ảnh cuối cùng cho báo cáo
+#### Final screenshot checklist for the report
 
-1. `screenshot-00-architecture-and-plan.png`
-2. `screenshot-01-prereqs.png`
-3. `screenshot-02-env-keys-oauth.png` (che bí mật)
-4. `screenshot-03-clone.png`
-5. `screenshot-04-make-plan.png`
-6. `screenshot-05-make-all-success.png` (che bí mật)
+1. `screenshot-00-prereqs.png`
+2. `screenshot-01-clone.png`
+3. `screenshot-02-make-plan.png`
+4. `screenshot-03-docker-build.png`
+5. `screenshot-04-images-built.png`
+6. `screenshot-05-make-all-success.png` (redact API key)
 7. `screenshot-06-containers-healthy.png`
-8. `screenshot-07-terminal-signed-in.png`
-9. `screenshot-08-gateway-health.png`
+8. `screenshot-07-service-logs.png`
+9. `screenshot-08-terminal.png`
 10. `screenshot-09-asr-status.png`
-11. `screenshot-10-tts-agent-ready.png`
-12. `screenshot-11-make-probe.png`
-13. `screenshot-12-waf-iam-budgets.png`
-14. `screenshot-13-aws-services.png` (nếu có)
-15. `screenshot-14-make-down.png`
-16. `screenshot-15-after-down.png`
+11. `screenshot-10-make-probe.png`
+12. `screenshot-11-make-down.png`
+13. `screenshot-12-waf-iam-budgets.png` / `screenshot-13-aws-services.png` (if applicable)

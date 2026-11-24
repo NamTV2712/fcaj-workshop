@@ -1,68 +1,69 @@
 ---
-title: "Pull và deploy code"
+title: "Build from Source"
 date: 2026-11-24
 weight: 3
 chapter: false
 pre: " <b> 5.3. </b> "
 ---
 
-#### 1. Clone repository
+#### 1. Pull the code
 
 ```bash
 git clone https://github.com/poor-frog/TINA.git
 cd TINA
-git rev-parse --short HEAD    # ghi lại commit này
+git rev-parse --short HEAD
 ```
 
-Đặt `.env.keys` tương ứng ở gốc repo rồi `chmod 600 .env.keys`.
+The repository supplies Dockerfiles, Compose files and build scripts — it is the source input, not a finished deployment.
 
-- **Ảnh cần chụp:** `screenshot-03-clone.png`.
+#### 2. Restore configuration
 
-#### 2. Xem trước bằng `make plan`
+Copy the matching `.env.keys` to the repository root and protect it:
+
+```bash
+chmod 600 .env.keys
+```
+
+A newly generated key cannot decrypt the repository's encrypted config. Never commit or paste the key.
+
+#### 3. Preview the build plan
 
 ```bash
 make plan
 ```
 
-Lệnh in JSON gồm `project`, `docker_context`, `env_file`, `compose_files`, `services`, `viegem_device`, `meeting_voice`, `tts_credentials_ready`, `kws_models_source`, `native_viegem`, `container_viegem`, `images`, `volumes`, `order` và các dòng capability. Lệnh **chỉ đọc** — không tạo file hay secret. Ghi lại `project` và `viegem_device`.
+Read-only output: `project`, `services`, `images`, `volumes`, `viegem_device`, capability lines. Note the full list of `images` you are about to build.
 
-- **Ảnh cần chụp:** `screenshot-04-make-plan.png`.
+- **Screenshot:** `screenshot-02-make-plan.png`.
 
-#### 3. Deploy bằng `make all`
+#### 4. Build every service from its Dockerfile
+
+```bash
+make build       # all Compose service images
+make bot         # Playwright bot image explicitly (BROWSER_IMAGE)
+```
+
+This compiles each service locally — no `ghcr.io/poor-frog/tina-*:prod` image is pulled for the application services. Resulting local tags include `tina/v012-<service>:dev` and `tina/tina-bot:dev`. Model-install jobs (`viegem-models`, `gipformer-models`, `tts-models`, `meeting-voice-models`) run as part of the full deployment.
+
+- **Screenshots:** `screenshot-03-docker-build.png`, `screenshot-04-images-built.png` (`docker images | grep tina`).
+
+#### 5. Start and verify in one command (optional)
 
 ```bash
 make all
 ```
 
-Diễn biến:
+Builds (if needed), seeds ignored `.env` with minted secrets, starts the stack with `up -d --wait`, checks health, installs/restores the ASR controller on `18007`, provisions a scoped API key (`SCOPES=bot,tx`) and prints the Terminal/API URLs.
 
-1. `mint-dev-env.sh` tạo `deploy/compose/.env` từ `.env.example` nếu thiếu và mint `ADMIN_TOKEN`, `INTERNAL_API_SECRET`, `TINA_FLOWS_API_KEY`, `TINA_FLOWS_TIMELINE_KEY`, `NEXTAUTH_SECRET`.
-2. Preflight kiểm tra Docker ≥ 26 và tính nhất quán binding.
-3. Build `tina/meet-join-env:dev`, bot Playwright (`BROWSER_IMAGE`, mặc định `tina/tina-bot:dev`), mọi image Compose và `agent-worker`; pull image registry; chạy job cài model.
-4. `up -d --no-build --pull never --wait --wait-timeout 180`.
-5. Kiểm tra readiness: service đang chạy và `healthy`, job một lần phải `Exited (0)`.
-6. Cài/restore host controller ASR tại `127.0.0.1:18007`.
-7. Cấp API key scoped (`SCOPES=bot,tx`) và in:
+- **Screenshot:** `screenshot-05-make-all-success.png` (redact the key).
 
-```text
-Terminal UI: http://127.0.0.1:<TERMINAL_PORT>
-API gateway: http://127.0.0.1:<API_GATEWAY_HOST_PORT>
-API access provisioned. ...
-TINA Compose ready: <project>
-```
+#### Useful variants
 
-`make all` chỉ xác nhận **control-plane sẵn sàng**, không đo độ chính xác ASR hay cuộc họp thật — dùng `make probe` cho luồng đầy đủ.
+- `TINA_VIEGEM_DEVICE=cpu make all` — explicit CPU build/run (no automatic fallback after a failed GPU check).
+- `DOCKER_CONTEXT=orbstack make all` — select the OrbStack context.
+- `make doctor` — read-only readiness check.
 
-- **Ảnh cần chụp:** `screenshot-05-make-all-success.png` (che API key).
+#### Content
 
-#### Biến thể hữu ích
-
-- `TINA_VIEGEM_DEVICE=cpu make all` — deploy CPU rõ ràng (không có fallback tự động khi lỗi GPU).
-- `DOCKER_CONTEXT=orbstack make all` — khi Docker trỏ context khác.
-- `make build` / `make bot` — chỉ build lại image hoặc bot.
-- `make doctor` — kiểm tra readiness read-only.
-
-#### Nội dung
-
-- [Chuẩn bị](../5.2-Prerequiste/)
-- [Kiểm tra dịch vụ](../5.4-s3-onprem/)
+- [Prerequisites](../5.2-Prerequiste/)
+- [Verify the services](../5.4-s3-onprem/)

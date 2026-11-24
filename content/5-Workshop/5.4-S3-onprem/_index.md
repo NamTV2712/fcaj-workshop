@@ -1,29 +1,32 @@
 ---
-title: "Kiểm tra các dịch vụ"
+title: "Verify the Services"
 date: 2026-11-24
 weight: 4
 chapter: false
 pre: " <b> 5.4. </b> "
 ---
 
-#### 1. Container
+After building every image from source, confirm that each service in the architecture is actually running.
+
+#### 1. Containers built from source
 
 ```bash
 make ps
 docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
-docker logs --tail 100 <ten-container>
+docker images | grep tina
+docker logs --tail 100 <container-name>
 ```
 
-Service chạy liên tục: `agent-reach`, `admin-api`, `runtime`, `agent-api`, `meeting-api`, `gateway`, `flows-api`, `mcp`, `terminal`, `postgres`, `redis`, `storage` + `storage-init`. Job cài model một lần phải `Exited (0)`. Bot họp xuất hiện dưới tên `tina-mtg-*`.
+Expected long-running services: `terminal`, `gateway`, `meeting-api`, `admin-api`, `dashboard`, `agent-api`, `agent-reach`, `runtime`, `mcp`, `flows-api`, `flows-worker`, `postgres`, `redis`, `storage`, `storage-init`, `tts`, plus `viegem` and/or `gipformer` depending on profiles. One-shot model jobs should show `Exited (0)`. Meeting bots appear as `tina-mtg-*` containers.
 
-- **Ảnh cần chụp:** `screenshot-06-containers-healthy.png`.
+- **Screenshots:** `screenshot-06-containers-healthy.png`, `screenshot-07-service-logs.png`.
 
-#### 2. Web serving và API gateway
+#### 2. Web serving and API gateway
 
-Mở URL `Terminal UI:` từ `make all`, đăng nhập Google (user đầu tiên thành admin), rồi kiểm tra API:
+Open the Terminal URL printed by `make all`, sign in with Google (first user becomes admin), then check the API:
 
 ```bash
-export API_KEY=tina_...       # từ make all hoặc make -C deploy/compose provision-token
+export API_KEY=tina_...       # from make all or make -C deploy/compose provision-token
 export API=http://127.0.0.1:18056
 curl -sS -o /dev/null -w '%{http_code}\n' "$API/health"                  # 200
 curl -sS -H "X-API-Key: $API_KEY" "$API/meetings"                       # 2xx
@@ -35,22 +38,22 @@ curl -sS http://127.0.0.1:18200/health   # flows-api
 curl -sS http://127.0.0.1:18900/health   # versitygw storage
 ```
 
-- **Ảnh cần chụp:** `screenshot-07-terminal-signed-in.png`, `screenshot-08-gateway-health.png`.
+- **Screenshots:** `screenshot-08-terminal.png`.
 
-#### 3. STT (VieGem / Gipformer)
+#### 3. STT backends (VieGem / Gipformer)
 
 ```bash
-curl -sS http://127.0.0.1:18002/health   # Gipformer (profile asr)
+curl -sS http://127.0.0.1:18002/health   # Gipformer (asr profile)
 curl -sS http://127.0.0.1:18002/status
-curl -sS http://127.0.0.1:18005/health   # VieGem (profile viegem / native)
+curl -sS http://127.0.0.1:18005/health   # VieGem (viegem profile / native)
 curl -sS http://127.0.0.1:18005/status
 ```
 
-Trong Terminal: **Settings → Models → Transcription** — chọn model managed, xác nhận công tắc tài khoản bật và quan sát UI hiển thị trạng thái vật lý của worker tách biệt với trạng thái bật. Controller ASR ở `18007` có xác thực; kiểm tra qua UI hoặc `tina asr verify`, không dùng curl không key.
+Then in Terminal: **Settings → Models → Transcription** — select a managed model, confirm the account switch is on, and observe that the UI shows physical worker state separately from the account's enabled state. The controller on `18007` is authenticated; verify through the UI or `tina asr verify`.
 
-- **Ảnh cần chụp:** `screenshot-09-asr-status.png`.
+- **Screenshot:** `screenshot-09-asr-status.png`.
 
-#### 4. TTS và Agent
+#### 4. TTS and Agent
 
 ```bash
 docker compose exec -T tts python -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8000/health').status)"
@@ -58,26 +61,23 @@ curl -sS http://127.0.0.1:18100/health
 tina asr verify
 ```
 
-Cấu hình provider trong **Settings → Models** (vd `ANTHROPIC_API_KEY`, `CLAUDE_CODE_OAUTH_TOKEN` hoặc endpoint tương thích). Sau đó kiểm tra transcript trực tiếp, ghi chú, tóm tắt và dropdown **Tiếng Việt / English / Song ngữ** trong giao diện cuộc họp.
+Configure a model provider in **Settings → Models** before testing Ask TINA. Then check the live transcript, notes, summary and the **Tiếng Việt / English / Song ngữ** dropdown.
 
-- **Ảnh cần chụp:** `screenshot-10-tts-agent-ready.png`.
-
-#### 5. Chạy toàn bộ hành trình
+#### 5. Full journey probe
 
 ```bash
 make probe
 ```
 
-Các bước S0 ready → S1 spawn → S2 schedule → S3 boot → S4 join → S5 transcribe/WS → S6 SSE live view → S7 stop → S8 log sweep, mỗi bước có Expected / Actual / Verdict. Với `BROWSER_IMAGE=mock-bot:dev` kết quả GREEN ổn định; với bot thật tại URL giả, `join_failure` có tên là kết quả GREEN trung thực.
+Stages S0 ready → S1 spawn → S2 schedule → S3 boot → S4 join → S5 transcribe/WS → S6 SSE live view → S7 stop → S8 log sweep, each with Expected / Actual / Verdict. With `BROWSER_IMAGE=mock-bot:dev` the run is deterministically GREEN; with the real bot at a dead synthetic URL, a named `join_failure` is the truthful GREEN outcome.
 
-- **Ảnh cần chụp:** `screenshot-11-make-probe.png`.
+- **Screenshot:** `screenshot-10-make-probe.png`.
 
-#### CLI hỗ trợ
+#### CLI helper
 
 ```bash
 make cli-install && export PATH="$HOME/.local/bin:$PATH"
 tina status
 tina doctor --full
 tina logs runtime --tail 50
-tina open terminal
 ```

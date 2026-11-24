@@ -6,110 +6,127 @@ chapter: false
 pre: " <b> 5. </b> "
 ---
 
-# Workshop: Triển khai và kiểm chứng TINA trên AWS
+# Workshop: Dựng lại toàn bộ service TINA từ source
 
 #### Tổng quan
 
-Workshop này biến bản Proposal của TINA thành buổi thực hành. Proposal mô tả hệ thống đóng gói container trên **Amazon ECS với AWS Fargate** tại `us-east-1`, gồm 5 dịch vụ — **Web serving, Bot, STT (VieGem), TTS (VieNeu) và Agent** — cùng phối hợp tham gia cuộc họp, phiên âm trực tiếp, trả lời câu hỏi và gửi email follow-up. Amazon S3 lưu bản ghi âm, RDS lưu transcript, ElastiCache chứa trạng thái trực tiếp, Amazon Bedrock vận hành agent, còn Cognito/SES/CloudFront/WAF/ALB đảm nhiệm định danh, email và định tuyến biên.
+Workshop này **dựng lại toàn bộ stack service TINA từ mã nguồn**. Code trên GitHub chỉ được pull về để cung cấp source — mỗi service sau đó được build locally từ Dockerfile của chính nó và khởi chạy dưới dạng container. Mục tiêu là chứng minh kiến trúc trong Proposal có thể tái tạo được: bạn không dùng image đóng gói sẵn, mà tự dựng và kiểm chứng từng thành phần.
 
-Repository đã có sẵn **bản build đóng gói**: CI đẩy image container (các tag `:prod`, `:demo`, `:latest`) và bộ deploy cung cấp `make plan` / `make all`. Nhiệm vụ ngày mai của bạn vì thế không phải xây lại từ đầu, mà là **pull code, khởi chạy bản deploy có sẵn, đối chiếu từng dịch vụ với kiến trúc và chụp ảnh làm bằng chứng**.
+Proposal định nghĩa 5 service ứng dụng trên ECS/Fargate — **Web serving, Bot (Playwright), STT (VieGem), TTS (VieNeu) và Agent** — cùng các service hỗ trợ và kho dữ liệu. Trong workshop local này bạn build tất cả từ source vừa clone:
 
-| Thành phần workshop | Vai trò trong kiến trúc TINA |
+| Service kiến trúc | Build từ source trong workshop |
 | --- | --- |
-| `make plan` | Kiểm tra read-only project, profile và `viegem_device` trước khi chạy worker |
-| `make all` | Cài model, build service, khởi chạy và kiểm chứng ASR |
-| Terminal UI (mặc định cổng `13000`) | Task Web serving — Next.js, API và WebSocket gateway |
-| API gateway (mặc định cổng `18056`) | Route backend dùng bởi Terminal và Chrome extension |
-| Cổng `23000` / `28056` | Chỉ dùng cho bản `tina-production` OrbStack được cấu hình sẵn — kiểm tra bằng `make plan` và `make all` |
-| ASR control (cổng `18007`) | Host controller khởi động/dừng worker Gipformer và VieGem |
-| VieGem `18005` / Gipformer `18002` | Worker STT — phiên âm tiếng Việt |
-| Image ECR / GHCR | Image container cho Web, Bot, STT, TTS, Agent |
-| CloudWatch / Budgets | Log, metric, alarm và cảnh báo chi phí theo proposal |
+| Web serving | `terminal`, `gateway`, `meeting-api`, `admin-api`, `dashboard` |
+| Bot (Playwright) | `tina-bot` từ Dockerfile của bot (`BROWSER_IMAGE`) |
+| STT | `viegem` và/hoặc `gipformer` từ thư mục service tương ứng |
+| TTS | `tts` (VieNeu) và `tts-models` |
+| Agent | `agent-api`, `agent-worker`, `agent-reach`, `runtime`, `mcp` |
+| Follow-up/flows | `flows-api`, `flows-worker`, `flows-mailbox` |
+| Kho dữ liệu | `postgres` (PostgreSQL), `redis`, `storage` (versitygw tương đương S3) |
+| Định danh/email/biên | Google OAuth trong Terminal, Flows/Resend/SMTP, Caddy/gateway — cùng bản AWS tương ứng trong proposal |
 
-#### Chuẩn bị trước ngày thực hành
+#### "Dựng từ đầu" nghĩa là gì ở đây
 
-1. **Windows:** dùng **WSL2** với Docker Desktop tích hợp Linux/WSL và driver NVIDIA. Deploy native Windows Python/PowerShell **không được hỗ trợ**.
-2. **macOS:** khởi động OrbStack hoặc Docker Desktop trước; Apple Silicon dùng PyTorch MPS native cho VieGem.
-3. Cài **Docker Engine 26+**, Compose hỗ trợ `up --wait`, **Python 3.10+** và **make**.
-4. Cài **Dotenvx** (`npm install --global @dotenvx/dotenvx` hoặc Homebrew tap trên macOS).
-5. Xin file private **`.env.keys`** từ chủ sở hữu qua kênh bảo mật. Key tự tạo sẽ không giải mã được cấu hình repo. Không commit hay dán key vào đâu.
-6. Chuẩn bị URL repo: `https://github.com/poor-frog/TINA.git`.
+1. **Pull code** — clone `https://github.com/poor-frog/TINA.git`; repo chỉ cung cấp Dockerfile, Compose file và build script, không phải hệ thống hoàn chỉnh.
+2. **Khôi phục cấu hình** — đặt `.env.keys` tương ứng ở gốc repo để đọc config đã mã hóa.
+3. **Build mọi image locally** — `make build` (hoặc `make all` build trước khi chạy) biên dịch từng service từ Dockerfile. Tag local dạng `tina/v012-<service>:dev`; `BROWSER_IMAGE` mặc định `tina/tina-bot:dev`.
+4. **Khởi chạy & kiểm tra** — chạy toàn bộ stack rồi soi từng container, health endpoint và log để xác nhận mọi service chạy được.
+5. **Dừng/dọn** — `make down` dừng service nhưng giữ dữ liệu.
+
+Repo có sẵn image registry (`ghcr.io/poor-frog/tina-*:prod`), nhưng workshop này **cố tình không dùng** — bước build chính là nội dung cần thực hành.
+
+#### Cổng — lưu ý quan trọng
+
+| Dịch vụ | Fresh clone | `tina-production` cấu hình sẵn |
+| --- | --- | --- |
+| Terminal UI | `13000` | `23000` |
+| API gateway | `18056` | `28056` |
+| ASR control | `18007` | `18007` |
+| VieGem | `18005` | `18005` |
+| Gipformer | `18002` | `18002` |
+
+Luôn tin vào dòng `Terminal UI:` / `API gateway:` do `make all` in ra.
 
 #### Hướng dẫn thực hành ngày 25/11/2026
 
-**Bước 0 — Pull code**
+**Bước 0 — Pull code & chuẩn bị**
 
-1. Clone và vào thư mục:
-   ```
-   git clone https://github.com/poor-frog/TINA.git
-   cd TINA
-   ```
-2. Đặt `.env.keys` ở gốc repo, rồi chạy `chmod 600 .env.keys`.
-3. **Ảnh cần chụp:** `w0-clone.png` (repo vừa clone), `w0-env-key.png` (có file key, che giá trị).
+```bash
+git clone https://github.com/poor-frog/TINA.git
+cd TINA
+git rev-parse --short HEAD
+cp <duong-dan-bao-mat>/.env.keys .   # key riêng tương ứng
+chmod 600 .env.keys
+```
+Kiểm tra Docker ≥ 26, Compose hỗ trợ `up --wait`, Python 3.10+, `make`, Dotenvx và (Linux/WSL2) driver NVIDIA.
 
-**Bước 1 — Xem trước bản deploy (read-only)**
+- **Ảnh cần chụp:** `screenshot-00-prereqs.png`, `screenshot-01-clone.png`.
 
-1. Chạy `make plan` — lệnh này chỉ hiển thị project, profile và `viegem_device` đề xuất, **không khởi động worker**.
-2. Xác nhận profile là `automation,asr,dashboard,viegem` và ghi lại thiết bị chọn (MPS trên Apple Silicon, CUDA Docker trên WSL2/NVIDIA, hoặc CPU rõ ràng với `TINA_VIEGEM_DEVICE=cpu`).
-3. **Ảnh cần chụp:** `w1-plan.png` (toàn bộ output `make plan`).
+**Bước 1 — Xem kế hoạch build**
 
-**Bước 2 — Khởi chạy toàn bộ hệ thống**
+```bash
+make plan
+```
+Ghi lại `project`, `services`, `images`, `volumes`, `viegem_device` và các dòng capability. Lệnh chỉ đọc.
 
-1. Chạy `make all`: cài model, build service, khởi chạy và kiểm chứng ASR bằng audio probe đã xác thực.
-2. Đợi thông báo ready với 2 URL. Với fresh clone là:
-   - Terminal UI: `http://127.0.0.1:13000`
-   - API gateway: `http://127.0.0.1:18056`
-   Nếu bạn dùng bản `tina-production` có thể là `23000` / `28056` — hãy tin vào URL do `make all` in ra.
-3. Giữ API key do `make all` in ra bí mật; chụp ảnh phải che giá trị.
-4. **Ảnh cần chụp:** `w2-make-all-start.png`, `w2-make-all-ready.png` (thấy URL, che key).
+- **Ảnh cần chụp:** `screenshot-02-make-plan.png`.
 
-**Bước 3 — Kiểm tra các dịch vụ trong kiến trúc**
+**Bước 2 — Build từng service từ source**
 
-1. Liệt kê container đang chạy: `docker ps` (hoặc `docker compose ps`). Xác định Web, Bot, STT (VieGem/Gipformer), TTS, Agent và cổng của chúng.
-2. Kiểm tra log lỗi: `docker logs <ten-container>` cho từng service.
-3. Mở URL **Terminal UI** do `make all` in ra, đăng nhập Google và xác nhận Terminal UI tải được (user đầu tiên trở thành admin).
-4. Xác nhận API gateway phản hồi:
-   ```
-   export API=http://127.0.0.1:18056   # 28056 trên tina-production
-   export API_KEY=tina_...             # lấy từ make all / provision-token
-   curl -sS -o /dev/null -w '%{http_code}\n' "$API/health"
-   curl -sS -H "X-API-Key: $API_KEY" "$API/meetings"
-   ```
-5. **Ảnh cần chụp:** `w3-docker-ps.png`, `w3-logs.png`, `w3-terminal-ui.png`, `w3-gateway.png`.
+```bash
+make build      # build mọi image Compose từ Dockerfile
+make bot        # build riêng image bot Playwright
+```
+Nếu muốn một lệnh build + chạy + kiểm tra: `make all`. Ở bản cài mới, lệnh này cũng mint secret cần thiết, chạy job cài model, chờ health và cấp API key scoped.
 
-**Bước 4 — Kiểm tra luồng AI và dữ liệu**
+- **Ảnh cần chụp:** `screenshot-03-docker-build.png`, `screenshot-04-images-built.png` (`docker images | grep tina`).
 
-1. Settings → Models: xác nhận model phiên âm (VieGem hoặc Gipformer) đã được chọn và công tắc tài khoản đang bật.
-2. Xác nhận worker được khởi động và UI hiển thị trạng thái vật lý tách biệt với trạng thái bật của tài khoản.
-3. Mở giao diện cuộc họp, kiểm tra transcript trực tiếp, ghi chú, tóm tắt và dropdown ngôn ngữ **Tiếng Việt / English / Song ngữ**.
-4. Đối chiếu S3/RDS/ElastiCache/Bedrock/SES với bản deploy đang chạy (task definition, cấu hình môi trường, log CloudWatch) thay vì chỉ tin vào sơ đồ.
-5. **Ảnh cần chụp:** `w4-models.png`, `w4-worker-state.png`, `w4-transcript.png`, `w4-language.png`, `w4-cloudwatch.png`.
+**Bước 3 — Khởi chạy toàn bộ stack**
 
-**Bước 5 — Kiểm tra chi phí và bảo mật theo proposal**
+```bash
+make all
+```
+Chụp các dòng `Terminal UI:` / `API gateway:` / `TINA Compose ready:`. Giữ API key bí mật.
 
-1. Xác nhận WAF đứng trước CloudFront và chỉ HTTPS được mở ra Internet.
-2. Xác nhận IAM task role tối thiểu quyền, bí mật nằm trong Secrets Manager/KMS.
-3. Xác nhận AWS Budgets có alert ở 50%, 80% và 100% hạn mức tháng.
-4. **Ảnh cần chụp:** `w5-waf.png`, `w5-iam.png`, `w5-budgets.png`.
+- **Ảnh cần chụp:** `screenshot-05-make-all-success.png` (che key).
 
-**Bước 6 — Dừng môi trường**
+**Bước 4 — Kiểm tra từng service**
 
-1. Chạy `make down` — lệnh này cũng dừng/xóa LaunchAgent MPS native nhưng giữ file model.
-2. Xác nhận không còn container/worker thuộc quyền quản lý và không sót tài nguyên phát sinh chi phí.
-3. **Ảnh cần chụp:** `w6-make-down.png`, `w6-after-down.png`.
+```bash
+make ps
+docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+docker logs --tail 100 <ten-container>
+```
+Kiểm tra mọi service trong bảng trên: Web serving, Bot, STT, TTS, Agent, flows, kho dữ liệu cùng các health endpoint ở trang [Kiểm tra dịch vụ](5.4-s3-onprem/).
 
-#### Mẹo khi làm lần đầu
+- **Ảnh cần chụp:** `screenshot-06-containers-healthy.png`, `screenshot-07-service-logs.png`.
 
-* Nếu `make all` lỗi ở bước kiểm tra GPU/driver/kernel, **không có fallback CPU tự động** — hãy sửa WSL2/NVIDIA hoặc dùng rõ `TINA_VIEGEM_DEVICE=cpu make all`.
-* Registry phiên âm mới mặc định chọn VieGem; preferences cá nhân/toàn cục đã có thì giữ nguyên.
-* `make down` giữ database, bản ghi âm và workspace — chỉ dừng dịch vụ thuộc quyền quản lý.
-* Không đưa `.env.keys`, API key hay OAuth secret vào ảnh/chài liệu.
+**Bước 5 — Kiểm tra luồng AI/dữ liệu**
+
+Đăng nhập Terminal, kiểm tra Settings → Models, transcript trực tiếp, ghi chú/tóm tắt, dropdown ngôn ngữ (**Tiếng Việt / English / Song ngữ**), wake word và câu trả lời bằng giọng nói; rồi chạy `make probe` cho hành trình S0–S8.
+
+- **Ảnh cần chụp:** `screenshot-08-terminal.png`, `screenshot-09-asr-status.png`, `screenshot-10-make-probe.png`.
+
+**Bước 6 — Dừng và dọn**
+
+```bash
+make down
+```
+Xác nhận service đã dừng và volume dữ liệu vẫn giữ lại.
+
+- **Ảnh cần chụp:** `screenshot-11-make-down.png`.
+
+#### Mẹo
+
+* Windows native Python/PowerShell không được hỗ trợ — dùng WSL2; Apple Silicon dùng MPS; Linux/WSL2 có NVIDIA dùng Docker CUDA. Không có fallback CPU tự động — dùng rõ `TINA_VIEGEM_DEVICE=cpu make all`.
+* Build từ source cần khoảng **8 vCPU / 16 GB RAM**; job cài model tải weight nên cần thời gian.
+* Không commit hay chụp `.env.keys`, API key hay secret OAuth.
 
 #### Nội dung
 
 1. [Tổng quan workshop](5.1-workshop-overview/)
 2. [Chuẩn bị](5.2-prerequiste/)
-3. [Pull và deploy code](5.3-s3-vpc/)
-4. [Kiểm tra các dịch vụ](5.4-s3-onprem/)
+3. [Build từ source](5.3-s3-vpc/)
+4. [Kiểm tra dịch vụ](5.4-s3-onprem/)
 5. [Kiểm tra chi phí & bảo mật](5.5-policy/)
 6. [Dọn dẹp](5.6-cleanup/)

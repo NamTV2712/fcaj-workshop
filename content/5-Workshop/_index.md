@@ -6,110 +6,127 @@ chapter: false
 pre: " <b> 5. </b> "
 ---
 
-# Workshop: Deploy and Verify TINA on AWS
+# Workshop: Build and Run Every TINA Service from Source
 
 #### Overview
 
-This workshop turns the TINA proposal into a hands-on session. The proposal describes a containerized system on **Amazon ECS with AWS Fargate** in `us-east-1`, where five services — **Web serving, Bot, STT (VieGem), TTS (VieNeu) and Agent** — work together to join meetings, transcribe audio in real time, answer questions and send follow-up emails. Amazon S3 stores recordings, RDS stores transcripts, ElastiCache carries live state, Amazon Bedrock powers the agent, and Cognito/SES/CloudFront/WAF/ALB handle identity, email and edge routing.
+This workshop rebuilds the **entire TINA service stack from source code**. The GitHub repository is pulled only to provide the code — every service is then built locally from its Dockerfile and started as a container. The goal is to prove that the architecture in the proposal is reproducible: you do not rely on pre-built images, you construct and verify each component yourself.
 
-The repository already ships a **packaged build**: CI publishes container images (with `:prod`, `:demo` and `:latest` tags) and the deploy kit provides `make plan` / `make all`. Your task tomorrow is therefore not to build everything from scratch, but to **pull the code, start the packaged deployment, verify every service against the architecture, and capture screenshots as evidence**.
+The proposal defines five application services on Amazon ECS/Fargate — **Web serving, Bot (Playwright), STT (VieGem), TTS (VieNeu) and Agent** — plus supporting services and data stores. In this local workshop you build all of them from the cloned source:
 
-| Workshop component | Corresponding role in the TINA architecture |
+| Architecture service | Built from source in this workshop |
 | --- | --- |
-| `make plan` | Read-only check of project, profiles and `viegem_device` before starting workers |
-| `make all` | Installs models, builds/starts services and verifies ASR |
-| Terminal UI (default port `13000`) | Web serving task — Next.js terminal, API and WebSocket gateway |
-| API gateway (default port `18056`) | Backend routes used by Terminal and the Chrome extension |
-| Ports `23000` / `28056` | Only for the pre-configured `tina-production` OrbStack instance — confirm with `make plan` and `make all` |
-| ASR control (port `18007`) | Host controller that starts/stops managed Gipformer and VieGem workers |
-| VieGem `18005` / Gipformer `18002` | STT workers — Vietnamese speech to text |
-| ECR / GHCR images | Container images for Web, Bot, STT, TTS and Agent services |
-| CloudWatch / Budgets | Logs, metrics, alarms and cost alerts from the proposal |
+| Web serving | `terminal`, `gateway`, `meeting-api`, `admin-api`, `dashboard` |
+| Bot (Playwright) | `tina-bot` from the bot Dockerfile (`BROWSER_IMAGE`) |
+| STT | `viegem` and/or `gipformer` from their service directories |
+| TTS | `tts` (VieNeu) and `tts-models` |
+| Agent | `agent-api`, `agent-worker`, `agent-reach`, `runtime`, `mcp` |
+| Follow-up/flows | `flows-api`, `flows-worker`, `flows-mailbox` |
+| Data stores | `postgres` (PostgreSQL), `redis` (Redis-compatible), `storage` (S3-compatible versitygw) |
+| Identity/email/edge | Google OAuth in Terminal, Flows/Resend/SMTP mail, Caddy/gateway — plus the AWS equivalents documented in the proposal |
 
-#### Preparation checklist (do this before tomorrow)
+#### What "build from scratch" means here
 
-1. **Windows:** use **WSL2** with Docker Desktop's Linux/WSL integration and the NVIDIA Windows driver. Native Windows Python/PowerShell deployment is **not supported**.
-2. **macOS:** start OrbStack or Docker Desktop first; Apple Silicon uses native PyTorch MPS for VieGem.
-3. Install **Docker Engine 26+**, Compose with `up --wait`, **Python 3.10+** and **make**.
-4. Install **Dotenvx** (`npm install --global @dotenvx/dotenvx` or the Homebrew tap on macOS).
-5. Obtain the matching private **`.env.keys`** file from the owner through a secure channel. A newly generated key will not decrypt this repository's config. Never commit or paste the key.
-6. Have the GitHub repository URL ready: `https://github.com/poor-frog/TINA.git`.
+1. **Pull the code** — clone `https://github.com/poor-frog/TINA.git`; the repo supplies Dockerfiles, Compose files and build scripts, not a finished system.
+2. **Restore configuration** — place the matching `.env.keys` at the repo root so encrypted config can be read.
+3. **Build every image locally** — `make build` (or `make all`, which builds before starting) compiles each service from its Dockerfile. Local tags follow `tina/v012-<service>:dev`; `BROWSER_IMAGE` defaults to `tina/tina-bot:dev`.
+4. **Start and verify** — bring up the full stack, then inspect each container, health endpoint and log to confirm every service runs.
+5. **Tear down** — `make down` stops the services while keeping data.
+
+Pre-built registry images (`ghcr.io/poor-frog/tina-*:prod`) exist in the project, but this workshop deliberately **does not rely on them** — the build step is the point of the exercise.
+
+#### Ports — important
+
+| Service | Fresh clone | Pre-configured `tina-production` |
+| --- | --- | --- |
+| Terminal UI | `13000` | `23000` |
+| API gateway | `18056` | `28056` |
+| ASR control | `18007` | `18007` |
+| VieGem | `18005` | `18005` |
+| Gipformer | `18002` | `18002` |
+
+Always trust the `Terminal UI:` / `API gateway:` lines printed by `make all`.
 
 #### Step-by-step guide for the practice day (25/11/2026)
 
-**Step 0 — Pull the code**
+**Step 0 — Pull the code and prepare**
 
-1. Clone and enter the repo:
-   ```
-   git clone https://github.com/poor-frog/TINA.git
-   cd TINA
-   ```
-2. Place `.env.keys` at the repository root, then run `chmod 600 .env.keys`.
-3. **Screenshots:** `w0-clone.png` (repo cloned), `w0-env-key.png` (key file present, with the value hidden).
+```bash
+git clone https://github.com/poor-frog/TINA.git
+cd TINA
+git rev-parse --short HEAD
+cp <your-secure-location>/.env.keys .   # matching private key
+chmod 600 .env.keys
+```
+Verify Docker ≥ 26, `docker compose` with `up --wait`, Python 3.10+, `make`, Dotenvx and (on Linux/WSL2) NVIDIA driver visibility.
 
-**Step 1 — Preview the deployment (read-only)**
+- **Screenshots:** `screenshot-00-prereqs.png`, `screenshot-01-clone.png`.
 
-1. Run `make plan`. It shows the project, enabled profiles and the proposed `viegem_device` **without starting any worker**.
-2. Confirm the profiles are `automation,asr,dashboard,viegem` and note the selected device (native MPS on Apple Silicon, Docker CUDA on WSL2/NVIDIA, or explicit CPU with `TINA_VIEGEM_DEVICE=cpu`).
-3. **Screenshots:** `w1-plan.png` (full `make plan` output).
+**Step 1 — Preview the build plan**
 
-**Step 2 — Start everything**
+```bash
+make plan
+```
+Note `project`, `services`, `images`, `volumes`, `viegem_device` and the capability lines. This is read-only.
 
-1. Run `make all`. It installs models, builds services, starts them and verifies ASR with an authenticated audio probe.
-2. Wait for the ready message containing the two URLs. On a fresh clone these are:
-   - Terminal UI: `http://127.0.0.1:13000`
-   - API gateway: `http://127.0.0.1:18056`
-   If you are on the pre-configured `tina-production` instance they may be `23000` / `28056` — always trust the URLs printed by `make all`.
-3. Keep the API key printed by `make all` private; do not screenshot its value.
-4. **Screenshots:** `w2-make-all-start.png`, `w2-make-all-ready.png` (URLs visible, key masked).
+- **Screenshot:** `screenshot-02-make-plan.png`.
 
-**Step 3 — Verify the services in the architecture**
+**Step 2 — Build every service from source**
 
-1. List running containers: `docker ps` (or `docker compose ps`). Identify Web, Bot, STT (VieGem/Gipformer), TTS and Agent containers and their ports.
-2. Check logs for errors: `docker logs <container-name>` for each service.
-3. Open the **Terminal UI** URL printed by `make all` in a browser, sign in with Google, and confirm the Terminal UI loads (first user becomes admin).
-4. Confirm the API gateway responds:
-   ```
-   export API=http://127.0.0.1:18056   # 28056 on tina-production
-   export API_KEY=tina_...             # from make all / provision-token
-   curl -sS -o /dev/null -w '%{http_code}\n' "$API/health"
-   curl -sS -H "X-API-Key: $API_KEY" "$API/meetings"
-   ```
-5. **Screenshots:** `w3-docker-ps.png`, `w3-logs.png`, `w3-terminal-ui.png`, `w3-gateway.png`.
+```bash
+make build      # builds all Compose service images from Dockerfiles
+make bot        # builds the Playwright bot image explicitly
+```
+If you prefer a single command that builds, starts and verifies: `make all`. On a fresh install it also mints the required secrets, runs model-install jobs, waits for health and provisions a scoped API key.
 
-**Step 4 — Verify the AI and data path**
+- **Screenshots:** `screenshot-03-docker-build.png`, `screenshot-04-images-built.png` (`docker images | grep tina`).
 
-1. In Settings → Models, confirm the transcription model (VieGem or Gipformer) is selected and the account switch is on.
-2. Confirm a managed worker starts and the UI shows its physical state separately from the account's enabled state.
-3. Open the meeting UI and check the live transcript, notes, summary and the **Tiếng Việt / English / Song ngữ** language dropdown.
-4. Check that S3/RDS/ElastiCache/Bedrock/SES are reflected in the running stack (task definitions, environment configuration, CloudWatch logs) rather than assuming from the diagram.
-5. **Screenshots:** `w4-models.png`, `w4-worker-state.png`, `w4-transcript.png`, `w4-language.png`, `w4-cloudwatch.png`.
+**Step 3 — Start the full stack**
 
-**Step 5 — Check cost and security items from the proposal**
+```bash
+make all
+```
+Capture the final `Terminal UI:` / `API gateway:` / `TINA Compose ready:` lines. Keep the printed API key private.
 
-1. Confirm WAF is in front of CloudFront and only HTTPS is exposed publicly.
-2. Confirm IAM task roles follow least privilege and secrets stay in Secrets Manager/KMS.
-3. Confirm AWS Budgets alerts exist at 50%, 80% and 100% of the monthly limit.
-4. **Screenshots:** `w5-waf.png`, `w5-iam.png`, `w5-budgets.png`.
+- **Screenshot:** `screenshot-05-make-all-success.png` (redact the key).
 
-**Step 6 — Stop the environment**
+**Step 4 — Verify every service**
 
-1. Run `make down`. It also stops/removes the owned native MPS LaunchAgent while retaining model files.
-2. Confirm no owned containers/workers remain and no unexpected cost-generating resources are left running.
-3. **Screenshots:** `w6-make-down.png`, `w6-after-down.png`.
+```bash
+make ps
+docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+docker logs --tail 100 <container-name>
+```
+Check every service in the table above: Web serving, Bot, STT, TTS, Agent, flows, data stores, plus the health endpoints in the [Verify the services](5.4-s3-onprem/) page.
 
-#### Tips for a first-time run
+- **Screenshots:** `screenshot-06-containers-healthy.png`, `screenshot-07-service-logs.png`.
 
-* If `make all` fails on GPU/driver/kernel checks, there is **no automatic CPU fallback** — either fix the NVIDIA/WSL2 setup or explicitly use `TINA_VIEGEM_DEVICE=cpu make all`.
-* A fresh transcription registry defaults to VieGem; existing personal/global preferences are unchanged.
-* `make down` retains database, recordings and workspaces — it only stops the owned services.
-* Keep `.env.keys`, the printed API key and any OAuth secrets out of screenshots and documentation.
+**Step 5 — Verify the AI/data flow**
+
+Sign in to Terminal, check Settings → Models, live transcript, notes/summary, language dropdown (`Tiếng Việt / English / Song ngữ`), wake word and spoken replies; then run `make probe` for the S0–S8 journey.
+
+- **Screenshots:** `screenshot-08-terminal.png`, `screenshot-09-asr-status.png`, `screenshot-10-make-probe.png`.
+
+**Step 6 — Stop and clean up**
+
+```bash
+make down
+```
+Confirm services are stopped and data volumes preserved.
+
+- **Screenshot:** `screenshot-11-make-down.png`.
+
+#### Tips
+
+* Native Windows Python/PowerShell is unsupported — use WSL2; Apple Silicon uses MPS; Linux/WSL2 with NVIDIA uses Docker CUDA. No automatic CPU fallback — use `TINA_VIEGEM_DEVICE=cpu make all` explicitly.
+* A source build needs roughly **8 vCPUs / 16 GB RAM**; model install jobs download weights, so allow time.
+* Never commit or screenshot `.env.keys`, API keys or OAuth secrets.
 
 #### Content
 
 1. [Workshop overview](5.1-workshop-overview/)
 2. [Prerequiste](5.2-prerequiste/)
-3. [Pull and deploy the code](5.3-s3-vpc/)
+3. [Build from source](5.3-s3-vpc/)
 4. [Verify the services](5.4-s3-onprem/)
 5. [Cost and security checks](5.5-policy/)
 6. [Clean up](5.6-cleanup/)
