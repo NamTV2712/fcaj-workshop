@@ -1,64 +1,48 @@
 ---
 aliases: ["/vi/5-workshop/5.4-s3-onprem/5.4.4-dns-simulation/"]
-title: "Kiểm tra hệ thống và chuẩn bị tái triển khai"
+title: "Kiểm thử website và meeting"
 date: 2026-11-25
 weight: 4
 chapter: false
 pre: " <b> 5.4.4 </b> "
 ---
 
-## A. Kiểm tra ứng dụng đang chạy
+## 1. Kiểm tra website và đăng nhập
 
-1. Trong **CloudFormation → Stacks → tina-staging-edge → Outputs**, tìm `StageUrl`. Chỉ người được cấp quyền mới mở URL này; không dán URL nội bộ vào báo cáo công khai.
-2. Mở URL staging bằng trình duyệt. Đối chiếu mã HTTP/trang đăng nhập với mục tiêu bài kiểm tra. Ngày 25/11/2026, một yêu cầu HEAD tới URL này trả `200`; đây chỉ là kiểm tra truy cập, không chứng minh đăng nhập hoặc luồng họp.
+Nếu dùng [template gộp](../../5.4-full-cloudformation/), lấy `WebsiteUrl` trong Outputs và đăng nhập bằng tài khoản Cognito được mời. Phần Google bên dưới áp dụng cho lộ trình nhiều stack.
 
-{{< workshop-screenshot file="16-app-login.png" description="Trang đăng nhập hoặc phản hồi web của môi trường thử." >}}
+Lấy URL CloudFront do tài khoản của bạn tạo:
 
-3. Nếu được phép và có tài khoản thử, đăng nhập bằng phương thức được cấu hình thực tế. Dùng cuộc họp thử và dữ liệu giả, được tất cả người tham gia đồng ý; không quay/chụp người hoặc nội dung riêng tư.
-4. Kiểm tra theo thứ tự: tạo hoặc tham gia cuộc họp thử → bot vào → âm thanh được gửi đến endpoint STT tự host → transcript xuất hiện → dừng cuộc họp → kiểm tra kết quả/lưu trữ theo quyền được cấp.
+```bash
+stackout tina-ws-edge StageUrl
+```
 
-{{< workshop-screenshot file="17-test-meeting.png" description="Cuộc họp thử và bot tham gia, dùng dữ liệu giả đã được cho phép." >}}
+Mở URL trên trình duyệt. Kiểm tra trang TINA hiển thị, sau đó đăng nhập bằng Google test user đã khai báo. Ảnh dưới đây cần chụp trang đăng nhập của môi trường do bạn dựng:
 
-{{< workshop-screenshot file="18-test-transcript.png" description="Transcript của cuộc họp thử; không dùng nội dung riêng tư." >}}
+{{< workshop-screenshot file="16-app-login.png" description="Trang đăng nhập TINA trên URL CloudFront của bạn; che email và domain nếu chia sẻ." >}}
 
-5. Ghi **Expected**, **Actual**, thời điểm và **Pass/Fail/Blocked** cho từng bước. Nếu chưa có quyền, model, URL họp hoặc dữ liệu thử, ghi **Blocked** cùng lý do; không thay bằng ảnh hoặc kết quả giả.
+Nếu đăng nhập thất bại: kiểm tra Google OAuth client thuộc đúng project, URI callback khớp chính xác `StageUrl`, user có trong danh sách thử nghiệm, secret JSON có đúng hai key và Terminal đang Running. Kiểm tra log Terminal mà không công khai giá trị secret.
 
-| Kiểm tra | Đạt khi | Bằng chứng |
+## 2. Thử một cuộc họp
+
+Tạo cuộc họp thử có sự đồng ý của tất cả người tham gia. Trên TINA, tạo meeting theo giao diện, nhập URL cuộc họp thử và bắt đầu. Quan sát bot join, task bot xuất hiện trong ECS và trạng thái cuộc họp thay đổi. Meeting provider, admission hoặc quyền người tham gia có thể ảnh hưởng khả năng bot vào phòng; nếu bot không vào, ghi lỗi và kiểm tra log bot, runtime, quota Fargate, NAT và policy của phòng.
+
+{{< workshop-screenshot file="17-test-meeting.png" description="Cuộc họp thử được phép và trạng thái bot; dùng dữ liệu giả, che thông tin người tham gia." >}}
+
+Nếu đã bật VieGem hợp lệ và luồng audio thành công, nói một câu thử không nhạy cảm, chờ transcript xuất hiện và đối chiếu nội dung. Nếu không bật ASR hoặc chưa có transcript, ghi **chưa đạt/chưa kiểm thử**, không dùng ảnh minh họa giả.
+
+{{< workshop-screenshot file="18-test-transcript.png" description="Transcript của câu thử không nhạy cảm sau khi ASR hoạt động." >}}
+
+Kết thúc meeting và kiểm tra task bot dừng. Nếu ghi âm được bật, kiểm tra metadata object của meeting thử trong bucket riêng; không đưa audio hoặc transcript riêng tư vào báo cáo.
+
+## 3. Ghi kết quả thật
+
+| Kiểm tra | Kết quả mong đợi | Ghi nhận |
 | --- | --- | --- |
-| Truy cập web | Mở được URL staging và nhận phản hồi phù hợp | Ảnh trang thử sau khi che thông tin riêng |
-| ECS/ALB | Service ổn định và target phù hợp `healthy` | Ảnh service + target health |
-| Họp thử | Bot vào đúng phòng thử được cho phép | Ảnh hoặc log đã che thông tin |
-| Phiên âm | Nội dung thử xuất hiện đúng theo tiêu chí đã đặt | Ảnh transcript giả + thời điểm |
-| Ghi dữ liệu | Tệp thử có thể tìm thấy tại nơi hệ thống thực sự dùng | Object metadata, không chụp dữ liệu riêng |
+| Web | URL CloudFront hiển thị Terminal | Pass/Fail và thời điểm |
+| Đăng nhập | Tài khoản thử Cognito hoặc Google vào được TINA | Pass/Fail, không ghi secret |
+| ECS | Runtime, core và Terminal ổn định, target healthy | desired/running, event |
+| Meeting | Bot vào được phòng thử và dừng sau cuộc họp | Kết quả thật |
+| Phiên âm | Transcript xuất hiện khi có ASR | Pass/Fail hoặc chưa cấu hình |
 
-## B. Làm cho workshop có thể tái triển khai từ đầu
-
-Người hướng dẫn cần chuẩn bị các mục sau trước khi yêu cầu reviewer dựng lại toàn hệ thống:
-
-1. Một commit/tag source có thể truy cập và tập image/digest tương ứng, kèm kiến trúc CPU, quyền pull và hướng dẫn build.
-2. Bộ template hoặc manifest cho **toàn bộ** stack được sử dụng, thứ tự triển khai và danh sách parameter/đầu ra; không chứa account ID, mật khẩu, token hay secret thật. Các template đang nằm trong AWS có thể được xem qua **CloudFormation → stack → Template** và được rà soát trước khi đưa vào bộ release.
-3. Tài liệu thiết lập role/SG/service discovery, DB migration, DNS/certificate, secret, STT, model và chi phí/quota. Xác định rõ phần nào bắt buộc, phần nào tùy chọn.
-4. Chạy lại bằng tài khoản lab sạch; ghi thời gian, lệnh, ảnh và lỗi đã khắc phục. Lặp lại việc kiểm tra ứng dụng và dọn lab từ đầu đến cuối.
-5. Chỉ sau đó công bố hướng dẫn với phiên bản cố định. Không đẩy source/image/template lên nơi công khai nếu chưa được chủ dự án cho phép và chưa rà soát nội dung.
-
-### Các đầu vào thực tế cần đối chiếu
-
-Để lập bảng tham số, mở từng stack trong **CloudFormation → Stacks → chọn stack → Parameters**, sau đó đối chiếu **Outputs** và **Resources** của các stack liên quan. Ghi tên tham số và nguồn cấp; không sao chép giá trị secret hoặc định danh tài khoản vào tài liệu công khai. Những tên dưới đây đã được kiểm tra từ template staging ngày 25/11/2026:
-
-| Stack | Một số đầu vào cần chuẩn bị | Kiểm tra tiếp |
-| --- | --- | --- |
-| `tina-foundation` | Template hiện không khai báo parameter | Rà CIDR và tên cố định trong template trước khi sửa thành bộ dùng được cho tài khoản khác. Không đồng thời tạo thủ công và để template tạo lại cùng tài nguyên. |
-| `tina-staging-egress` | `PublicSubnetId`, `AppRouteTableA`, `AppRouteTableB` | Lấy từ nền tảng của chính môi trường lab. |
-| `tina-staging-edge` | `VpcId`, `AppSubnetIds`, `WebAclArn`, `CloudFrontOriginPrefixListId` | Xác định nguồn ARN/prefix list phù hợp Region và lab; kiểm tra cách cấu hình VPC origin. |
-| `tina-staging-datastores` | `VpcId`, `DataSubnetIds`, `DeployValkey` | Kiểm tra subnet group, database, cache và cách cấp secret. |
-| `tina-staging-bot` | `ClusterName`, `BotRepositoryArn`, `BotImage`, `InvocationBucket`, `ProbeInvocation` | Xác định image digest, quyền chạy task và storage phù hợp. |
-| `tina-staging-runtime` | `VpcId`, `AppSubnetIds`, `ClusterName`, `RuntimeImage`, `BotTaskDefinitionArn` cùng các tham số Valkey/workspace | Xem toàn bộ Parameters; xác định rõ tham số tùy chọn, role, storage và service discovery. |
-| `tina-staging-core` | `VpcId`, `AppSubnetIds`, `ClusterName`, các image, `PostgresHost`, `ValkeyHost`, `RecordingsBucket`, các secret ARN và URL nội bộ | Đối chiếu đầy đủ phần STT, TTS, runtime, agent, MCP và migration. |
-| `tina-staging-terminal` | `StageUrl`, `ListenerArn`, `TerminalImage`, `GoogleSecretArn`, `InternalSecretArn` cùng các tham số VPC, subnet và security group | Chuẩn bị callback/OAuth hợp lệ; không công khai secret hoặc URL riêng. |
-| `tina-staging-viegem`, `tina-staging-voice`, `tina-staging-agent-api`, `tina-staging-agent-reach`, `tina-staging-mcp`, `tina-staging-flows` | Image, cluster, subnet, service discovery và tham số kết nối riêng theo từng stack | Xem toàn bộ danh sách trên Console; kiểm chứng các tham số và dependency theo release thực tế. |
-
-Đây là bảng **khảo sát**, chưa phải thứ tự triển khai đã kiểm thử; một số stack tham chiếu lẫn nhau và các tính năng tùy chọn có thể thay đổi dependency. Trước khi xuất template hoặc ảnh để chia sẻ, rà lại hardcoded ARN, domain, account ID và mọi giá trị nhạy cảm.
-
-Template cũ trong `static/cloudformation/tina-infrastructure.yaml` chưa đáp ứng danh sách trên; stack `CREATE_COMPLETE` của một template cũng chưa phải bằng chứng các chức năng ứng dụng hoạt động.
-
-Chỉ dùng dữ liệu thử, không đưa tài liệu hoặc ghi âm thật vào workshop.
+Stack `CREATE_COMPLETE` không thay thế kiểm thử này. Phiên bản workshop hiện chưa có bằng chứng chạy hoàn chỉnh trên tài khoản trắng; ghi lại mọi lỗi thực tế để sửa hướng dẫn trước khi giao người khác.

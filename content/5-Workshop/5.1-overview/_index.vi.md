@@ -7,47 +7,35 @@ chapter: false
 pre: " <b> 5.1. </b> "
 ---
 
-## Mục tiêu
+## Bạn sẽ tạo gì?
 
-Sau workshop, người thực hành có thể nhận diện đường đi của request, xác minh trạng thái từng lớp bằng AWS Console, tạo một mạng lab riêng, kiểm tra image/log và trình bày kết quả có bằng chứng. Hoàn thành các bước này **không đồng nghĩa** đã triển khai lại toàn bộ TINA.
+Trên tài khoản AWS mới, CloudFormation tạo VPC hai Availability Zone, ECS cluster, bucket riêng, mạng ra, RDS PostgreSQL, Valkey, CloudFront, ALB và các ECS service. Image được **bạn tự build từ source** rồi đẩy vào ECR của bạn. Dùng tên có `staging` vì một số template và quyền ECR của phiên bản nguồn này yêu cầu tên đó; các tài nguyên vẫn thuộc tài khoản của bạn.
 
-## Môi trường staging đã quan sát
+```text
+Trình duyệt → CloudFront/WAF → ALB nội bộ → Terminal (ECS)
+                                              ↓
+                                  Gateway + meeting/admin API
+                                    ↓           ↓        ↓
+                             Runtime/ECS bot   RDS    Valkey
+                                    ↓           ↓
+                                  S3          VieGem (tùy chọn)
+```
 
-Ngày 25/11/2026, tại `us-east-1`, AWS CLI trả về các thành phần sau:
+Để đánh giá bài thực hành, cần xem stack của chính người học tạo thành công, service đạt trạng thái mong muốn và thử luồng đăng nhập/meeting. Stack `CREATE_COMPLETE` chỉ xác nhận AWS đã tạo tài nguyên, chưa chứng minh toàn bộ chức năng TINA hoạt động.
 
-| Lớp | Tài nguyên staging | Cách đánh giá |
-| --- | --- | --- |
-| Nền tảng | Stack `tina-foundation`: VPC, subnet, route table, S3 gateway endpoint, ECS cluster và một số ECR repository | CloudFormation → stack → Resources; VPC → Your VPCs |
-| Kết nối ra ngoài | `tina-staging-egress`: NAT gateway, Elastic IP và route | VPC → NAT gateways và Route tables |
-| Biên | `tina-staging-edge`: CloudFront, VPC origin, ALB nội bộ và listener | CloudFront → Distributions; EC2 → Load balancers |
-| Dữ liệu | `tina-staging-datastores`: RDS PostgreSQL, ElastiCache Valkey | RDS → Databases; ElastiCache → Valkey/Redis OSS caches |
-| Ứng dụng | Các stack `tina-staging-core`, `-terminal`, `-runtime`, `-agent-api`, `-agent-reach`, `-mcp`, `-flows`, `-voice`, `-viegem` | ECS → cluster `tina-foundation-ecs` → Services |
-| Bot | `tina-staging-bot` tạo task definition và role; runtime điều phối bot theo nhu cầu | CloudFormation → Resources; ECS → Task definitions/Tasks |
+Sau khi hoàn thành các phần bên dưới, ảnh này thể hiện danh sách stack của **tài khoản thực hành**:
 
-Tại thời điểm kiểm tra, 11 service staging có `runningCount = desiredCount = 1`; database staging hiển thị `available`. Số task chạy chỉ chứng minh ECS đã khởi chạy chúng; cần xem target health, log và chạy thử tính năng để đánh giá sâu hơn. Trạng thái có thể thay đổi sau thời điểm này.
+{{< workshop-screenshot file="01-cloudformation-staging.png" description="Các stack TINA do bạn tạo và trạng thái trong CloudFormation." >}}
 
-Luồng tổng quát: **trình duyệt → CloudFront → VPC origin → ALB nội bộ → Terminal/gateway → các service nội bộ → PostgreSQL/Valkey/S3**. Thành phần giọng nói và phiên âm là các service riêng; không coi một thành phần chạy là bằng chứng cả chuỗi đã hoạt động.
+Ảnh kế tiếp thể hiện trạng thái service trong cluster của bạn:
 
-## Bắt đầu quan sát trên Console
+{{< workshop-screenshot file="02-ecs-services.png" description="ECS service của tài khoản thực hành, gồm desired và running tasks." >}}
 
-1. Mở AWS Console, kiểm tra tên tài khoản và chọn **N. Virginia (us-east-1)** ở góc trên.
-2. Vào **CloudFormation → Stacks**, lọc `tina-staging` và mở từng stack. Xem **Overview**, **Resources** và **Events**.
+## Tiêu chí cuối bài
 
-{{< workshop-screenshot file="01-cloudformation-staging.png" description="Danh sách các stack TINA staging và trạng thái trên CloudFormation." >}}
+- URL CloudFront của bạn mở được trang TINA và đăng nhập bằng tài khoản Google thử nghiệm.
+- ECS core, runtime và terminal chạy ổn định; target group terminal healthy.
+- Tạo cuộc họp thử được phép, quan sát bot; nếu bật ASR, kiểm tra transcript và ghi rõ lỗi nếu có.
+- Biết nguồn chi phí và xóa đúng tài nguyên khi kết thúc.
 
-3. Ghi tên stack, trạng thái, thời điểm và logical resource ID cần tìm. Không sao chép giá trị secret hoặc mọi output vào báo cáo.
-4. Vào **Amazon ECS → Clusters → tina-foundation-ecs → Services**. So sánh **Desired tasks** với **Running tasks** của từng service.
-
-{{< workshop-screenshot file="02-ecs-services.png" description="Danh sách service staging trong ECS, gồm số task mong muốn và đang chạy." >}}
-
-5. Mở **tina-staging-bot → Resources** và xác nhận bot có task definition; không yêu cầu phải tồn tại một bot service chạy thường trực.
-
-**Đạt:** xác định được từng lớp và service liên quan, ghi được thời điểm kiểm tra; không có nghĩa là đã kiểm thử ứng dụng.
-
-## Phân biệt đề xuất và thực tế
-
-![Sơ đồ kiến trúc AWS trong proposal TINA](/images/2-Proposal/tina_aws_architecture.png)
-
-*Sơ đồ trong proposal; một số thành phần hoặc kết nối có thể khác với staging thực tế.*
-
-Sơ đồ trong proposal mô tả kiến trúc mục tiêu. Cognito, Bedrock, SES, WAF hay một chức năng nào trên sơ đồ chỉ được ghi là đã tích hợp sau khi bạn kiểm tra được cấu hình và hành vi thực tế. Ví dụ: danh sách Cognito user pool tại thời điểm khảo sát không trả về pool nào ở `us-east-1`; không suy ra mọi vùng hay mọi tài khoản đều không có.
+Không dùng CloudFormation `static/cloudformation/tina-infrastructure.yaml` cũ trong kho workshop: nó không phải bộ template được dùng trong lộ trình này.

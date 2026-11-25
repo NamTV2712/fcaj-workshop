@@ -7,39 +7,45 @@ chapter: false
 pre: " <b> 5.2. </b> "
 ---
 
-## 1. Tài khoản và phạm vi
+## 1. Tài khoản và Region
 
-1. Đăng nhập AWS Console bằng danh tính được cấp quyền phù hợp; ưu tiên IAM Identity Center hoặc IAM role, không dùng root cho công việc thường ngày.
-2. Xác định bạn đang dùng **tài khoản lab riêng** hay chỉ được **đọc staging hiện có**. Nếu người đánh giá không được cấp quyền vào staging, cung cấp báo cáo/ảnh đã kiểm duyệt thay vì yêu cầu truy cập tài khoản của bạn.
-3. Chọn Region **US East (N. Virginia), `us-east-1`**. Với tài khoản khác, chọn hai Availability Zone khả dụng trong tài khoản; tên `1a`/`1b` không nhất thiết tương ứng cùng vị trí vật lý giữa các tài khoản.
+1. Dùng tài khoản AWS riêng để thực hành, có quyền tạo CloudFormation, IAM role, VPC, EC2, ECS, ECR, RDS, ElastiCache, S3, CloudFront, WAF, Secrets Manager và CloudWatch. Không dùng tài khoản sản xuất.
+2. Đăng nhập AWS Console, chọn **US East (N. Virginia), `us-east-1`** ở góc trên. CloudFront và WAF cho CloudFront dùng cấu hình toàn cục; WAF API cho CloudFront yêu cầu `us-east-1`.
 
-{{< workshop-screenshot file="00-region.png" description="Region us-east-1 được chọn trong AWS Console." >}}
+{{< workshop-screenshot file="00-region.png" description="AWS Console đang chọn Region us-east-1." >}}
 
-4. Đặt tiền tố lab riêng, ví dụ `tina-ws-an`, và ghi lại VPC ID, subnet ID, route table ID, security group ID ở tài liệu cá nhân. Không thay thế tài nguyên staging/prod bằng tên của lab.
+3. Trong **Billing and Cost Management → Budgets → Create budget**, tạo budget chi phí với ngưỡng và email của bạn. Xác nhận email cảnh báo theo hướng dẫn AWS. Budget chỉ cảnh báo, không tự dừng tài nguyên.
 
-## 2. Chi phí
+{{< workshop-screenshot file="00-budget.png" description="Budget và ngưỡng cảnh báo của tài khoản thực hành; che email và account ID." >}}
 
-Vào **Billing and Cost Management → Budgets → Create budget**; chọn **Cost budget**, đặt mức tiền và email bạn quản lý, rồi tạo cảnh báo. Ước tính trước bằng [AWS Pricing Calculator](https://calculator.aws/), ít nhất gồm NAT gateway và lưu lượng, IP công cộng, ECS, RDS, ElastiCache, VPC interface endpoint, CloudFront và lưu trữ. Một budget là cảnh báo, không bảo đảm tự dừng chi phí. Việc tắt lab phải làm theo trang [Dọn dẹp](../5.6-cleanup-evidence/).
+4. Trong **Service Quotas**, kiểm tra quota Fargate On-Demand, EC2 Graviton và Elastic IP. Mỗi bot cần 4 vCPU/8 GiB; core 2 vCPU, VieGem 2 vCPU, cùng runtime và terminal. Chừa đủ quota cho cả task thay thế khi ECS triển khai lại. Nếu quota thiếu, yêu cầu tăng trước khi tiếp tục.
 
-{{< workshop-screenshot file="00-budget.png" description="Budget và ngưỡng cảnh báo của tài khoản lab; che địa chỉ email." >}}
+NAT Gateway, IPv4 công cộng, Fargate, RDS, Valkey, ALB, WAF, S3, ECR, builder và CloudFront có thể tính phí. Xem [AWS Pricing Calculator](https://calculator.aws/) theo Region và thời gian bạn định chạy. Đây không phải bài đảm bảo thuộc Free Tier.
 
-## 3. Công cụ cho phần tùy chọn
+## 2. Mã nguồn và template
 
-Bạn có thể làm phần Console mà không cần CLI. Để kiểm tra source/image trên máy, chuẩn bị Git, Docker, Docker Compose, `make`, AWS CLI và quyền đọc source được cấp. Trên Windows dùng WSL2 cho các lệnh bash; phiên bản Node/pnpm áp dụng theo repository TINA bạn được giao. Kiểm tra:
+Bài dùng commit cố định `7d6bba8109f6eac51c0d8241a7083e3e364cf59d` trong [repository TINA](https://github.com/poor-frog/TINA), có ECS backend. Đừng thay bằng `main`: phiên bản `main` đã kiểm tra không có backend ECS tương ứng.
+
+Trên máy của bạn, tải [ZIP mã nguồn ở commit này](https://github.com/poor-frog/TINA/archive/7d6bba8109f6eac51c0d8241a7083e3e364cf59d.zip), giải nén. Ghi nhớ thư mục `deploy/aws/` vì bước Console sẽ yêu cầu chọn `foundation.yml`. Thực hiện build bằng một EC2 ARM64 riêng ở phần sau; không cần sao chép secret từ máy tác giả.
+
+## 3. Mở AWS CloudShell
+
+Trên Console, chọn biểu tượng **CloudShell** và xác nhận Region `us-east-1`. Các lệnh bash từ đây chạy trong CloudShell, trừ khi trang ghi rõ chạy trong Session Manager của EC2.
+
+Trong CloudShell, tải cùng phiên bản template và khai báo các hàm đọc output:
 
 ```bash
-git --version
-aws --version
-docker version
-docker compose version
-make --version
-aws sts get-caller-identity
+export AWS_REGION=us-east-1
+export AWS_PAGER=''
+export TINA_REV=7d6bba8109f6eac51c0d8241a7083e3e364cf59d
+mkdir -p "$HOME/tina-workshop"
+curl -fL "https://github.com/poor-frog/TINA/archive/${TINA_REV}.zip" -o "$HOME/tina-workshop/source.zip"
+unzip -q -o "$HOME/tina-workshop/source.zip" -d "$HOME/tina-workshop"
+export TINA_SRC="$HOME/tina-workshop/TINA-${TINA_REV}"
+stackout() { aws cloudformation describe-stacks --region "$AWS_REGION" --stack-name "$1" --query "Stacks[0].Outputs[?OutputKey=='$2'].OutputValue | [0]" --output text; }
+repoarn() { aws ecr describe-repositories --region "$AWS_REGION" --repository-names "tina-staging/$1" --query 'repositories[0].repositoryArn' --output text; }
+export TINA_ACCOUNT="$(aws sts get-caller-identity --query Account --output text)"
+export TINA_TAG=ws-v1
 ```
 
-Không dán output chứa thông tin nhạy cảm vào báo cáo. `git clone` chỉ thực hiện khi người hướng dẫn đã cấp URL và quyền đọc đúng; ghi commit/release và image digest để người khác dùng cùng một phiên bản. Không yêu cầu người tham gia sao chép `.env.keys` của chủ dự án.
-
-## 4. Điều kiện để triển khai đầy đủ
-
-Cần bộ source/image có quyền truy cập và phiên bản cố định, cấu hình cho tất cả service, cách quản lý secret, domain/certificate nếu dùng HTTPS và cấu hình STT tự host tương thích OpenAI. Chỉ tạo một task Terminal, một database và một bucket thì chưa đủ chạy TINA. Bộ release đã kiểm chứng từ tài khoản trống hiện chưa được cung cấp trong workshop này.
-
-Ghi lại ngày, region, vai trò của bạn và giới hạn ngân sách; không lưu secret vào Git.
+Các lệnh ghi file trong thư mục CloudShell của bạn. Nếu CloudShell mở lại và mất biến/hàm, chạy lại khối trên; không phải tạo lại stack. Các bước sau dùng nhãn image `ws-v1`; nếu build lại sau khi đã push một phần, chọn nhãn mới và dùng nhất quán ở cả EC2 lẫn CloudShell vì ECR đặt immutable.

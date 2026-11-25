@@ -1,42 +1,30 @@
 ---
 aliases: ["/vi/5-workshop/5.3-s3-vpc/5.3.1-create-gwe/"]
-title: "Tạo VPC và subnet trên Console"
+title: "Tạo foundation và VPC"
 date: 2026-11-25
 weight: 1
 chapter: false
 pre: " <b> 5.3.1 </b> "
 ---
 
-## 1. Tạo VPC
+## 1. Tạo stack nền tảng trên AWS Console
 
-1. Chọn Region `us-east-1`; vào **VPC → Your VPCs → Create VPC**.
-2. Chọn **VPC only**. Đặt **Name tag** `tina-ws-vpc`, **IPv4 CIDR** `10.80.0.0/16`, IPv6 để mặc định không cấp, tenancy **Default**; chọn **Create VPC**.
+1. Vào **CloudFormation → Stacks → Create stack → With new resources (standard)**.
+2. Chọn **Template is ready → Upload a template file → Choose file**; chọn `deploy/aws/foundation.yml` trong ZIP đã giải nén trên máy bạn. Chọn **Next**.
 
-{{< workshop-screenshot file="03a-create-vpc.png" description="Form tạo VPC lab với tên và CIDR trước khi xác nhận." >}}
+{{< workshop-screenshot file="03a-create-vpc.png" description="Màn hình CloudFormation chọn tệp foundation.yml để tạo VPC và nền tảng." >}}
 
-3. Chọn VPC mới → **Actions → Edit VPC settings**. Bật **DNS resolution** và **DNS hostnames**, lưu lại.
-4. Ghi VPC ID vào ghi chú riêng. Từ đây luôn kiểm tra cột VPC ID trước khi chọn tài nguyên.
+3. Nhập **Stack name = `tina-staging`**, chọn **Next**. Tên này bắt buộc cho bài vì nó quyết định tiền tố của ba repository ECR và một số policy của template ứng dụng.
+4. Để tùy chọn khác ở mặc định, chọn **Next → Submit**. Chờ `CREATE_COMPLETE`; nếu lỗi chọn tab **Events**, tìm dòng `CREATE_FAILED` đầu tiên và đọc lý do.
+5. Vào tab **Outputs**, ghi nhận `VpcId`, `PublicSubnetIds`, `AppSubnetIds`, `DataSubnetIds`, `AppRouteTableIds`, `ClusterName` và `StagingRecordingsBucket`. Bài dùng bucket này cho recording và file invocation tạm.
 
-## 2. Tạo sáu subnet
+{{< workshop-screenshot file="03b-create-subnets.png" description="CloudFormation Outputs của stack nền tảng: VPC, subnet, cluster và bucket; che account ID nếu xuất hiện." >}}
 
-1. Vào **VPC → Subnets → Create subnet**, chọn VPC lab.
-2. Thêm các subnet theo bảng. Chọn một AZ cho nhóm A và AZ khác cho nhóm B; trong `us-east-1` có thể là `us-east-1a` và `us-east-1b` nếu tài khoản của bạn cung cấp.
+## 2. Kiểm tra tài nguyên được tạo
 
-| Name | AZ | CIDR |
-| --- | --- | --- |
-| `tina-ws-public-a` | A | `10.80.1.0/24` |
-| `tina-ws-public-b` | B | `10.80.2.0/24` |
-| `tina-ws-app-a` | A | `10.80.11.0/24` |
-| `tina-ws-app-b` | B | `10.80.12.0/24` |
-| `tina-ws-data-a` | A | `10.80.21.0/24` |
-| `tina-ws-data-b` | B | `10.80.22.0/24` |
+1. Vào **VPC → Your VPCs**, tìm VPC theo `VpcId` trong Outputs.
+2. Vào **Subnets**, lọc theo VPC đó. Bạn thấy hai public subnet, hai app subnet và hai data subnet trên hai Availability Zone.
 
-{{< workshop-screenshot file="03b-create-subnets.png" description="Form tạo subnet lab với VPC, tên, AZ và CIDR." >}}
+{{< workshop-screenshot file="03-vpc-subnets.png" description="Sáu subnet do foundation tạo, với VPC và Availability Zone." >}}
 
-3. Chọn **Create subnet**, chờ tất cả ở trạng thái **Available**. Bảng có thể yêu cầu thêm từng subnet hoặc thêm nhiều hàng trong cùng một form tùy giao diện AWS.
-4. Lọc theo VPC lab, kiểm tra mỗi AZ có ba subnet và mỗi dải không trùng nhau. Ghi sáu subnet ID.
-
-{{< workshop-screenshot file="03-vpc-subnets.png" description="Sáu subnet của VPC lab, kèm CIDR và Availability Zone." >}}
-
-Subnet chỉ thực sự có đường ra Internet khi được gắn route table phù hợp và tài nguyên có cấu hình IP cần thiết; tên `public` không tự tạo kết nối. NAT sẽ đặt trong public subnet ở bước kế tiếp.
-
+3. Tại **ECS → Clusters**, xác nhận cluster trong output đã tồn tại. Bucket của stack bật chặn truy cập công khai, mã hóa và quy tắc tự hết hạn file dưới `runtime-invocations/` sau một ngày. Không sửa trực tiếp tài nguyên do stack quản lý.

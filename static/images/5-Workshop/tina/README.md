@@ -1,38 +1,38 @@
-# Danh sách ảnh cần chụp cho workshop TINA
+# Ảnh cần chụp cho workshop triển khai TINA
 
-Lưu ảnh PNG đã che thông tin nhạy cảm vào chính thư mục này, với **đúng tên tệp** dưới đây. Vị trí hiển thị đã được đánh dấu ngay sau bước tương ứng trong trang tiếng Việt. Khi website được dựng lại, ảnh sẽ xuất hiện tại vị trí đó; nếu chưa có tệp, trang sẽ hiện thông báo cần bổ sung.
+Lưu PNG đã che thông tin nhạy cảm vào thư mục này đúng tên bên dưới. Mỗi ảnh hiển thị ngay sau thao tác tương ứng trong trang tiếng Việt khi dựng lại Hugo. Chỉ dùng ảnh thật; không chụp secret, token, dữ liệu cá nhân hoặc nội dung họp thật.
 
-Chỉ dùng ảnh chụp thật của môi trường được phép xem. Không hiển thị mật khẩu, token, giá trị secret, nội dung cuộc họp riêng tư hoặc thông tin cá nhân. Che account ID, domain, email và định danh nội bộ trước khi chia sẻ.
-
-| Tên ảnh | Trang | Chụp gì |
+| Tên tệp | Trang | Nội dung |
 | --- | --- | --- |
-| `00-region.png` | 5.2 Chuẩn bị | Region `us-east-1` trên Console. |
-| `00-budget.png` | 5.2 Chuẩn bị | Budget và ngưỡng cảnh báo của lab. |
-| `01-cloudformation-staging.png` | 5.1 Tổng quan | Danh sách stack TINA staging và trạng thái. |
-| `02-ecs-services.png` | 5.1 Tổng quan | ECS services, desired và running tasks. |
-| `03a-create-vpc.png` | 5.3.1 VPC/subnet | Form tạo VPC lab và CIDR. |
-| `03b-create-subnets.png` | 5.3.1 VPC/subnet | Form tạo subnet lab. |
-| `03-vpc-subnets.png` | 5.3.1 VPC/subnet | Sáu subnet lab, CIDR và AZ. |
-| `04a-igw-attached.png` | 5.3.2 Gateway/route | Internet Gateway lab đã gắn vào VPC. |
-| `04b-nat-available.png` | 5.3.2 Gateway/route | NAT Gateway lab ở trạng thái Available. |
-| `04-route-tables.png` | 5.3.2 Gateway/route | Routes và subnet associations của lab. |
-| `05-s3-endpoint.png` | 5.3.2 Gateway/route | S3 gateway endpoint và route table. |
-| `06-security-groups.png` | 5.3.2 Gateway/route | Security group và rule của lab. |
-| `07-s3-lab.png` | 5.4.1 S3/ECR | Bucket lab và object thử. |
-| `08-ecr-image.png` | 5.4.1 S3/ECR | Image tag và digest trong ECR lab. |
-| `09-rds.png` | 5.4.2 Dữ liệu | PostgreSQL, trạng thái và public access. |
-| `10-valkey.png` | 5.4.2 Dữ liệu | Valkey và cấu hình mạng. |
-| `11-secret-metadata.png` | 5.4.2 Dữ liệu | Metadata secret, không hiện giá trị. |
-| `12-ecs-services.png` | 5.4.3 ECS/ALB | ECS services và số task. |
-| `13-ecs-task.png` | 5.4.3 ECS/ALB | Chi tiết task/container, che environment và secret. |
-| `14-target-health.png` | 5.4.3 ECS/ALB | Trạng thái target group. |
-| `15-cloudfront-origin.png` | 5.4.3 ECS/ALB | CloudFront distribution và VPC origin. |
-| `16-app-login.png` | 5.4.4 Kiểm thử | Trang đăng nhập hoặc phản hồi web. |
-| `17-test-meeting.png` | 5.4.4 Kiểm thử | Bot tham gia cuộc họp thử được phép. |
-| `18-test-transcript.png` | 5.4.4 Kiểm thử | Transcript dùng dữ liệu giả. |
-| `19-role-policy.png` | 5.5 Bảo mật | Role và policy được kiểm tra. |
-| `20-logs.png` | 5.5 Giám sát | Log đã che thông tin nhạy cảm. |
-| `21-budget.png` | 5.5 Chi phí | Budget lab và trạng thái cảnh báo. |
-| `22-cleanup-lab.png` | 5.6 Dọn dẹp | Bằng chứng tài nguyên lab đã dọn. |
-
-Hai ảnh ECS và hai ảnh budget phục vụ các bước đánh giá khác nhau; có thể dùng cùng một nội dung chụp phù hợp ở hai tên nếu thực sự chứng minh được cả hai bước. Không dùng ảnh của workshop cũ để thay thế kết quả TINA.
+| `00-budget.png` | Chuẩn bị | Budget và ngưỡng cảnh báo của tài khoản thực hành; che email và account ID. |
+| `00-region.png` | Chuẩn bị | AWS Console đang chọn Region us-east-1. |
+| `01-cloudformation-staging.png` | Tổng quan và tiêu chí đánh giá | Các stack TINA do bạn tạo và trạng thái trong CloudFormation. |
+| `02-ecs-services.png` | Tổng quan và tiêu chí đánh giá | ECS service của tài khoản thực hành, gồm desired và running tasks. |
+| `03-vpc-subnets.png` | Tạo foundation và VPC | Sáu subnet do foundation tạo, với VPC và Availability Zone. |
+| `03a-create-vpc.png` | Tạo foundation và VPC | Màn hình CloudFormation chọn tệp foundation.yml để tạo VPC và nền tảng. |
+| `03b-create-subnets.png` | Tạo foundation và VPC | CloudFormation Outputs của stack nền tảng: VPC, subnet, cluster và bucket; che account ID nếu xuất hiện. |
+| `04-route-tables.png` | NAT Gateway, route và endpoint | Route table của app subnet với default route qua NAT. |
+| `04a-igw-attached.png` | NAT Gateway, route và endpoint | Internet Gateway của VPC đã attached. |
+| `04b-nat-available.png` | NAT Gateway, route và endpoint | NAT Gateway do stack egress tạo, trạng thái Available. |
+| `05-s3-endpoint.png` | NAT Gateway, route và endpoint | S3 gateway endpoint và các route table app được liên kết. |
+| `06-security-groups.png` | RDS, Valkey và Secrets Manager | Sau khi tạo stack data, chụp security group của ứng dụng và database; không hiển thị thông tin nhạy cảm. |
+| `07-s3-lab.png` | S3, ECR và build image ARM64 | Bucket recordings của tài khoản thực hành, chế độ chặn truy cập công khai và lifecycle rule. |
+| `08-ecr-image.png` | S3, ECR và build image ARM64 | ECR repository của bạn có image tag và digest sau khi build. |
+| `09-rds.png` | RDS, Valkey và Secrets Manager | RDS PostgreSQL của bạn đã Available và không public. |
+| `10-valkey.png` | RDS, Valkey và Secrets Manager | Valkey của bạn đã Available trong VPC thực hành. |
+| `11-secret-metadata.png` | RDS, Valkey và Secrets Manager | Metadata secret do stack tạo, không hiển thị giá trị secret. |
+| `12-ecs-services.png` | Bot và Runtime trên Fargate | ECS services sau khi hoàn thành Runtime, core và terminal, kèm desired/running tasks. |
+| `13-ecs-task.png` | Bot và Runtime trên Fargate | Task Runtime và trạng thái container; che environment và thông tin nhạy cảm. |
+| `14-target-health.png` | Đăng nhập Google và Terminal | Target group Terminal của bạn có target healthy. |
+| `15-cloudfront-origin.png` | WAF, CloudFront và ALB | CloudFront distribution và VPC origin của bạn; che domain và account ID nếu chia sẻ. |
+| `16-app-login.png` | Kiểm thử website và meeting | Trang đăng nhập TINA trên URL CloudFront của bạn; che email và domain nếu chia sẻ. |
+| `17-test-meeting.png` | Kiểm thử website và meeting | Cuộc họp thử được phép và trạng thái bot; dùng dữ liệu giả, che thông tin người tham gia. |
+| `18-test-transcript.png` | Kiểm thử website và meeting | Transcript của câu thử không nhạy cảm sau khi ASR hoạt động. |
+| `19-role-policy.png` | Bảo mật, giám sát và chi phí | Role và phạm vi policy của môi trường thực hành; che định danh tài khoản. |
+| `20-logs.png` | Bảo mật, giám sát và chi phí | CloudWatch log của task đã che token, thông tin người dùng và nội dung meeting. |
+| `21-budget.png` | Bảo mật, giám sát và chi phí | Budget tài khoản thực hành và trạng thái cảnh báo; che email và account ID. |
+| `22-cleanup-lab.png` | Dọn dẹp tài nguyên và bằng chứng | Trạng thái xóa tài nguyên của môi trường thực hành sau khi đã kiểm tra; che account ID. |
+| `23-waf-acl.png` | WAF, CloudFront và ALB | Web ACL phạm vi CloudFront đã tạo, che account ID trong ARN. |
+| `24-viegem-service.png` | VieGem tùy chọn và core | Nếu dùng VieGem, chụp ECS service và số task running; không hiển thị token. |
+| `25-google-secret.png` | Đăng nhập Google và Terminal | Metadata của Google OAuth secret; che ARN, không hiển thị giá trị secret. |
+| `26-cloudformation-full.png` | Triển khai bằng một CloudFormation | CloudFormation stack một file, danh sách tham số đã che account ID và ARN. |

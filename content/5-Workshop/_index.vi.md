@@ -1,37 +1,38 @@
 ---
-title: "Workshop"
+title: "Triển khai TINA trên AWS"
 date: 2026-11-25
 weight: 5
 chapter: false
 pre: " <b> 5. </b> "
 ---
 
-# Workshop: Đánh giá TINA và thực hành AWS Console
+# Triển khai website TINA trên AWS
 
-Workshop này giúp bạn **kiểm tra môi trường TINA đang chạy**, thực hành tạo các thành phần AWS bằng Console trong một môi trường riêng, và thu thập bằng chứng để người khác đánh giá. Các bước có kết quả mong đợi và vị trí cần chụp ảnh.
+Workshop hướng dẫn bạn dùng **tài khoản AWS của chính mình** để dựng một bản TINA thử nghiệm: CloudFront → ALB nội bộ → ECS Fargate, cùng PostgreSQL trên RDS, Valkey trên ElastiCache, S3 và ECR. Bạn tạo tài nguyên mới và đăng nhập vào URL do tài khoản của bạn cấp.
 
-> **Trạng thái:** Đã đối chiếu cấu hình staging qua AWS CLI ngày 25/11/2026. Chưa thực hiện lại toàn bộ workshop từ một tài khoản trống và chưa có bộ ảnh Console mới. Không xem trạng thái stack thành công là bằng chứng toàn bộ luồng họp và phiên âm đã hoạt động.
+Bài này phối hợp **AWS Console cho CloudFormation, EC2 và WAF** với AWS CLI và CloudFormation cho các bước còn lại. Bạn không cần truy cập tài khoản hay máy tính của tác giả.
 
-## Đọc trước khi bắt đầu
+> **Phạm vi và trạng thái:** mã và template đã được đối chiếu với nhánh AWS của dự án, nhưng lộ trình chưa được chạy lại từ đầu trên tài khoản trắng. Kết quả cần được xác nhận qua lần thực hành, đặc biệt là build image ARM64, đăng nhập, bot tham gia và phiên âm. Đây là môi trường thử nghiệm một AZ cho dữ liệu, chưa phải cấu hình production.
 
-- Dùng tài khoản thực hành riêng hoặc môi trường `tina-ws-<ten-ban>`. Không tạo, thay đổi hay xóa tài nguyên trong `tina-staging-*` hoặc `tina-prod-*` nếu bạn chỉ đang làm bài thực hành.
-- Có hai việc khác nhau: **quan sát staging hiện có** để đánh giá; và **tạo tài nguyên lab** để học các thao tác. Mỗi trang sẽ ghi rõ việc nào có thể làm mà không thay đổi hệ thống.
-- Bản mẫu `static/cloudformation/tina-infrastructure.yaml` trong repository workshop **chưa phải** bộ triển khai TINA staging đang chạy. Không chạy template đó để thực hành: template và hướng dẫn cũ có các mâu thuẫn về ECR, mạng, health check và cấu hình ứng dụng.
-- Trước khi một người khác có thể dựng lại **toàn bộ TINA** từ số 0, cần cung cấp bộ template đã rà soát, các tham số không chứa bí mật, quyền truy cập source/image, hướng dẫn cấu hình và kết quả chạy thử từ tài khoản sạch. Workshop hiện chưa có đủ bộ này; các bước lab không chứng minh đã tái tạo toàn bộ hệ thống.
+Bản đầu triển khai **Terminal chế độ meetings**, đăng nhập Google, bot và có thể thêm VieGem để thử phiên âm phi thương mại. Workspace/agent đầy đủ, trợ lý giọng nói, các mô hình và tích hợp bổ sung không tự bật trong bản này; xem [phần tính năng mở rộng](5.4-data-compute/5.4.3-ecs-load-balancer/5.4.3.5-extensions/).
 
-## Lộ trình
+## Triển khai gọn bằng một file
 
-1. [Tổng quan và tiêu chí đánh giá](5.1-overview/).
-2. [Chuẩn bị tài khoản, công cụ và chi phí](5.2-prerequisites/).
-3. [Tạo VPC, subnet, route và security group trên Console](5.3-networking/).
-4. [Kiểm tra S3, image, dữ liệu, ECS và ứng dụng](5.4-data-compute/).
-5. [Kiểm tra bảo mật, log và chi phí](5.5-security-monitoring-costs/).
-6. [Dọn riêng tài nguyên lab và nộp bằng chứng](5.6-cleanup-evidence/).
+Xem [triển khai một CloudFormation](5.4-full-cloudformation/) để dùng template gộp. Stack tạo Cognito và cấu hình đăng nhập bằng email, nên người học không cần tạo Google OAuth. Các bước Google bên dưới dành cho lộ trình nhiều stack.
 
-Dành khoảng 2–3 giờ để quan sát và làm phần lab mạng, S3, ECR; phần chuẩn bị artifact và tái triển khai ứng dụng phụ thuộc phạm vi thực tế. Thời gian này là dự kiến, chưa đo bằng một lần chạy trọn vẹn.
+## Thứ tự thực hiện
 
-## Quy ước ảnh minh chứng
+1. [Tổng quan và kết quả cần đạt](5.1-overview/).
+2. [Chuẩn bị tài khoản, quota và mã nguồn](5.2-prerequisites/).
+3. [Tạo nền tảng VPC và mạng](5.3-networking/).
+4. [Build image, tạo dữ liệu, triển khai website và kiểm thử](5.4-data-compute/).
+5. [Giám sát và chi phí](5.5-security-monitoring-costs/).
+6. [Dọn dẹp và bằng chứng](5.6-cleanup-evidence/).
 
-Ở mỗi bước, khung **Ảnh cần bổ sung** ghi rõ nội dung và đường dẫn của ảnh. Chụp màn hình thật rồi lưu PNG vào `static/images/5-Workshop/tina/` với đúng tên đó; khi website được dựng lại, ảnh sẽ tự xuất hiện tại đúng vị trí. Xem [danh sách ảnh cần chụp](/images/5-Workshop/tina/README.md) để đối chiếu toàn bộ.
+Bạn cần thời gian build image, chờ RDS, ElastiCache và CloudFront khởi tạo; chưa có số giờ đo được cho một lượt hoàn chỉnh. AWS, mô hình và việc truyền dữ liệu có thể phát sinh chi phí từ khi tạo tài nguyên.
 
-**Không chụp hoặc công bố** mật khẩu, API key, giá trị secret, token, thông tin cá nhân hay transcript thật; che account ID, hostname và định danh nội bộ trước khi chia sẻ. Chỉ chụp màn hình có quyền xem. Những khung còn hiện thông báo là ảnh chưa có sẵn.
+## Ảnh hướng dẫn
+
+Sau mỗi bước có khung **Ảnh cần bổ sung**, chụp màn hình thực tế rồi lưu PNG vào `static/images/5-Workshop/tina/` đúng tên trong khung. Khi dựng lại website, ảnh sẽ hiện **ngay dưới thao tác tương ứng**. [Danh sách ảnh](/images/5-Workshop/tina/README.md) dùng để kiểm đếm; ảnh không bị gom xuống cuối trang.
+
+Không đưa vào ảnh mật khẩu, client secret, token, thông tin cá nhân hoặc nội dung họp thật. Che account ID, email và tên miền riêng trước khi chia sẻ.

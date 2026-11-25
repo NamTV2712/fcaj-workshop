@@ -1,43 +1,56 @@
 ---
 aliases: ["/vi/5-workshop/5.6-cleanup/"]
-title: "Dọn dẹp và bộ bằng chứng"
+title: "Dọn dẹp tài nguyên và bằng chứng"
 date: 2026-11-25
 weight: 6
 chapter: false
 pre: " <b> 5.6. </b> "
 ---
 
-## Trước khi xóa
+## 1. Xác nhận tài nguyên thuộc bài thực hành
 
-Chỉ dọn tài nguyên **lab do bạn tự tạo** sau khi xác nhận tài khoản, Region, tên, tag, quyền sở hữu và dữ liệu có thể xóa. Không xóa stack, bucket, database, image hay VPC `tina-staging-*`, `tina-prod-*` hoặc bất kỳ tài nguyên của người khác. Xóa bucket/object, image và database là mất dữ liệu nếu không có bản sao; kiểm tra yêu cầu lưu trữ/snapshot trước.
+Các thao tác xóa dưới đây xóa môi trường và dữ liệu thử của bạn. Chỉ thực hiện khi bạn đã lưu những gì cần giữ và đã xác định đúng tài khoản, Region, tên stack. Không xóa tài nguyên của môi trường khác. Trước khi xóa, kết thúc meeting và chờ bot task ngừng; terminate EC2 builder đã tạo ở bài.
 
-## Thứ tự dọn lab trên Console
+## 2. Xóa theo thứ tự phụ thuộc
 
-1. **ECS → Clusters**: xóa service/task **lab** sau khi đã xác định đúng cluster và không còn người dùng; đợi tài nguyên liên quan tách khỏi target group. Xóa cluster lab nếu đã rỗng và không cần giữ.
-2. **EC2 → Load Balancers/Target Groups** và **CloudFront**: nếu bạn đã tạo các tài nguyên lab, xóa theo phụ thuộc; CloudFront có thể cần disable và chờ hoàn tất trước khi xóa.
-3. **RDS → Databases** và **ElastiCache**: quyết định snapshot/lưu dữ liệu theo yêu cầu của chủ lab, rồi xóa đúng tài nguyên lab. Chờ xóa hoàn tất; kiểm tra snapshot và storage còn lưu vì chúng có thể tiếp tục tính phí.
-4. **S3 → Buckets**: kiểm tra chỉ còn tệp thử của lab. Chỉ xóa object/version hoặc bucket khi chủ dữ liệu cho phép mất dữ liệu; bucket có versioning phải xử lý cả version/delete marker theo nhu cầu.
-5. **ECR → Repositories**: chỉ xóa repository và image lab sau khi xác nhận không service nào cần dùng.
-6. **VPC → Endpoints**: xóa endpoint lab; **NAT gateways**: xóa NAT lab và đợi xóa xong; **Elastic IPs**: release đúng Elastic IP của lab. Không release địa chỉ đang gắn cho hệ thống khác.
-7. Gỡ subnet association/route lab khi cần, xóa subnet, route table và security group lab; detach rồi xóa Internet Gateway lab; cuối cùng xóa VPC lab. Nếu AWS báo dependency, xem chính xác tài nguyên phụ thuộc trước khi xóa tiếp.
-8. Xem lại **VPC**, **ECS**, **RDS**, **ElastiCache**, **S3**, **ECR**, **CloudFront** và Billing/Cost Explorer để chắc chắn lab không còn thành phần tính phí ngoài ý muốn. Cost Explorer cập nhật không tức thời.
+Trong CloudShell, xóa từng stack và đợi hoàn tất trước stack tiếp theo. Bỏ `tina-ws-viegem` nếu bạn không tạo:
 
-{{< workshop-screenshot file="22-cleanup-lab.png" description="Bằng chứng tài nguyên lab đã được dọn theo phạm vi thực hành." >}}
+```bash
+for s in tina-ws-terminal tina-ws-core tina-ws-viegem tina-ws-runtime tina-ws-bot tina-ws-edge tina-ws-data tina-ws-egress; do
+  aws cloudformation delete-stack --region "$AWS_REGION" --stack-name "$s"
+  aws cloudformation wait stack-delete-complete --region "$AWS_REGION" --stack-name "$s"
+done
+```
 
-Nếu bạn tạo stack CloudFormation trong lab, mở **CloudFormation → Stacks → stack lab → Delete**, theo dõi **Events**. Stack có thể giữ lại tài nguyên do deletion policy, snapshot hoặc bucket còn dữ liệu; kiểm tra và xử lý đúng quyền sau khi stack xóa. Không dùng lệnh xóa hàng loạt theo tên gần giống.
+Nếu có lỗi, dừng lại đọc **CloudFormation → Events** và xử lý dependency; không tiếp tục xóa mù. CloudFront có thể mất thời gian để xóa. Không xóa foundation ngay nếu các repository do foundation quản lý còn image: ECR có thể từ chối xóa repository không rỗng.
 
-## Hồ sơ gửi người đánh giá
+## 3. Kiểm tra ECR, bucket, snapshot và role
 
-- Link source/release và commit hoặc digest mà người đánh giá được phép truy cập.
-- Bảng thành phần, trạng thái, thời điểm, Expected/Actual/Verdict; mô tả rõ mục đã chạy và mục còn Blocked.
-- Ảnh thật theo các tên gợi ý ở từng trang, đã che bí mật và thông tin riêng tư.
-- Biên bản kiểm thử với dữ liệu giả, giới hạn đã biết, ước tính chi phí và bằng chứng dọn các tài nguyên lab.
-- Nếu chưa chạy lại được từ đầu, ghi rõ thiếu artifact/cấu hình nào; không đánh dấu hoàn thành toàn bộ deployment.
+1. **ECR:** với ba repository `tina-staging/bot`, `tina-staging/runtime`, `tina-staging/meeting-api`, chọn toàn bộ image của bài và **Delete**. Sau đó xóa stack foundation:
 
-## Tự chụp và lưu ảnh trên Windows
+   ```bash
+   aws cloudformation delete-stack --region "$AWS_REGION" --stack-name tina-staging
+   aws cloudformation wait stack-delete-complete --region "$AWS_REGION" --stack-name tina-staging
+   ```
 
-1. Mở đúng trang AWS Console được ghi ở bước thực hành. Kiểm tra tên service, Region, trạng thái và thời gian có thể đọc được; thu gọn các vùng chứa thông tin không cần thiết.
-2. Nhấn `Windows + Shift + S`, chọn vùng màn hình cần chụp; mở thông báo của Snipping Tool để xem ảnh. Bạn cũng có thể mở Snipping Tool trước và chọn **New**.
-3. Trước khi chia sẻ, cắt hoặc che bằng mảng màu đặc account ID, email, hostname nội bộ, token, secret, thông tin cá nhân và nội dung cuộc họp. Kiểm tra lại ảnh sau khi che.
-4. Chọn **Save as**, lưu định dạng PNG vào `D:/Project/fcj-workshop-template/static/images/5-Workshop/tina/`. Tạo thư mục `tina` nếu chưa có; đặt tên theo gợi ý ở từng trang, ví dụ `03-vpc-subnets.png`.
-5. Mở lại ảnh đã lưu để kiểm tra nội dung. Các vị trí ảnh đã được đánh dấu trong từng trang: chỉ cần lưu đúng tên rồi dựng lại website; không cần tự sửa Markdown. Nếu đang dùng `hugo server` mà vị trí ảnh chưa cập nhật, hãy khởi động lại server. Không dùng ảnh chụp của môi trường khác để thể hiện kết quả của bài lab này.
+2. Bốn ECR repository còn lại đã tạo thủ công bằng CLI nên không tự bị xóa; dùng Console chọn từng repository `tina-staging/terminal`, `gateway`, `admin-api`, `viegem` và xóa khi chắc chắn không cần image.
+3. **S3:** foundation có `DeletionPolicy: Retain`; bucket recordings và object vẫn tồn tại. Trong S3, xác định đúng bucket từ output đã lưu, tải dữ liệu cần giữ, rồi **Empty → Delete** nếu bạn muốn xóa toàn bộ dữ liệu thử. Không xóa bucket chỉ vì tên giống.
+4. **RDS → Snapshots:** stack data giữ lại snapshot khi xóa database. Giữ snapshot nếu cần khôi phục, hoặc xóa snapshot thử sau khi kiểm tra. Snapshot và bucket còn tồn tại có thể tiếp tục tính phí.
+5. **WAF:** xóa Web ACL `tina-workshop-acl` sau khi edge đã xóa. **Secrets Manager:** secret Google tạo thủ công vẫn còn; xóa theo quy trình của bạn nếu không dùng. Tùy chọn xóa log group còn lại khi chắc chắn không cần bằng chứng.
+6. Sau khi builder đã terminate, gỡ role khỏi instance profile và xóa đúng IAM resources được tạo trong bài. Ví dụ:
+
+   ```bash
+   aws iam remove-role-from-instance-profile --instance-profile-name tina-workshop-builder-profile --role-name tina-workshop-builder-role
+   aws iam delete-instance-profile --instance-profile-name tina-workshop-builder-profile
+   aws iam delete-role-policy --role-name tina-workshop-builder-role --policy-name TinaEcrPush
+   aws iam detach-role-policy --role-name tina-workshop-builder-role --policy-arn arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+   aws iam delete-role --role-name tina-workshop-builder-role
+   ```
+
+7. Kiểm tra lại **EC2/EBS, NAT/EIP, ECS, RDS, ElastiCache, CloudFront, WAF, S3, ECR và Billing** để xác nhận không còn tài nguyên thử ngoài ý muốn.
+
+{{< workshop-screenshot file="22-cleanup-lab.png" description="Trạng thái xóa tài nguyên của môi trường thực hành sau khi đã kiểm tra; che account ID." >}}
+
+## 4. Bằng chứng để đánh giá
+
+Ghi ngày, commit `7d6bba8109f6eac51c0d8241a7083e3e364cf59d`, trạng thái từng bước, lỗi và cách khắc phục. Ảnh phải là ảnh thật, đặt tại từng bước của trang; không đưa secret, transcript thật hoặc thông tin cá nhân vào tài liệu công khai.

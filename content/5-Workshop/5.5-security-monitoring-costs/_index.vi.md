@@ -7,30 +7,26 @@ chapter: false
 pre: " <b> 5.5. </b> "
 ---
 
-## 1. Kiểm tra role và secret
+## 1. Kiểm tra quyền và secret
 
-1. Vào **CloudFormation → stack staging cần kiểm tra → Resources**, tìm IAM role và Secrets Manager secret; mở metadata của từng tài nguyên.
-2. **IAM → Roles**: kiểm tra trust relationship và policy của **task execution role** (kéo image, ghi log, đọc secret khi ECS khởi động) và **task role** (quyền ứng dụng sử dụng). So sánh với nhu cầu thực tế, không tự mở rộng quyền chỉ để chạy qua lỗi.
+Vào **IAM → Roles**, xem execution role và task role do stack tạo. Kiểm tra ECR repository, S3 bucket, Secrets Manager và ECS task được cấp quyền phù hợp với môi trường của bạn. Không chụp policy chứa account ID nếu chưa che. EC2 builder chỉ nên tồn tại trong thời gian build.
 
-{{< workshop-screenshot file="19-role-policy.png" description="IAM role và policy cần kiểm tra; che các định danh không cần chia sẻ." >}}
+{{< workshop-screenshot file="19-role-policy.png" description="Role và phạm vi policy của môi trường thực hành; che định danh tài khoản." >}}
 
-3. **Secrets Manager**: kiểm tra tên, mô tả, key mã hóa, rotation nếu áp dụng. Không chọn hiển thị giá trị. Trong task definition, chỉ xác nhận có secret reference và tên biến; không chụp giá trị environment.
-4. **S3/RDS**: kiểm tra mã hóa và private access theo các trang trước. Không coi một role hoặc một secret tồn tại là bằng chứng IAM đã đạt least privilege.
+RDS, Valkey và service chạy trong subnet riêng; secret được tham chiếu bằng ARN. CloudFront sử dụng WAF và VPC origin tới ALB nội bộ. Cấu hình hiện tại dành cho lab: xem lại mã hóa kết nối nội bộ, backup, IAM và rule WAF trước khi phục vụ người dùng thật.
 
-## 2. Kiểm tra log và cảnh báo
+## 2. Xem log và health
 
-1. **ECS → cluster → service → Tasks → task → Logs**, chọn log group tương ứng; hoặc vào **CloudWatch → Log groups** và tìm tên từ task definition.
-2. Lọc khoảng thời gian kiểm thử. Ghi nhận task khởi động, health check và lỗi liên quan; không đưa access token, nội dung cuộc họp hoặc dữ liệu người dùng vào ảnh.
+Trong **ECS → Clusters → service → Tasks → task → Logs**, hoặc **CloudWatch → Log groups**, xem log khi task khởi động và lúc thử meeting. Trong CloudFormation, tab **Events** cho biết lỗi khởi tạo stack. Không đưa access token, URL meeting, nội dung transcript hoặc thông tin cá nhân vào ảnh.
 
-{{< workshop-screenshot file="20-logs.png" description="CloudWatch log đã che token, nội dung cuộc họp và dữ liệu người dùng." >}}
+{{< workshop-screenshot file="20-logs.png" description="CloudWatch log của task đã che token, thông tin người dùng và nội dung meeting." >}}
 
-3. **CloudWatch → Alarms → All alarms**: tìm các alarm thực sự tồn tại và ghi trạng thái. Không giả định có alarm `tina-ecs-high-cpu` chỉ vì tên đó từng xuất hiện trong tài liệu cũ.
+Nếu ECS `CannotPullContainerError`, kiểm tra đúng digest ARM64, execution role ECR và đường ra NAT. Nếu hết quota, kiểm tra Service Quotas. Nếu target unhealthy, kiểm tra log Terminal, port 3000 và health path `/api/auth/providers`.
 
-## 3. CloudFront, WAF và chi phí
+## 3. Chi phí
 
-1. **CloudFront → Distributions** → chọn distribution staging → kiểm tra HTTPS, origin và WAF nếu được gắn. Trong **AWS WAF → Web ACLs**, chọn phạm vi CloudFront và region do Console yêu cầu để đối chiếu ACL. Ghi **không kiểm chứng** nếu không có quyền xem.
-2. **Billing and Cost Management → Cost Explorer** → chọn khoảng thời gian và group theo Service; ghi chú dữ liệu có thể trễ và không tự suy ra chi phí chính xác cho một stack nếu không có phân bổ phù hợp.
-3. **Budgets → Budgets** → kiểm tra budget và thông báo của tài khoản lab. Budget chỉ cảnh báo theo cấu hình; bạn vẫn phải tự theo dõi và xóa tài nguyên lab.
+Xem **Billing → Budgets** và **Cost Explorer**; chi phí có thể cập nhật chậm. Kiểm tra NAT, public IPv4, EC2 builder/EBS, RDS, Valkey, Fargate, ALB, CloudFront, WAF, ECR và snapshot. Budget gửi cảnh báo, không tự xóa tài nguyên.
 
-{{< workshop-screenshot file="21-budget.png" description="AWS Budget của lab và trạng thái cảnh báo; che email và account ID." >}}
+{{< workshop-screenshot file="21-budget.png" description="Budget tài khoản thực hành và trạng thái cảnh báo; che email và account ID." >}}
 
+Khi ngừng thực hành, chuyển sang [dọn dẹp](../5.6-cleanup-evidence/) để tránh tiếp tục tính phí.

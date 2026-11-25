@@ -1,50 +1,33 @@
 ---
 aliases: ["/vi/5-workshop/5.4-s3-onprem/5.4.3-test-endpoint/"]
-title: "ECS, task definition và load balancer"
+title: "Triển khai ECS và website"
 date: 2026-11-25
 weight: 3
 chapter: false
 pre: " <b> 5.4.3 </b> "
 ---
 
-## A. Kiểm tra ECS staging
+## Thứ tự triển khai
 
-1. Mở **Amazon ECS → Clusters → tina-foundation-ecs → Services**.
-2. Với mỗi service `tina-staging-*`, ghi trạng thái, **Desired tasks**, **Running tasks** và **Pending tasks**. Chọn service → tab **Deployments and events** để đọc lỗi khởi tạo hoặc thay thế task.
+Các bước dưới đây tạo website trên VPC và cluster **của bạn**. Chạy các lệnh trong CloudShell với hàm `stackout`, `repoarn` và biến `TINA_SRC`, `TINA_TAG` đã chuẩn bị. Mỗi trang yêu cầu stack trước đó thành công.
 
-{{< workshop-screenshot file="12-ecs-services.png" description="Danh sách ECS service với desired, running và pending tasks." >}}
+1. [Tạo WAF và CloudFront/ALB](5.4.3.1-edge/).
+2. [Tạo bot task và Runtime](5.4.3.2-runtime/).
+3. [Tạo ASR tùy chọn và core](5.4.3.3-core/).
+4. [Cấu hình Google và triển khai Terminal](5.4.3.4-terminal/).
+5. [Xem phạm vi và các tính năng mở rộng](5.4.3.5-extensions/).
 
-3. Mở **Tasks**, chọn một task đang chạy → xem task definition, các container, trạng thái và link **View logs in CloudWatch**. Không chụp environment values, token, secret hoặc URL nội bộ.
+Trước khi tiếp tục, xác nhận nhãn image trong CloudShell khớp nhãn đã build trên EC2:
 
-{{< workshop-screenshot file="13-ecs-task.png" description="Chi tiết một ECS task và trạng thái container; che environment và secret." >}}
+```bash
+export TINA_TAG=ws-v1
+image() {
+  local name="$1" digest
+  digest="$(aws ecr describe-images --region "$AWS_REGION" --repository-name "tina-staging/$name" --image-ids "imageTag=$TINA_TAG" --query 'imageDetails[0].imageDigest' --output text)" || return 1
+  [[ "$digest" =~ ^sha256:[a-f0-9]{64}$ ]] || { echo "Không tìm thấy digest của $name:$TINA_TAG" >&2; return 1; }
+  printf '%s.dkr.ecr.%s.amazonaws.com/tina-staging/%s@%s' "$TINA_ACCOUNT" "$AWS_REGION" "$name" "$digest"
+}
+image terminal
+```
 
-4. Mở **Task definitions** → chọn phiên bản đang dùng, đối chiếu image, CPU/memory, port, task role, execution role, cấu hình log và **tên** secret. Không chỉnh sửa revision staging.
-5. Tìm stack `tina-staging-bot` trong CloudFormation và kiểm tra bot task definition. Bot được tạo theo nhu cầu; không xem việc không có service bot chạy thường trực là lỗi.
-
-Ví dụ quan sát ngày 25/11/2026: Terminal dùng cổng container 3000; core gồm nhiều container, bao gồm gateway cổng 8000. Đây là ảnh chụp cấu hình tại một thời điểm, không thay cho task definition của bản release bạn sẽ triển khai.
-
-## B. Kiểm tra ALB và CloudFront
-
-1. **CloudFormation → tina-staging-edge → Resources**: xác định distribution, VPC origin, load balancer và listener.
-2. **EC2 → Load Balancers**: mở ALB staging, kiểm tra **Scheme = internal**, VPC và listener. Không sao chép hoặc thay đổi rule của hệ thống đang phục vụ người dùng.
-3. **EC2 → Target Groups**: đối chiếu hai target group của staging. Mở **Targets** và xem **Health status** và lý do nếu unhealthy. Tại thời điểm kiểm tra, terminal và gateway đều `healthy`; terminal dùng health path `/api/auth/providers`, gateway dùng `/health`.
-
-{{< workshop-screenshot file="14-target-health.png" description="Trạng thái health của target group terminal hoặc gateway." >}}
-
-4. **CloudFront → Distributions** → mở distribution từ stack edge: kiểm tra trạng thái triển khai, origin và **VPC origin**. CloudFront của staging kết nối ALB nội bộ; cấu hình một CloudFront origin trỏ thẳng DNS ALB công khai là kiến trúc khác.
-
-{{< workshop-screenshot file="15-cloudfront-origin.png" description="CloudFront distribution và VPC origin; che domain và định danh nội bộ." >}}
-
-5. Nếu unhealthy, kiểm tra trước cổng container/target group, health path, security group, tình trạng task và log. Không sửa staging nếu bạn chỉ có nhiệm vụ đánh giá.
-
-## C. Tạo ECS lab khi có bộ release đầy đủ
-
-1. **ECS → Clusters → Create cluster** → tên `tina-ws-cluster`, chọn networking/compute theo hướng dẫn release. Tạo cluster không tự tạo service.
-2. **ECS → Task definitions → Create new task definition** → chọn Fargate nếu workload tương thích; điền family, CPU/memory hợp lệ, task/execution role, image ECR + digest, cổng, biến môi trường không nhạy cảm, secret references và log group theo manifest của **từng service**.
-3. Với cluster lab, chọn **Create → Service**; chọn đúng task definition/revision, số task, app subnets, security groups, service discovery và load balancer/target group theo manifest. Kiểm tra **Events** và task health sau khi tạo.
-4. Lặp theo thứ tự phụ thuộc của bộ release, bao gồm migration/init job, kết nối PostgreSQL/Valkey/S3, internal endpoints và runtime điều phối bot. Kiểm tra từng service trước khi tạo service phụ thuộc.
-
-**Điểm dừng:** hiện workshop chưa có manifest/task definition và thứ tự phụ thuộc portable đã được kiểm thử đầy đủ. Vì thế không thể điền chính xác mọi trường từ trang này hoặc tuyên bố một cluster mới đã chạy đầy đủ TINA. Người hướng dẫn cần chuẩn bị và chạy thử bộ release như mô tả ở [Kiểm tra hệ thống](../5.4.4-application-validation/).
-
-Fargate không hỗ trợ khai báo GPU cho task; VieGem trong staging quan sát được chạy task Fargate, không có nghĩa là dùng GPU. Nếu release đòi hỏi GPU, chọn hạ tầng GPU tương thích và kiểm tra lại chi phí/quota. [AWS: Fargate task definition differences](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/fargate-tasks-services.html).
-
+Nếu build bằng tag khác, đổi `TINA_TAG` cho khớp. Mỗi task Fargate trong template dùng **ARM64**; không dùng nhầm image AMD64. Giá trị digest và ARN thuộc tài khoản của bạn, không cần công khai khi chụp ảnh.

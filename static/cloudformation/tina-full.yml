@@ -1,0 +1,5028 @@
+# SPDX-License-Identifier: Apache-2.0
+# Generated from TINA AWS templates at 7d6bba8109f6eac51c0d8241a7083e3e364cf59d
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'TINA workshop: network, ECS Fargate, data, web, agent, workspace and optional voice. Source 7d6bba8109f6eac51c0d8241a7083e3e364cf59d'
+Metadata:
+  AWSToolsMetrics:
+    AWSAgentToolkit: aws-cloudformation@3
+  com.aws.cloudformation.Context:
+    arch: One isolated evaluation stack; image digests and OAuth secret are supplied by the operator.
+    must: Retain private data; use only reviewed ARM64 images and a fresh account; activate workspace for explicit
+      user IDs.
+Parameters:
+  CloudFrontOriginPrefixListId:
+    Type: String
+    Description: CloudFront origin-facing managed prefix list ID in us-east-1.
+  S3PrefixListId:
+    Type: String
+    Description: S3 managed prefix list ID in us-east-1.
+  WorkspaceOwnerIds:
+    Type: String
+    Default: ''
+    AllowedPattern: (|[1-9][0-9]*(,[1-9][0-9]*)*)
+    Description: Explicit TINA user IDs, comma separated; set after first sign-in.
+  EnableVoice:
+    Type: String
+    Default: 'false'
+    AllowedValues:
+    - 'true'
+    - 'false'
+  VoicePilotRoom:
+    Type: String
+    Default: ''
+    AllowedPattern: (|[a-z]{3}-[a-z]{4}-[a-z]{3})
+  BotDigest:
+    Type: String
+    AllowedPattern: sha256:[a-f0-9]{64}
+    Description: ARM64 image digest for Bot
+  RuntimeDigest:
+    Type: String
+    AllowedPattern: sha256:[a-f0-9]{64}
+    Description: ARM64 image digest for Runtime
+  AdminDigest:
+    Type: String
+    AllowedPattern: sha256:[a-f0-9]{64}
+    Description: ARM64 image digest for Admin
+  MeetingDigest:
+    Type: String
+    AllowedPattern: sha256:[a-f0-9]{64}
+    Description: ARM64 image digest for Meeting
+  GatewayDigest:
+    Type: String
+    AllowedPattern: sha256:[a-f0-9]{64}
+    Description: ARM64 image digest for Gateway
+  TerminalDigest:
+    Type: String
+    AllowedPattern: sha256:[a-f0-9]{64}
+    Description: ARM64 image digest for Terminal
+  AgentApiDigest:
+    Type: String
+    AllowedPattern: sha256:[a-f0-9]{64}
+    Description: ARM64 image digest for AgentApi
+  AgentWorkerDigest:
+    Type: String
+    AllowedPattern: sha256:[a-f0-9]{64}
+    Description: ARM64 image digest for AgentWorker
+  AgentReachDigest:
+    Type: String
+    AllowedPattern: sha256:[a-f0-9]{64}
+    Description: ARM64 image digest for AgentReach
+  McpDigest:
+    Type: String
+    AllowedPattern: sha256:[a-f0-9]{64}
+    Description: ARM64 image digest for Mcp
+  FlowsDigest:
+    Type: String
+    AllowedPattern: sha256:[a-f0-9]{64}
+    Description: ARM64 image digest for Flows
+  VieGemDigest:
+    Type: String
+    AllowedPattern: sha256:[a-f0-9]{64}
+    Description: ARM64 image digest for VieGem
+  VieNeuDigest:
+    Type: String
+    Default: ''
+    AllowedPattern: (|sha256:[a-f0-9]{64})
+    Description: 'Required when voice is enabled: ARM64 image digest for VieNeu'
+  LiveKitDigest:
+    Type: String
+    Default: ''
+    AllowedPattern: (|sha256:[a-f0-9]{64})
+    Description: 'Required when voice is enabled: ARM64 image digest for LiveKit'
+  LiveKitAgentDigest:
+    Type: String
+    Default: ''
+    AllowedPattern: (|sha256:[a-f0-9]{64})
+    Description: 'Required when voice is enabled: ARM64 image digest for LiveKitAgent'
+Conditions:
+  EnableVoiceResources:
+    Fn::Equals:
+    - Ref: EnableVoice
+    - 'true'
+  DataWithValkey:
+    Fn::Equals:
+    - 'true'
+    - 'true'
+  BotProbe:
+    Fn::Equals:
+    - 'false'
+    - 'true'
+  RuntimeWithWorkspaceWorker:
+    Fn::Not:
+    - Fn::Equals:
+      - present
+      - ''
+  RuntimeWithPinnedWorkspaces:
+    Fn::And:
+    - Condition: RuntimeWithWorkspaceWorker
+    - Fn::Not:
+      - Fn::Equals:
+        - Fn::Join:
+          - ''
+          - - ''
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - Fn::Join:
+          - ''
+          - - ''
+        - ''
+  RuntimeWithDynamicWorkspace:
+    Fn::And:
+    - Condition: RuntimeWithWorkspaceWorker
+    - Fn::Not:
+      - Fn::Equals:
+        - ''
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - ''
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - ''
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - ''
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - ''
+        - ''
+  RuntimeWithS3Workspace:
+    Fn::And:
+    - Condition: RuntimeWithWorkspaceWorker
+    - Fn::Not:
+      - Fn::Equals:
+        - present
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - present
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - present
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - present
+        - ''
+  RuntimeWithNovaWorkspace:
+    Fn::And:
+    - Condition: RuntimeWithS3Workspace
+    - Fn::Not:
+      - Fn::Equals:
+        - present
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - present
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - Ref: WorkspaceOwnerIds
+        - ''
+  RuntimeWithDraftWorker:
+    Fn::Not:
+    - Fn::Equals:
+      - present
+      - ''
+  WorkspaceWithEgressProxy:
+    Fn::And:
+    - Fn::Equals:
+      - 'true'
+      - 'true'
+    - Fn::Not:
+      - Fn::Equals:
+        - present
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - Fn::Join:
+          - ''
+          - - present
+            - present
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - present
+        - ''
+  WorkspaceHasProxyRepoArn:
+    Fn::Not:
+    - Fn::Equals:
+      - present
+      - ''
+  WorkspaceHasCustomAllowlist:
+    Fn::Not:
+    - Fn::Equals:
+      - ''
+      - ''
+  CoreWithTranscription:
+    Fn::And:
+    - Fn::Not:
+      - Fn::Equals:
+        - http://viegem.tina-staging.local:8000/v1/audio/transcriptions
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - present
+        - ''
+  CoreWithVoice:
+    Fn::Equals:
+    - Ref: EnableVoice
+    - 'true'
+  CoreWithAgentApi:
+    Fn::Not:
+    - Fn::Equals:
+      - http://agent-api.tina-staging.local:8100
+      - ''
+  CoreWithMcp:
+    Fn::And:
+    - Fn::Not:
+      - Fn::Equals:
+        - http://mcp.tina-staging.local:8010
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - present
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - present
+        - ''
+  CoreWithVoicePilot:
+    Fn::And:
+    - Condition: CoreWithVoice
+    - Condition: CoreWithAgentApi
+    - Fn::Not:
+      - Fn::Equals:
+        - Ref: VoicePilotRoom
+        - ''
+  AgentWithAgentReach:
+    Fn::And:
+    - Fn::Not:
+      - Fn::Equals:
+        - http://agent-reach.tina-staging.local:8080
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - present
+        - ''
+  AgentWithVoiceCompletion:
+    Fn::Equals:
+    - Ref: EnableVoice
+    - 'true'
+  AgentWithWorkspaceChatGPT:
+    Fn::And:
+    - Condition: AgentWithWorkspacePilot
+    - Fn::Not:
+      - Fn::Equals:
+        - ''
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - ''
+        - ''
+  AgentWithWorkspacePilot:
+    Fn::Not:
+    - Fn::Equals:
+      - Ref: WorkspaceOwnerIds
+      - ''
+  AgentWithWikiRoles:
+    Fn::And:
+    - Condition: AgentWithWorkspacePilotRoles
+    - Fn::Not:
+      - Fn::Equals:
+        - ''
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - ''
+        - ''
+  AgentWithWorkspaceSharedRoleC:
+    Fn::And:
+    - Condition: AgentWithWorkspacePilotRoles
+    - Fn::Not:
+      - Fn::Equals:
+        - ''
+        - ''
+  AgentWithWorkspacePilotRoles:
+    Fn::And:
+    - Fn::Not:
+      - Fn::Equals:
+        - ''
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - ''
+        - ''
+  AgentWithWorkspace:
+    Fn::Equals:
+    - 'true'
+    - 'true'
+  AgentWithLegacyEfs:
+    Fn::And:
+    - Condition: AgentWithWorkspace
+    - Fn::Equals:
+      - 'false'
+      - 'true'
+  AgentWithDynamicWorkspace:
+    Fn::And:
+    - Condition: AgentWithLegacyEfs
+    - Condition: AgentWithWorkspacePilot
+    - Fn::Not:
+      - Fn::Equals:
+        - present
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - present
+        - ''
+  AgentWithS3Workspace:
+    Fn::And:
+    - Fn::Equals:
+      - s3
+      - s3
+    - Fn::Not:
+      - Fn::Equals:
+        - present
+        - ''
+  AgentWithEfsMigration:
+    Fn::And:
+    - Condition: AgentWithS3Workspace
+    - Condition: AgentWithLegacyEfs
+    - Fn::Equals:
+      - 'false'
+      - 'true'
+  AgentWithTaskRole:
+    Fn::Or:
+    - Condition: AgentWithVoiceCompletion
+    - Condition: AgentWithWorkspace
+  AgentWithChatGPTVoice:
+    Fn::And:
+    - Condition: AgentWithVoiceCompletion
+    - Fn::Not:
+      - Fn::Equals:
+        - ''
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - ''
+        - ''
+    - Fn::Not:
+      - Fn::Equals:
+        - ''
+        - ''
+  TerminalGoogleEnabled:
+    Fn::Not:
+    - Fn::Equals:
+      - ''
+      - ''
+  TerminalWithWorkspacePilot:
+    Fn::Not:
+    - Fn::Equals:
+      - Ref: WorkspaceOwnerIds
+      - ''
+Resources:
+  FoundationVpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.42.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+      - Key: Name
+        Value:
+          Fn::Sub: ${AWS::StackName}-vpc
+  FoundationInternetGateway:
+    Type: AWS::EC2::InternetGateway
+  FoundationVpcGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+      InternetGatewayId:
+        Ref: FoundationInternetGateway
+  FoundationPublicA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+      AvailabilityZone:
+        Fn::Select:
+        - 0
+        - Fn::GetAZs: ''
+      CidrBlock: 10.42.0.0/24
+      Tags:
+      - Key: Name
+        Value:
+          Fn::Sub: ${AWS::StackName}-public-a
+  FoundationPublicB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+      AvailabilityZone:
+        Fn::Select:
+        - 1
+        - Fn::GetAZs: ''
+      CidrBlock: 10.42.1.0/24
+      Tags:
+      - Key: Name
+        Value:
+          Fn::Sub: ${AWS::StackName}-public-b
+  FoundationAppA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+      AvailabilityZone:
+        Fn::Select:
+        - 0
+        - Fn::GetAZs: ''
+      CidrBlock: 10.42.10.0/24
+      Tags:
+      - Key: Name
+        Value:
+          Fn::Sub: ${AWS::StackName}-app-a
+  FoundationAppB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+      AvailabilityZone:
+        Fn::Select:
+        - 1
+        - Fn::GetAZs: ''
+      CidrBlock: 10.42.11.0/24
+      Tags:
+      - Key: Name
+        Value:
+          Fn::Sub: ${AWS::StackName}-app-b
+  FoundationDataA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+      AvailabilityZone:
+        Fn::Select:
+        - 0
+        - Fn::GetAZs: ''
+      CidrBlock: 10.42.20.0/24
+      Tags:
+      - Key: Name
+        Value:
+          Fn::Sub: ${AWS::StackName}-data-a
+  FoundationDataB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+      AvailabilityZone:
+        Fn::Select:
+        - 1
+        - Fn::GetAZs: ''
+      CidrBlock: 10.42.21.0/24
+      Tags:
+      - Key: Name
+        Value:
+          Fn::Sub: ${AWS::StackName}-data-b
+  FoundationPublicRoutes:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+  FoundationPublicDefaultRoute:
+    Type: AWS::EC2::Route
+    DependsOn: FoundationVpcGateway
+    Properties:
+      RouteTableId:
+        Ref: FoundationPublicRoutes
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: FoundationInternetGateway
+  FoundationAppRoutesA:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+  FoundationAppRoutesB:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+  FoundationDataRoutes:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+  FoundationPublicAssocA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: FoundationPublicA
+      RouteTableId:
+        Ref: FoundationPublicRoutes
+  FoundationPublicAssocB:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: FoundationPublicB
+      RouteTableId:
+        Ref: FoundationPublicRoutes
+  FoundationAppAssocA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: FoundationAppA
+      RouteTableId:
+        Ref: FoundationAppRoutesA
+  FoundationAppAssocB:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: FoundationAppB
+      RouteTableId:
+        Ref: FoundationAppRoutesB
+  FoundationDataAssocA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: FoundationDataA
+      RouteTableId:
+        Ref: FoundationDataRoutes
+  FoundationDataAssocB:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: FoundationDataB
+      RouteTableId:
+        Ref: FoundationDataRoutes
+  FoundationS3GatewayEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+      VpcEndpointType: Gateway
+      ServiceName:
+        Fn::Sub: com.amazonaws.${AWS::Region}.s3
+      RouteTableIds:
+      - Ref: FoundationAppRoutesA
+      - Ref: FoundationAppRoutesB
+  FoundationCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName:
+        Fn::Sub: ${AWS::StackName}-ecs
+      CapacityProviders:
+      - FARGATE
+      DefaultCapacityProviderStrategy:
+      - CapacityProvider: FARGATE
+        Weight: 1
+  FoundationStagingRecordings:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: AES256
+      OwnershipControls:
+        Rules:
+        - ObjectOwnership: BucketOwnerEnforced
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LifecycleConfiguration:
+        Rules:
+        - Id: ExpireBotInvocations
+          Prefix: runtime-invocations/
+          Status: Enabled
+          ExpirationInDays: 1
+  FoundationStagingRecordingsPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: FoundationStagingRecordings
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Deny
+          Principal: '*'
+          Action: s3:*
+          Resource:
+          - Fn::GetAtt:
+            - FoundationStagingRecordings
+            - Arn
+          - Fn::Sub: ${FoundationStagingRecordings.Arn}/*
+          Condition:
+            Bool:
+              aws:SecureTransport: 'false'
+  EgressNatAddress:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  EgressNat:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      SubnetId:
+        Ref: FoundationPublicA
+      AllocationId:
+        Fn::GetAtt:
+        - EgressNatAddress
+        - AllocationId
+    DependsOn:
+    - FoundationVpcGateway
+  EgressAppEgressA:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: FoundationAppRoutesA
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: EgressNat
+  EgressAppEgressB:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: FoundationAppRoutesB
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: EgressNat
+  DataAppSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: TINA staging application tasks
+      VpcId:
+        Ref: FoundationVpc
+  DataPostgresSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: PostgreSQL from TINA staging application tasks
+      VpcId:
+        Ref: FoundationVpc
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 5432
+        ToPort: 5432
+        SourceSecurityGroupId:
+          Ref: DataAppSecurityGroup
+  DataValkeySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Valkey from TINA staging application tasks
+      VpcId:
+        Ref: FoundationVpc
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 6379
+        ToPort: 6379
+        SourceSecurityGroupId:
+          Ref: DataAppSecurityGroup
+  DataPostgresSubnets:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: TINA staging private data subnets
+      SubnetIds:
+      - Ref: FoundationDataA
+      - Ref: FoundationDataB
+  DataPostgres:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Snapshot
+    UpdateReplacePolicy: Snapshot
+    Properties:
+      Engine: postgres
+      EngineVersion: '17'
+      DBInstanceClass: db.t4g.micro
+      DBName: tina
+      MasterUsername: tinaadmin
+      ManageMasterUserPassword: true
+      DBSubnetGroupName:
+        Ref: DataPostgresSubnets
+      VPCSecurityGroups:
+      - Ref: DataPostgresSecurityGroup
+      StorageType: gp3
+      AllocatedStorage: '20'
+      StorageEncrypted: true
+      PubliclyAccessible: false
+      BackupRetentionPeriod: 1
+      MultiAZ: false
+  DataValkeySubnets:
+    Type: AWS::ElastiCache::SubnetGroup
+    Properties:
+      Description: TINA staging private data subnets
+      SubnetIds:
+      - Ref: FoundationDataA
+      - Ref: FoundationDataB
+  DataValkeyAuth:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        PasswordLength: 48
+        ExcludePunctuation: true
+  DataValkey:
+    Type: AWS::ElastiCache::ReplicationGroup
+    Properties:
+      ReplicationGroupDescription: TINA staging Valkey
+      Engine: valkey
+      EngineVersion: '8.0'
+      CacheNodeType: cache.t4g.micro
+      ClusterMode: disabled
+      NumCacheClusters: 1
+      AutomaticFailoverEnabled: false
+      MultiAZEnabled: false
+      CacheSubnetGroupName:
+        Ref: DataValkeySubnets
+      SecurityGroupIds:
+      - Ref: DataValkeySecurityGroup
+      AtRestEncryptionEnabled: true
+      TransitEncryptionEnabled: true
+      TransitEncryptionMode: required
+      AuthToken:
+        Fn::Sub: '{{resolve:secretsmanager:${DataValkeyAuth}:SecretString}}'
+  EdgeOriginSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: TINA internal ALB accepts only CloudFront origin traffic
+      VpcId:
+        Ref: FoundationVpc
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        SourcePrefixListId:
+          Ref: CloudFrontOriginPrefixListId
+  EdgeLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Scheme: internal
+      Type: application
+      Subnets:
+      - Ref: FoundationAppA
+      - Ref: FoundationAppB
+      SecurityGroups:
+      - Ref: EdgeOriginSecurityGroup
+  EdgeListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn:
+        Ref: EdgeLoadBalancer
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+      - Type: fixed-response
+        FixedResponseConfig:
+          StatusCode: '503'
+          ContentType: text/plain
+          MessageBody: TINA staging application is not deployed yet.
+  EdgeEdgeHealth:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn:
+        Ref: EdgeListener
+      Priority: 10
+      Conditions:
+      - Field: path-pattern
+        Values:
+        - /edge-health
+      Actions:
+      - Type: fixed-response
+        FixedResponseConfig:
+          StatusCode: '200'
+          ContentType: text/plain
+          MessageBody: TINA_EDGE_READY
+  EdgeOrigin:
+    Type: AWS::CloudFront::VpcOrigin
+    DependsOn:
+    - EdgeListener
+    - FoundationVpcGateway
+    Properties:
+      VpcOriginEndpointConfig:
+        Arn:
+          Ref: EdgeLoadBalancer
+        Name:
+          Ref: AWS::StackName
+        HTTPPort: 80
+        OriginProtocolPolicy: http-only
+  EdgeDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: TINA staging edge
+        Enabled: true
+        HttpVersion: http2
+        WebACLId:
+          Fn::GetAtt:
+          - WebAcl
+          - Arn
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+        Origins:
+        - Id: tina-internal-alb
+          DomainName:
+            Fn::GetAtt:
+            - EdgeLoadBalancer
+            - DNSName
+          VpcOriginConfig:
+            VpcOriginId:
+              Fn::GetAtt:
+              - EdgeOrigin
+              - Id
+        DefaultCacheBehavior:
+          TargetOriginId: tina-internal-alb
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+          - GET
+          - HEAD
+          - OPTIONS
+          - PUT
+          - PATCH
+          - POST
+          - DELETE
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+          OriginRequestPolicyId: 216adef6-5c7f-47e4-b989-5492eafa07d3
+        CustomErrorResponses:
+        - ErrorCode: 503
+          ErrorCachingMinTTL: 0
+  BotBotLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+  BotBotExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: ecs-tasks.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: LoadBotAndInvocation
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: ecr:GetAuthorizationToken
+            Resource: '*'
+          - Effect: Allow
+            Action:
+            - ecr:BatchGetImage
+            - ecr:BatchCheckLayerAvailability
+            - ecr:GetDownloadUrlForLayer
+            Resource:
+              Fn::Sub: arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/tina-staging/bot
+          - Effect: Allow
+            Action:
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource:
+              Fn::GetAtt:
+              - BotBotLogs
+              - Arn
+          - Effect: Allow
+            Action: s3:GetBucketLocation
+            Resource:
+              Fn::Sub:
+              - arn:${AWS::Partition}:s3:::${InvocationBucket}
+              - InvocationBucket:
+                  Ref: FoundationStagingRecordings
+          - Effect: Allow
+            Action: s3:GetObject
+            Resource:
+              Fn::Sub:
+              - arn:${AWS::Partition}:s3:::${InvocationBucket}/runtime-invocations/*
+              - InvocationBucket:
+                  Ref: FoundationStagingRecordings
+  BotBotTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family:
+        Ref: AWS::StackName
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+      - FARGATE
+      Cpu: '4096'
+      Memory: '8192'
+      RuntimePlatform:
+        OperatingSystemFamily: LINUX
+        CpuArchitecture: ARM64
+      ExecutionRoleArn:
+        Fn::GetAtt:
+        - BotBotExecutionRole
+        - Arn
+      ContainerDefinitions:
+      - Name: bot
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/bot@${ImageDigest}
+          - ImageDigest:
+              Ref: BotDigest
+        Essential: true
+        StopTimeout: 30
+        EntryPoint:
+          Ref: AWS::NoValue
+        Command:
+          Ref: AWS::NoValue
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-group:
+              Ref: BotBotLogs
+            awslogs-stream-prefix: ecs
+  BotRuntimeTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: ecs-tasks.amazonaws.com
+          Action: sts:AssumeRole
+          Condition:
+            StringEquals:
+              aws:SourceAccount:
+                Ref: AWS::AccountId
+      Policies:
+      - PolicyName: ManagePinnedBotTasks
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: ecs:DescribeTaskDefinition
+            Resource: '*'
+          - Effect: Allow
+            Action: ecs:RunTask
+            Resource:
+              Ref: BotBotTaskDefinition
+            Condition:
+              ArnEquals:
+                ecs:cluster:
+                  Fn::Sub:
+                  - arn:${AWS::Partition}:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${ClusterName}
+                  - ClusterName:
+                      Ref: FoundationCluster
+          - Effect: Allow
+            Action: ecs:ListTasks
+            Resource: '*'
+            Condition:
+              ArnEquals:
+                ecs:cluster:
+                  Fn::Sub:
+                  - arn:${AWS::Partition}:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${ClusterName}
+                  - ClusterName:
+                      Ref: FoundationCluster
+          - Effect: Allow
+            Action:
+            - ecs:DescribeTasks
+            - ecs:ListTagsForResource
+            Resource:
+              Fn::Sub:
+              - arn:${AWS::Partition}:ecs:${AWS::Region}:${AWS::AccountId}:task/${ClusterName}/*
+              - ClusterName:
+                  Ref: FoundationCluster
+          - Effect: Allow
+            Action: ecs:StopTask
+            Resource:
+              Fn::Sub:
+              - arn:${AWS::Partition}:ecs:${AWS::Region}:${AWS::AccountId}:task/${ClusterName}/*
+              - ClusterName:
+                  Ref: FoundationCluster
+            Condition:
+              'Null':
+                aws:ResourceTag/tina:runtime-workload: 'false'
+          - Effect: Allow
+            Action: ecs:TagResource
+            Resource:
+              Fn::Sub:
+              - arn:${AWS::Partition}:ecs:${AWS::Region}:${AWS::AccountId}:task/${ClusterName}/*
+              - ClusterName:
+                  Ref: FoundationCluster
+            Condition:
+              StringEquals:
+                ecs:CreateAction: RunTask
+          - Effect: Allow
+            Action: iam:PassRole
+            Resource:
+              Fn::GetAtt:
+              - BotBotExecutionRole
+              - Arn
+            Condition:
+              StringEquals:
+                iam:PassedToService: ecs-tasks.amazonaws.com
+          - Effect: Allow
+            Action:
+            - s3:GetObject
+            - s3:PutObject
+            - s3:DeleteObject
+            Resource:
+              Fn::Sub:
+              - arn:${AWS::Partition}:s3:::${InvocationBucket}/runtime-invocations/*
+              - InvocationBucket:
+                  Ref: FoundationStagingRecordings
+  RuntimeRuntimeS3WorkspacePermissions:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: ManageS3EphemeralWorkspaceWorkers
+      Roles:
+      - Fn::Select:
+        - 1
+        - Fn::Split:
+          - /
+          - Fn::GetAtt:
+            - BotRuntimeTaskRole
+            - Arn
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action: ecs:DescribeTaskDefinition
+          Resource: '*'
+        - Effect: Allow
+          Action: sts:AssumeRole
+          Resource:
+            Fn::GetAtt:
+            - WorkspaceWorkspaceS3BrokerRole
+            - Arn
+        - Effect: Allow
+          Action: ecs:RunTask
+          Resource:
+            Ref: WorkspaceEphemeralWorkspaceTaskDefinition
+          Condition:
+            ArnEquals:
+              ecs:cluster:
+                Fn::Sub:
+                - arn:${AWS::Partition}:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${ClusterName}
+                - ClusterName:
+                    Ref: FoundationCluster
+        - Effect: Allow
+          Action: iam:PassRole
+          Resource:
+          - Fn::GetAtt:
+            - WorkspaceEphemeralWorkspaceTaskRole
+            - Arn
+          - Fn::GetAtt:
+            - WorkspaceEphemeralWorkspaceExecutionRole
+            - Arn
+          Condition:
+            StringEquals:
+              iam:PassedToService: ecs-tasks.amazonaws.com
+  RuntimeRuntimeNovaWorkspacePermissions:
+    Type: AWS::IAM::Policy
+    Condition: RuntimeWithNovaWorkspace
+    Properties:
+      PolicyName: StartNovaWorkspaceWorker
+      Roles:
+      - Fn::Select:
+        - 1
+        - Fn::Split:
+          - /
+          - Fn::GetAtt:
+            - BotRuntimeTaskRole
+            - Arn
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action: ecs:RunTask
+          Resource:
+            Ref: WorkspaceNovaWorkspaceTaskDefinition
+          Condition:
+            ArnEquals:
+              ecs:cluster:
+                Fn::Sub:
+                - arn:${AWS::Partition}:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${ClusterName}
+                - ClusterName:
+                    Ref: FoundationCluster
+        - Effect: Allow
+          Action: iam:PassRole
+          Resource:
+            Fn::GetAtt:
+            - WorkspaceNovaWorkspaceTaskRole
+            - Arn
+          Condition:
+            StringEquals:
+              iam:PassedToService: ecs-tasks.amazonaws.com
+  RuntimeRuntimeLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+  RuntimeRuntimeClients:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Staging control-plane services permitted to call Runtime
+      VpcId:
+        Ref: FoundationVpc
+  RuntimeRuntimeIngress:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Runtime API from staging application tasks
+      VpcId:
+        Ref: FoundationVpc
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 8090
+        ToPort: 8090
+        SourceSecurityGroupId:
+          Fn::GetAtt:
+          - RuntimeRuntimeClients
+          - GroupId
+  RuntimeDraftNetwork:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Private TINA post-meeting draft worker
+      VpcId:
+        Ref: FoundationVpc
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 6379
+        ToPort: 6379
+        DestinationSecurityGroupId:
+          Fn::GetAtt:
+          - DataValkeySecurityGroup
+          - GroupId
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0
+  RuntimeDraftValkeyIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId:
+        Fn::GetAtt:
+        - DataValkeySecurityGroup
+        - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+        - RuntimeDraftNetwork
+        - GroupId
+      IpProtocol: tcp
+      FromPort: 6379
+      ToPort: 6379
+  RuntimeDraftLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+  RuntimeDraftExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: ecs-tasks.amazonaws.com
+          Action: sts:AssumeRole
+          Condition:
+            StringEquals:
+              aws:SourceAccount:
+                Ref: AWS::AccountId
+      Policies:
+      - PolicyName: LoadDraftWorkerAndInvocation
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: ecr:GetAuthorizationToken
+            Resource: '*'
+          - Effect: Allow
+            Action:
+            - ecr:BatchGetImage
+            - ecr:BatchCheckLayerAvailability
+            - ecr:GetDownloadUrlForLayer
+            Resource:
+              Fn::Sub: arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/tina-staging/agent-api
+          - Effect: Allow
+            Action:
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource:
+              Fn::GetAtt:
+              - RuntimeDraftLogs
+              - Arn
+          - Effect: Allow
+            Action: secretsmanager:GetSecretValue
+            Resource:
+              Ref: DataValkeyAuth
+          - Effect: Allow
+            Action: s3:GetBucketLocation
+            Resource:
+              Fn::Sub:
+              - arn:${AWS::Partition}:s3:::${InvocationBucket}
+              - InvocationBucket:
+                  Ref: FoundationStagingRecordings
+          - Effect: Allow
+            Action: s3:GetObject
+            Resource:
+              Fn::Sub:
+              - arn:${AWS::Partition}:s3:::${InvocationBucket}/runtime-invocations/draft/*
+              - InvocationBucket:
+                  Ref: FoundationStagingRecordings
+  RuntimeDraftTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: ecs-tasks.amazonaws.com
+          Action: sts:AssumeRole
+          Condition:
+            StringEquals:
+              aws:SourceAccount:
+                Ref: AWS::AccountId
+      Policies:
+      - PolicyName: InvokeNovaLite
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: bedrock:InvokeModel
+            Resource:
+              Fn::Sub: arn:${AWS::Partition}:bedrock:${AWS::Region}::foundation-model/amazon.nova-lite-v1:0
+  RuntimeDraftTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family:
+        Fn::Sub: ${AWS::StackName}-post-meeting-draft
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+      - FARGATE
+      Cpu: '512'
+      Memory: '1024'
+      RuntimePlatform:
+        OperatingSystemFamily: LINUX
+        CpuArchitecture: ARM64
+      ExecutionRoleArn:
+        Fn::GetAtt:
+        - RuntimeDraftExecutionRole
+        - Arn
+      TaskRoleArn:
+        Fn::GetAtt:
+        - RuntimeDraftTaskRole
+        - Arn
+      ContainerDefinitions:
+      - Name: draft
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/agent-api@${ImageDigest}
+          - ImageDigest:
+              Ref: AgentApiDigest
+        Essential: true
+        ReadonlyRootFilesystem: true
+        EntryPoint:
+        - python
+        - -m
+        - worker.post_meeting_draft
+        Environment:
+        - Name: VALKEY_HOST
+          Value:
+            Fn::GetAtt:
+            - DataValkey
+            - PrimaryEndPoint.Address
+        - Name: TINA_LLM_PROVIDER
+          Value: bedrock-converse
+        - Name: TINA_LLM_MODEL
+          Value: amazon.nova-lite-v1:0
+        Secrets:
+        - Name: VALKEY_PASSWORD
+          ValueFrom:
+            Ref: DataValkeyAuth
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: RuntimeDraftLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: ecs
+  RuntimeRuntimeDraftPermissions:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: ManagePinnedDraftTasks
+      Roles:
+      - Fn::Select:
+        - 1
+        - Fn::Split:
+          - /
+          - Fn::GetAtt:
+            - BotRuntimeTaskRole
+            - Arn
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action: ecs:RunTask
+          Resource:
+            Ref: RuntimeDraftTaskDefinition
+          Condition:
+            ArnEquals:
+              ecs:cluster:
+                Fn::Sub:
+                - arn:${AWS::Partition}:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${ClusterName}
+                - ClusterName:
+                    Ref: FoundationCluster
+        - Effect: Allow
+          Action: iam:PassRole
+          Resource:
+          - Fn::GetAtt:
+            - RuntimeDraftExecutionRole
+            - Arn
+          - Fn::GetAtt:
+            - RuntimeDraftTaskRole
+            - Arn
+          Condition:
+            StringEquals:
+              iam:PassedToService: ecs-tasks.amazonaws.com
+  RuntimeDiscoveryNamespace:
+    Type: AWS::ServiceDiscovery::PrivateDnsNamespace
+    Properties:
+      Name: tina-staging.local
+      Vpc:
+        Ref: FoundationVpc
+  RuntimeDiscoveryService:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      Name: runtime
+      DnsConfig:
+        NamespaceId:
+          Ref: RuntimeDiscoveryNamespace
+        DnsRecords:
+        - Type: A
+          TTL: 15
+  RuntimeRuntimeExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: ecs-tasks.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: PullRuntimeAndReadValkeySecret
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: ecr:GetAuthorizationToken
+            Resource: '*'
+          - Effect: Allow
+            Action:
+            - ecr:BatchGetImage
+            - ecr:BatchCheckLayerAvailability
+            - ecr:GetDownloadUrlForLayer
+            Resource:
+              Fn::Sub: arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/tina-staging/runtime
+          - Effect: Allow
+            Action:
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource:
+              Fn::GetAtt:
+              - RuntimeRuntimeLogs
+              - Arn
+          - Effect: Allow
+            Action: secretsmanager:GetSecretValue
+            Resource:
+              Ref: DataValkeyAuth
+  RuntimeRuntimeTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family:
+        Ref: AWS::StackName
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+      - FARGATE
+      Cpu: '256'
+      Memory: '512'
+      RuntimePlatform:
+        OperatingSystemFamily: LINUX
+        CpuArchitecture: ARM64
+      ExecutionRoleArn:
+        Fn::GetAtt:
+        - RuntimeRuntimeExecutionRole
+        - Arn
+      TaskRoleArn:
+        Fn::GetAtt:
+        - BotRuntimeTaskRole
+        - Arn
+      ContainerDefinitions:
+      - Name: runtime
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/runtime@${ImageDigest}
+          - ImageDigest:
+              Ref: RuntimeDigest
+        Essential: true
+        PortMappings:
+        - ContainerPort: 8090
+          Protocol: tcp
+        Environment:
+        - Name: AWS_REGION
+          Value:
+            Ref: AWS::Region
+        - Name: RUNTIME_BACKEND
+          Value: ecs
+        - Name: RUNTIME_ECS_WORKSPACE_STORAGE
+          Value: s3
+        - Name: RUNTIME_ECS_WORKSPACE_IMAGE
+          Value:
+            Fn::Sub:
+            - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/agent-worker@${ImageDigest}
+            - ImageDigest:
+                Ref: AgentWorkerDigest
+        - Name: RUNTIME_ECS_WORKSPACE_TASKS
+          Value: '{}'
+        - Fn::If:
+          - RuntimeWithNovaWorkspace
+          - Name: RUNTIME_ECS_NOVA_WORKSPACE_TASK_DEFINITION
+            Value:
+              Ref: WorkspaceNovaWorkspaceTaskDefinition
+          - Ref: AWS::NoValue
+        - Fn::If:
+          - RuntimeWithNovaWorkspace
+          - Name: RUNTIME_ECS_NOVA_WORKSPACE_OWNERS
+            Value:
+              Ref: WorkspaceOwnerIds
+          - Ref: AWS::NoValue
+        - Name: RUNTIME_ECS_EPHEMERAL_TASK_DEFINITION
+          Value:
+            Ref: WorkspaceEphemeralWorkspaceTaskDefinition
+        - Name: RUNTIME_ECS_EPHEMERAL_SECURITY_GROUP
+          Value:
+            Fn::GetAtt:
+            - WorkspaceEphemeralWorkspaceSecurityGroup
+            - GroupId
+        - Name: RUNTIME_ECS_WORKSPACE_S3_BROKER_ROLE_ARN
+          Value:
+            Fn::GetAtt:
+            - WorkspaceWorkspaceS3BrokerRole
+            - Arn
+        - Name: RUNTIME_ECS_WORKSPACE_S3_BUCKET
+          Value:
+            Ref: WorkspaceWorkspaceStoreBucket
+        - Name: RUNTIME_ECS_WORKSPACE_S3_KMS_KEY_ARN
+          Value:
+            Fn::GetAtt:
+            - WorkspaceWorkspaceDataKey
+            - Arn
+        - Ref: AWS::NoValue
+        - Ref: AWS::NoValue
+        - Ref: AWS::NoValue
+        - Ref: AWS::NoValue
+        - Ref: AWS::NoValue
+        - Ref: AWS::NoValue
+        - Ref: AWS::NoValue
+        - Name: RUNTIME_ECS_CLUSTER
+          Value:
+            Ref: FoundationCluster
+        - Name: RUNTIME_ECS_BOT_TASK_DEFINITION
+          Value:
+            Ref: BotBotTaskDefinition
+        - Name: RUNTIME_ECS_SUBNETS
+          Value:
+            Fn::Join:
+            - ','
+            - - Ref: FoundationAppA
+              - Ref: FoundationAppB
+        - Name: RUNTIME_ECS_SECURITY_GROUPS
+          Value:
+            Fn::GetAtt:
+            - DataAppSecurityGroup
+            - GroupId
+        - Name: RUNTIME_ECS_INVOCATION_BUCKET
+          Value:
+            Ref: FoundationStagingRecordings
+        - Name: RUNTIME_ECS_DRAFT_TASK_DEFINITION
+          Value:
+            Ref: RuntimeDraftTaskDefinition
+        - Name: RUNTIME_ECS_DRAFT_SECURITY_GROUP
+          Value:
+            Fn::GetAtt:
+            - RuntimeDraftNetwork
+            - GroupId
+        - Name: AGENT_WORKER_IMAGE
+          Value:
+            Fn::Sub:
+            - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/agent-api@${ImageDigest}
+            - ImageDigest:
+                Ref: AgentApiDigest
+        - Name: BROWSER_IMAGE
+          Value:
+            Fn::Sub:
+            - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/bot@${ImageDigest}
+            - ImageDigest:
+                Ref: BotDigest
+        - Name: VALKEY_HOST
+          Value:
+            Fn::GetAtt:
+            - DataValkey
+            - PrimaryEndPoint.Address
+        - Name: RUNTIME_OWNER_QUOTA
+          Value:
+            Fn::Sub:
+            - ${OwnerQuota}
+            - OwnerQuota: '3'
+        - Name: RUNTIME_GLOBAL_QUOTA
+          Value:
+            Fn::Sub:
+            - ${GlobalQuota}
+            - GlobalQuota: '20'
+        - Name: RUNTIME_REAPER_TICK_SEC
+          Value:
+            Fn::Sub:
+            - ${ReaperTickSec}
+            - ReaperTickSec: '30'
+        - Name: RUNTIME_WORKSPACE_IDLE_TIMEOUT_SEC
+          Value:
+            Fn::Sub:
+            - ${WorkspaceIdleTimeoutSec}
+            - WorkspaceIdleTimeoutSec: '300'
+        - Name: RUNTIME_WORKSPACE_MAX_LIFETIME_SEC
+          Value:
+            Fn::Sub:
+            - ${WorkspaceMaxLifetimeSec}
+            - WorkspaceMaxLifetimeSec: '3600'
+        Secrets:
+        - Name: VALKEY_PASSWORD
+          ValueFrom:
+            Ref: DataValkeyAuth
+        Command:
+        - python
+        - -c
+        - 'import os
+
+          import sys
+
+          from urllib.parse import quote
+
+
+          password = quote(os.environ.pop("VALKEY_PASSWORD"), safe="")
+
+          host = os.environ.pop("VALKEY_HOST")
+
+          os.environ["REDIS_URL"] = f"rediss://:{password}@{host}:6379/0?ssl_check_hostname=True&ssl_cert_reqs=required"
+
+          os.execv(sys.executable, [sys.executable, "-m", "runtime_kernel"])
+
+          '
+        HealthCheck:
+          Command:
+          - CMD
+          - python
+          - -c
+          - import urllib.request; urllib.request.urlopen('http://localhost:8090/health', timeout=3).close()
+          Interval: 15
+          Timeout: 5
+          Retries: 3
+          StartPeriod: 30
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-group:
+              Ref: RuntimeRuntimeLogs
+            awslogs-stream-prefix: ecs
+  RuntimeRuntimeService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster:
+        Ref: FoundationCluster
+      TaskDefinition:
+        Ref: RuntimeRuntimeTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      PlatformVersion: 1.4.0
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          Subnets:
+          - Ref: FoundationAppA
+          - Ref: FoundationAppB
+          SecurityGroups:
+          - Fn::GetAtt:
+            - DataAppSecurityGroup
+            - GroupId
+          - Fn::GetAtt:
+            - RuntimeRuntimeIngress
+            - GroupId
+      ServiceRegistries:
+      - RegistryArn:
+          Fn::GetAtt:
+          - RuntimeDiscoveryService
+          - Arn
+      DeploymentConfiguration:
+        DeploymentCircuitBreaker:
+          Enable: true
+          Rollback: true
+    DependsOn:
+    - EgressAppEgressA
+    - EgressAppEgressB
+    - FoundationS3GatewayEndpoint
+  WorkspaceWorkspaceDataKey:
+    Type: AWS::KMS::Key
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Description: KMS CMK for TINA staging S3 workspace snapshots and manifests
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+        - Sid: AccountRootAdmin
+          Effect: Allow
+          Principal:
+            AWS:
+              Fn::Sub: arn:${AWS::Partition}:iam::${AWS::AccountId}:root
+          Action: kms:*
+          Resource: '*'
+  WorkspaceWorkspaceDataKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/tina-staging-workspace-data
+      TargetKeyId:
+        Ref: WorkspaceWorkspaceDataKey
+  WorkspaceWorkspaceSecretsKey:
+    Type: AWS::KMS::Key
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Description: KMS CMK strictly for per-user reusable GitHub tokens (agent-api only)
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+        - Sid: AccountRootAdmin
+          Effect: Allow
+          Principal:
+            AWS:
+              Fn::Sub: arn:${AWS::Partition}:iam::${AWS::AccountId}:root
+          Action: kms:*
+          Resource: '*'
+  WorkspaceWorkspaceSecretsKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/tina-staging-workspace-secrets
+      TargetKeyId:
+        Ref: WorkspaceWorkspaceSecretsKey
+  WorkspaceWorkspaceStoreBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName:
+        Fn::Sub: tina-staging-workspaces-${AWS::AccountId}-${AWS::Region}
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - BucketKeyEnabled: true
+          ServerSideEncryptionByDefault:
+            SSEAlgorithm: aws:kms
+            KMSMasterKeyID:
+              Fn::GetAtt:
+              - WorkspaceWorkspaceDataKey
+              - Arn
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+        - Id: ExpireOldVersionsAndOrphanUploads
+          Status: Enabled
+          AbortIncompleteMultipartUpload:
+            DaysAfterInitiation: 1
+          NoncurrentVersionExpiration:
+            NoncurrentDays: '30'
+          ExpiredObjectDeleteMarker: true
+  WorkspaceWorkspaceStoreBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: WorkspaceWorkspaceStoreBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Sid: RequireTLS
+          Effect: Deny
+          Principal: '*'
+          Action: s3:*
+          Resource:
+          - Fn::GetAtt:
+            - WorkspaceWorkspaceStoreBucket
+            - Arn
+          - Fn::Sub: ${WorkspaceWorkspaceStoreBucket.Arn}/*
+          Condition:
+            Bool:
+              aws:SecureTransport: 'false'
+  WorkspaceWorkspaceS3BrokerRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: Assumed by Runtime with an inline STS Session Policy scoped strictly to one turn's granted prefixes.
+        must: Never permit access to secrets/* or object deletion.
+    Properties:
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            AWS:
+              Fn::GetAtt:
+              - BotRuntimeTaskRole
+              - Arn
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: ScopedWorkspaceS3Access
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: s3:ListBucket
+            Resource:
+              Fn::GetAtt:
+              - WorkspaceWorkspaceStoreBucket
+              - Arn
+          - Effect: Allow
+            Action:
+            - s3:GetObject
+            - s3:PutObject
+            Resource:
+            - Fn::Sub: ${WorkspaceWorkspaceStoreBucket.Arn}/users/*
+            - Fn::Sub: ${WorkspaceWorkspaceStoreBucket.Arn}/shared/*
+            - Fn::Sub: ${WorkspaceWorkspaceStoreBucket.Arn}/_global/*
+          - Effect: Allow
+            Action:
+            - kms:Decrypt
+            - kms:GenerateDataKey
+            Resource:
+              Fn::GetAtt:
+              - WorkspaceWorkspaceDataKey
+              - Arn
+          - Effect: Deny
+            Action: s3:*
+            Resource:
+              Fn::Sub: ${WorkspaceWorkspaceStoreBucket.Arn}/secrets/*
+          - Effect: Deny
+            Action:
+            - s3:DeleteObject
+            - s3:DeleteObjectVersion
+            - s3:PutBucketPolicy
+            Resource: '*'
+  WorkspaceAgentApiWorkspaceS3Policy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: AgentApiWorkspaceS3Access
+      Roles:
+      - Fn::Select:
+        - 1
+        - Fn::Split:
+          - /
+          - Fn::GetAtt:
+            - AgentVoiceModelRole
+            - Arn
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action: s3:ListBucket
+          Resource:
+            Fn::GetAtt:
+            - WorkspaceWorkspaceStoreBucket
+            - Arn
+        - Effect: Allow
+          Action:
+          - s3:GetObject
+          - s3:PutObject
+          - s3:DeleteObject
+          Resource:
+            Fn::Sub: ${WorkspaceWorkspaceStoreBucket.Arn}/*
+        - Effect: Allow
+          Action:
+          - kms:Decrypt
+          - kms:Encrypt
+          - kms:GenerateDataKey
+          Resource:
+          - Fn::GetAtt:
+            - WorkspaceWorkspaceDataKey
+            - Arn
+          - Fn::GetAtt:
+            - WorkspaceWorkspaceSecretsKey
+            - Arn
+  WorkspaceEphemeralWorkspaceLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+  WorkspaceEgressProxyLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+  WorkspaceVpcEndpointsSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+      GroupDescription: PrivateLink interface endpoints (ECR, Logs, SecretsManager) for zero-direct-internet Fargate
+        sandboxes
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 10.42.0.0/16
+  WorkspaceEcrApiVpcEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+      VpcEndpointType: Interface
+      ServiceName:
+        Fn::Sub: com.amazonaws.${AWS::Region}.ecr.api
+      PrivateDnsEnabled: true
+      SubnetIds:
+      - Fn::Select:
+        - 0
+        - - Ref: FoundationAppA
+          - Ref: FoundationAppB
+      SecurityGroupIds:
+      - Fn::GetAtt:
+        - WorkspaceVpcEndpointsSecurityGroup
+        - GroupId
+  WorkspaceEcrDkrVpcEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+      VpcEndpointType: Interface
+      ServiceName:
+        Fn::Sub: com.amazonaws.${AWS::Region}.ecr.dkr
+      PrivateDnsEnabled: true
+      SubnetIds:
+      - Fn::Select:
+        - 0
+        - - Ref: FoundationAppA
+          - Ref: FoundationAppB
+      SecurityGroupIds:
+      - Fn::GetAtt:
+        - WorkspaceVpcEndpointsSecurityGroup
+        - GroupId
+  WorkspaceLogsVpcEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+      VpcEndpointType: Interface
+      ServiceName:
+        Fn::Sub: com.amazonaws.${AWS::Region}.logs
+      PrivateDnsEnabled: true
+      SubnetIds:
+      - Fn::Select:
+        - 0
+        - - Ref: FoundationAppA
+          - Ref: FoundationAppB
+      SecurityGroupIds:
+      - Fn::GetAtt:
+        - WorkspaceVpcEndpointsSecurityGroup
+        - GroupId
+  WorkspaceSecretsManagerVpcEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+      VpcEndpointType: Interface
+      ServiceName:
+        Fn::Sub: com.amazonaws.${AWS::Region}.secretsmanager
+      PrivateDnsEnabled: true
+      SubnetIds:
+      - Fn::Select:
+        - 0
+        - - Ref: FoundationAppA
+          - Ref: FoundationAppB
+      SecurityGroupIds:
+      - Fn::GetAtt:
+        - WorkspaceVpcEndpointsSecurityGroup
+        - GroupId
+  WorkspaceEgressProxySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+      GroupDescription: Strict HTTPS CONNECT allowlist proxy for ephemeral workspaces
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: udp
+        FromPort: 53
+        ToPort: 53
+        CidrIp: 10.42.0.0/16
+      - IpProtocol: tcp
+        FromPort: 53
+        ToPort: 53
+        CidrIp: 10.42.0.0/16
+  WorkspaceEphemeralWorkspaceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+      GroupDescription: Ephemeral S3 workspace worker egress (Valkey + HTTPS/S3 Gateway, no EFS)
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 6379
+        ToPort: 6379
+        DestinationSecurityGroupId:
+          Fn::GetAtt:
+          - DataValkeySecurityGroup
+          - GroupId
+      - IpProtocol: udp
+        FromPort: 53
+        ToPort: 53
+        CidrIp: 10.42.0.0/16
+      - IpProtocol: tcp
+        FromPort: 53
+        ToPort: 53
+        CidrIp: 10.42.0.0/16
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        DestinationPrefixListId:
+          Ref: S3PrefixListId
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        DestinationSecurityGroupId:
+          Fn::GetAtt:
+          - WorkspaceVpcEndpointsSecurityGroup
+          - GroupId
+      - IpProtocol: tcp
+        FromPort: 3128
+        ToPort: 3128
+        DestinationSecurityGroupId:
+          Fn::GetAtt:
+          - WorkspaceEgressProxySecurityGroup
+          - GroupId
+  WorkspaceEgressProxyIngressFromWorkers:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId:
+        Fn::GetAtt:
+        - WorkspaceEgressProxySecurityGroup
+        - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+        - WorkspaceEphemeralWorkspaceSecurityGroup
+        - GroupId
+      IpProtocol: tcp
+      FromPort: 3128
+      ToPort: 3128
+  WorkspaceEgressProxyDiscovery:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      Name: egress-proxy
+      DnsConfig:
+        NamespaceId:
+          Ref: RuntimeDiscoveryNamespace
+        DnsRecords:
+        - Type: A
+          TTL: 15
+  WorkspaceEgressProxyExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action: sts:AssumeRole
+          Principal:
+            Service: ecs-tasks.amazonaws.com
+          Condition:
+            StringEquals:
+              aws:SourceAccount:
+                Ref: AWS::AccountId
+      Policies:
+      - PolicyName: PullProxyImageAndWriteLogs
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: ecr:GetAuthorizationToken
+            Resource: '*'
+          - Effect: Allow
+            Action:
+            - ecr:BatchGetImage
+            - ecr:GetDownloadUrlForLayer
+            - ecr:BatchCheckLayerAvailability
+            Resource:
+              Fn::Sub: arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/tina-staging/runtime
+          - Effect: Allow
+            Action:
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource:
+              Fn::GetAtt:
+              - WorkspaceEgressProxyLogs
+              - Arn
+  WorkspaceEgressProxyTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: Dedicated zero-IAM HTTPS CONNECT allowlist proxy for ephemeral agent sandboxes.
+        must: Keep ReadonlyRootFilesystem true and zero TaskRoleArn.
+    Properties:
+      Family: tina-staging-egress-proxy
+      RequiresCompatibilities:
+      - FARGATE
+      NetworkMode: awsvpc
+      Cpu: '256'
+      Memory: '512'
+      RuntimePlatform:
+        OperatingSystemFamily: LINUX
+        CpuArchitecture: ARM64
+      ExecutionRoleArn:
+        Fn::GetAtt:
+        - WorkspaceEgressProxyExecutionRole
+        - Arn
+      ContainerDefinitions:
+      - Name: egress-proxy
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/runtime@${ImageDigest}
+          - ImageDigest:
+              Ref: RuntimeDigest
+        Essential: true
+        User: 1000:1000
+        ReadonlyRootFilesystem: true
+        EntryPoint:
+        - python
+        - -m
+        - runtime_kernel.egress_proxy
+        PortMappings:
+        - ContainerPort: 3128
+          Protocol: tcp
+        Environment:
+        - Name: TINA_EGRESS_PROXY_PORT
+          Value: '3128'
+        - Ref: AWS::NoValue
+        HealthCheck:
+          Command:
+          - CMD
+          - python
+          - -c
+          - import urllib.request; urllib.request.urlopen('http://127.0.0.1:3128/health', timeout=2).close()
+          Interval: 15
+          Timeout: 5
+          Retries: 3
+          StartPeriod: 15
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: WorkspaceEgressProxyLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: proxy
+  WorkspaceEgressProxyService:
+    Type: AWS::ECS::Service
+    DependsOn:
+    - WorkspaceEcrApiVpcEndpoint
+    - WorkspaceEcrDkrVpcEndpoint
+    - WorkspaceLogsVpcEndpoint
+    - EgressAppEgressA
+    - EgressAppEgressB
+    - FoundationS3GatewayEndpoint
+    Properties:
+      Cluster:
+        Ref: FoundationCluster
+      TaskDefinition:
+        Ref: WorkspaceEgressProxyTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      PlatformVersion: 1.4.0
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          Subnets:
+          - Ref: FoundationAppA
+          - Ref: FoundationAppB
+          SecurityGroups:
+          - Fn::GetAtt:
+            - WorkspaceEgressProxySecurityGroup
+            - GroupId
+      ServiceRegistries:
+      - RegistryArn:
+          Fn::GetAtt:
+          - WorkspaceEgressProxyDiscovery
+          - Arn
+      DeploymentConfiguration:
+        DeploymentCircuitBreaker:
+          Enable: true
+          Rollback: true
+  WorkspaceEphemeralWorkspaceValkeyIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId:
+        Fn::GetAtt:
+        - DataValkeySecurityGroup
+        - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+        - WorkspaceEphemeralWorkspaceSecurityGroup
+        - GroupId
+      IpProtocol: tcp
+      FromPort: 6379
+      ToPort: 6379
+  WorkspaceEphemeralWorkspaceExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action: sts:AssumeRole
+          Principal:
+            Service: ecs-tasks.amazonaws.com
+          Condition:
+            StringEquals:
+              aws:SourceAccount:
+                Ref: AWS::AccountId
+      Policies:
+      - PolicyName: PullWorkerAndInvocationEnvFiles
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: ecr:GetAuthorizationToken
+            Resource: '*'
+          - Effect: Allow
+            Action:
+            - ecr:BatchGetImage
+            - ecr:GetDownloadUrlForLayer
+            - ecr:BatchCheckLayerAvailability
+            Resource:
+              Fn::Sub: arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/tina-staging/agent-worker
+          - Effect: Allow
+            Action:
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource:
+              Fn::GetAtt:
+              - WorkspaceEphemeralWorkspaceLogs
+              - Arn
+          - Effect: Allow
+            Action: secretsmanager:GetSecretValue
+            Resource:
+              Ref: DataValkeyAuth
+          - Effect: Allow
+            Action: s3:GetBucketLocation
+            Resource:
+              Fn::Sub:
+              - arn:${AWS::Partition}:s3:::${InvocationBucket}
+              - InvocationBucket:
+                  Ref: FoundationStagingRecordings
+          - Effect: Allow
+            Action: s3:GetObject
+            Resource:
+            - Fn::Sub:
+              - arn:${AWS::Partition}:s3:::${InvocationBucket}/runtime-invocations/workspace/*
+              - InvocationBucket:
+                  Ref: FoundationStagingRecordings
+            - Fn::Sub:
+              - arn:${AWS::Partition}:s3:::${InvocationBucket}/runtime-invocations/workspace-sync/*
+              - InvocationBucket:
+                  Ref: FoundationStagingRecordings
+  WorkspaceEphemeralWorkspaceTaskRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: Bedrock-only task role for ephemeral workers. ZERO S3 permissions so untrusted Bash cannot access S3.
+        must: Never grant s3:* or secretsmanager:* to this role.
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action: sts:AssumeRole
+          Principal:
+            Service: ecs-tasks.amazonaws.com
+          Condition:
+            StringEquals:
+              aws:SourceAccount:
+                Ref: AWS::AccountId
+      Policies:
+      - PolicyName: EphemeralWorkerBedrockOnly
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - bedrock:InvokeModel
+            - bedrock:InvokeModelWithResponseStream
+            Resource:
+            - Fn::Sub: arn:${AWS::Partition}:bedrock:*::foundation-model/anthropic.claude-*
+            - Fn::Sub: arn:${AWS::Partition}:bedrock:${AWS::Region}:${AWS::AccountId}:inference-profile/us.anthropic.claude-*
+            - Fn::Sub: arn:${AWS::Partition}:bedrock:${AWS::Region}:${AWS::AccountId}:inference-profile/global.anthropic.claude-*
+  WorkspaceEphemeralWorkspaceTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    UpdateReplacePolicy: Retain
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: Single static Fargate task definition serving unlimited users and shared wikis via local ephemeral
+          SSD + scoped sync sidecar.
+        must: Keep STS credentials confined to sync sidecar environmentFiles; never expose them to worker.
+    Properties:
+      Family: tina-staging-ws-ephemeral
+      RequiresCompatibilities:
+      - FARGATE
+      NetworkMode: awsvpc
+      Cpu: '1024'
+      Memory: '2048'
+      RuntimePlatform:
+        OperatingSystemFamily: LINUX
+        CpuArchitecture: ARM64
+      ExecutionRoleArn:
+        Fn::GetAtt:
+        - WorkspaceEphemeralWorkspaceExecutionRole
+        - Arn
+      TaskRoleArn:
+        Fn::GetAtt:
+        - WorkspaceEphemeralWorkspaceTaskRole
+        - Arn
+      Volumes:
+      - Name: workspaces
+      - Name: sync-tmp
+      - Name: worker-tmp
+      ContainerDefinitions:
+      - Name: init-perms
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/agent-worker@${ImageDigest}
+          - ImageDigest:
+              Ref: AgentWorkerDigest
+        Essential: false
+        EntryPoint:
+        - sh
+        - -c
+        Command:
+        - chown 1000:1000 /workspaces /sync-tmp /worker-tmp && chmod 0755 /workspaces && chmod 1777 /sync-tmp /worker-tmp
+        MountPoints:
+        - SourceVolume: workspaces
+          ContainerPath: /workspaces
+          ReadOnly: false
+        - SourceVolume: sync-tmp
+          ContainerPath: /sync-tmp
+          ReadOnly: false
+        - SourceVolume: worker-tmp
+          ContainerPath: /worker-tmp
+          ReadOnly: false
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: WorkspaceEphemeralWorkspaceLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: init
+      - Name: stream
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/agent-worker@${ImageDigest}
+          - ImageDigest:
+              Ref: AgentWorkerDigest
+        Essential: true
+        User: 1000:1000
+        ReadonlyRootFilesystem: true
+        EntryPoint:
+        - python
+        - -m
+        - worker.workspace_stream
+        Environment:
+        - Name: VALKEY_HOST
+          Value:
+            Fn::GetAtt:
+            - DataValkey
+            - PrimaryEndPoint.Address
+        Secrets:
+        - Name: VALKEY_PASSWORD
+          ValueFrom:
+            Ref: DataValkeyAuth
+        HealthCheck:
+          Command:
+          - CMD
+          - python
+          - -c
+          - import socket; socket.create_connection(('127.0.0.1',8721),2).close()
+          Interval: 5
+          Timeout: 3
+          Retries: 5
+          StartPeriod: 5
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: WorkspaceEphemeralWorkspaceLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: stream
+      - Name: sync
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/agent-worker@${ImageDigest}
+          - ImageDigest:
+              Ref: AgentWorkerDigest
+        Essential: true
+        User: 1000:1000
+        ReadonlyRootFilesystem: true
+        EntryPoint:
+        - python
+        - -m
+        - worker.workspace_sync
+        DependsOn:
+        - ContainerName: init-perms
+          Condition: SUCCESS
+        Environment:
+        - Name: TMPDIR
+          Value: /tmp
+        MountPoints:
+        - SourceVolume: workspaces
+          ContainerPath: /workspaces
+          ReadOnly: false
+        - SourceVolume: sync-tmp
+          ContainerPath: /tmp
+          ReadOnly: false
+        HealthCheck:
+          Command:
+          - CMD
+          - python
+          - -c
+          - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8722/health', timeout=2).close()
+          Interval: 5
+          Timeout: 3
+          Retries: 10
+          StartPeriod: 10
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: WorkspaceEphemeralWorkspaceLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: sync
+      - Name: worker
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/agent-worker@${ImageDigest}
+          - ImageDigest:
+              Ref: AgentWorkerDigest
+        Essential: true
+        User: 1000:1000
+        ReadonlyRootFilesystem: true
+        LinuxParameters:
+          InitProcessEnabled: true
+        DependsOn:
+        - ContainerName: stream
+          Condition: HEALTHY
+        - ContainerName: sync
+          Condition: HEALTHY
+        Environment:
+        - Name: TMPDIR
+          Value: /tmp
+        - Name: XDG_CACHE_HOME
+          Value: /tmp/.cache
+        - Name: XDG_CONFIG_HOME
+          Value: /tmp/.config
+        - Name: XDG_DATA_HOME
+          Value: /tmp/.local/share
+        - Name: npm_config_cache
+          Value: /tmp/.npm
+        - Name: UV_CACHE_DIR
+          Value: /tmp/.uv
+        - Name: HTTPS_PROXY
+          Value: http://egress-proxy.tina-staging.local:3128
+        - Name: https_proxy
+          Value: http://egress-proxy.tina-staging.local:3128
+        - Name: HTTP_PROXY
+          Value: http://egress-proxy.tina-staging.local:3128
+        - Name: http_proxy
+          Value: http://egress-proxy.tina-staging.local:3128
+        - Name: NO_PROXY
+          Value: 127.0.0.1,localhost,.tina-staging.local,.s3.us-east-1.amazonaws.com,169.254.170.2,169.254.169.254
+        - Name: no_proxy
+          Value: 127.0.0.1,localhost,.tina-staging.local,.s3.us-east-1.amazonaws.com,169.254.170.2,169.254.169.254
+        MountPoints:
+        - SourceVolume: workspaces
+          ContainerPath: /workspaces
+          ReadOnly: false
+        - SourceVolume: worker-tmp
+          ContainerPath: /tmp
+          ReadOnly: false
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: WorkspaceEphemeralWorkspaceLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: worker
+  WorkspaceNovaWorkspaceTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action: sts:AssumeRole
+          Principal:
+            Service: ecs-tasks.amazonaws.com
+          Condition:
+            StringEquals:
+              aws:SourceAccount:
+                Ref: AWS::AccountId
+      Policies:
+      - PolicyName: EphemeralWorkerBedrockOnly
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: bedrock:InvokeModel
+            Resource:
+              Fn::Sub: arn:${AWS::Partition}:bedrock:${AWS::Region}::foundation-model/amazon.nova-lite-v1:0
+  WorkspaceNovaWorkspaceTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    UpdateReplacePolicy: Retain
+    Properties:
+      Family: tina-staging-ws-nova
+      RequiresCompatibilities:
+      - FARGATE
+      NetworkMode: awsvpc
+      Cpu: '1024'
+      Memory: '2048'
+      RuntimePlatform:
+        OperatingSystemFamily: LINUX
+        CpuArchitecture: ARM64
+      ExecutionRoleArn:
+        Fn::GetAtt:
+        - WorkspaceEphemeralWorkspaceExecutionRole
+        - Arn
+      TaskRoleArn:
+        Fn::GetAtt:
+        - WorkspaceNovaWorkspaceTaskRole
+        - Arn
+      Volumes:
+      - Name: workspaces
+      - Name: sync-tmp
+      - Name: worker-tmp
+      ContainerDefinitions:
+      - Name: init-perms
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/agent-worker@${ImageDigest}
+          - ImageDigest:
+              Ref: AgentWorkerDigest
+        Essential: false
+        EntryPoint:
+        - sh
+        - -c
+        Command:
+        - chown 1000:1000 /workspaces /sync-tmp /worker-tmp && chmod 0755 /workspaces && chmod 1777 /sync-tmp /worker-tmp
+        MountPoints:
+        - SourceVolume: workspaces
+          ContainerPath: /workspaces
+          ReadOnly: false
+        - SourceVolume: sync-tmp
+          ContainerPath: /sync-tmp
+          ReadOnly: false
+        - SourceVolume: worker-tmp
+          ContainerPath: /worker-tmp
+          ReadOnly: false
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: WorkspaceEphemeralWorkspaceLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: init
+      - Name: stream
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/agent-worker@${ImageDigest}
+          - ImageDigest:
+              Ref: AgentWorkerDigest
+        Essential: true
+        User: 1000:1000
+        ReadonlyRootFilesystem: true
+        EntryPoint:
+        - python
+        - -m
+        - worker.workspace_stream
+        Environment:
+        - Name: VALKEY_HOST
+          Value:
+            Fn::GetAtt:
+            - DataValkey
+            - PrimaryEndPoint.Address
+        Secrets:
+        - Name: VALKEY_PASSWORD
+          ValueFrom:
+            Ref: DataValkeyAuth
+        HealthCheck:
+          Command:
+          - CMD
+          - python
+          - -c
+          - import socket; socket.create_connection(('127.0.0.1',8721),2).close()
+          Interval: 5
+          Timeout: 3
+          Retries: 5
+          StartPeriod: 5
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: WorkspaceEphemeralWorkspaceLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: stream
+      - Name: sync
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/agent-worker@${ImageDigest}
+          - ImageDigest:
+              Ref: AgentWorkerDigest
+        Essential: true
+        User: 1000:1000
+        ReadonlyRootFilesystem: true
+        EntryPoint:
+        - python
+        - -m
+        - worker.workspace_sync
+        DependsOn:
+        - ContainerName: init-perms
+          Condition: SUCCESS
+        Environment:
+        - Name: TMPDIR
+          Value: /tmp
+        MountPoints:
+        - SourceVolume: workspaces
+          ContainerPath: /workspaces
+          ReadOnly: false
+        - SourceVolume: sync-tmp
+          ContainerPath: /tmp
+          ReadOnly: false
+        HealthCheck:
+          Command:
+          - CMD
+          - python
+          - -c
+          - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8722/health', timeout=2).close()
+          Interval: 5
+          Timeout: 3
+          Retries: 10
+          StartPeriod: 10
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: WorkspaceEphemeralWorkspaceLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: sync
+      - Name: worker
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/agent-worker@${ImageDigest}
+          - ImageDigest:
+              Ref: AgentWorkerDigest
+        Essential: true
+        User: 1000:1000
+        ReadonlyRootFilesystem: true
+        LinuxParameters:
+          InitProcessEnabled: true
+        DependsOn:
+        - ContainerName: stream
+          Condition: HEALTHY
+        - ContainerName: sync
+          Condition: HEALTHY
+        Environment:
+        - Name: TMPDIR
+          Value: /tmp
+        - Name: XDG_CACHE_HOME
+          Value: /tmp/.cache
+        - Name: XDG_CONFIG_HOME
+          Value: /tmp/.config
+        - Name: XDG_DATA_HOME
+          Value: /tmp/.local/share
+        - Name: npm_config_cache
+          Value: /tmp/.npm
+        - Name: UV_CACHE_DIR
+          Value: /tmp/.uv
+        - Name: HTTPS_PROXY
+          Value: http://egress-proxy.tina-staging.local:3128
+        - Name: https_proxy
+          Value: http://egress-proxy.tina-staging.local:3128
+        - Name: HTTP_PROXY
+          Value: http://egress-proxy.tina-staging.local:3128
+        - Name: http_proxy
+          Value: http://egress-proxy.tina-staging.local:3128
+        - Name: NO_PROXY
+          Value: 127.0.0.1,localhost,.tina-staging.local,.s3.us-east-1.amazonaws.com,169.254.170.2,169.254.169.254
+        - Name: no_proxy
+          Value: 127.0.0.1,localhost,.tina-staging.local,.s3.us-east-1.amazonaws.com,169.254.170.2,169.254.169.254
+        MountPoints:
+        - SourceVolume: workspaces
+          ContainerPath: /workspaces
+          ReadOnly: false
+        - SourceVolume: worker-tmp
+          ContainerPath: /tmp
+          ReadOnly: false
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: WorkspaceEphemeralWorkspaceLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: worker
+  VieGemToken:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        PasswordLength: 48
+        ExcludePunctuation: true
+  VieGemLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+  VieGemIngress:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Private VieGem access from staging application and bot tasks
+      VpcId:
+        Ref: FoundationVpc
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 8000
+        ToPort: 8000
+        SourceSecurityGroupId:
+          Fn::GetAtt:
+          - DataAppSecurityGroup
+          - GroupId
+  VieGemDiscovery:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      Name: viegem
+      DnsConfig:
+        NamespaceId:
+          Ref: RuntimeDiscoveryNamespace
+        DnsRecords:
+        - Type: A
+          TTL: 15
+  VieGemExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: ecs-tasks.amazonaws.com
+          Action: sts:AssumeRole
+          Condition:
+            StringEquals:
+              aws:SourceAccount:
+                Ref: AWS::AccountId
+      Policies:
+      - PolicyName: PullImageAndReadWorkerToken
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: ecr:GetAuthorizationToken
+            Resource: '*'
+          - Effect: Allow
+            Action:
+            - ecr:BatchGetImage
+            - ecr:BatchCheckLayerAvailability
+            - ecr:GetDownloadUrlForLayer
+            Resource:
+              Fn::Sub: arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/tina-staging/viegem
+          - Effect: Allow
+            Action:
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource:
+              Fn::GetAtt:
+              - VieGemLogs
+              - Arn
+          - Effect: Allow
+            Action: secretsmanager:GetSecretValue
+            Resource:
+              Ref: VieGemToken
+  VieGemTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family:
+        Ref: AWS::StackName
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+      - FARGATE
+      Cpu: '2048'
+      Memory: '8192'
+      RuntimePlatform:
+        OperatingSystemFamily: LINUX
+        CpuArchitecture: ARM64
+      ExecutionRoleArn:
+        Fn::GetAtt:
+        - VieGemExecutionRole
+        - Arn
+      ContainerDefinitions:
+      - Name: viegem
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/viegem@${ImageDigest}
+          - ImageDigest:
+              Ref: VieGemDigest
+        Essential: true
+        PortMappings:
+        - ContainerPort: 8000
+        LinuxParameters:
+          InitProcessEnabled: true
+        Environment:
+        - Name: TINA_VIEGEM_DEVICE
+          Value: cpu
+        - Name: TINA_VIEGEM_HOST
+          Value: 0.0.0.0
+        - Name: TINA_VIEGEM_PORT
+          Value: '8000'
+        - Name: TINA_VIEGEM_MODEL_DIR
+          Value: /app/models/viegem-fsmn
+        - Name: HF_HUB_OFFLINE
+          Value: '1'
+        - Name: TRANSFORMERS_OFFLINE
+          Value: '1'
+        - Name: TOKENIZERS_PARALLELISM
+          Value: 'false'
+        Secrets:
+        - Name: TINA_VIEGEM_TOKEN
+          ValueFrom:
+            Ref: VieGemToken
+        HealthCheck:
+          Command:
+          - CMD
+          - python
+          - -c
+          - import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=4).close()
+          Interval: 10
+          Timeout: 5
+          Retries: 4
+          StartPeriod: 120
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: VieGemLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: ecs
+  VieGemWorker:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster:
+        Ref: FoundationCluster
+      TaskDefinition:
+        Ref: VieGemTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      PlatformVersion: 1.4.0
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          Subnets:
+          - Ref: FoundationAppA
+          - Ref: FoundationAppB
+          SecurityGroups:
+          - Fn::GetAtt:
+            - VieGemIngress
+            - GroupId
+      ServiceRegistries:
+      - RegistryArn:
+          Fn::GetAtt:
+          - VieGemDiscovery
+          - Arn
+      DeploymentConfiguration:
+        DeploymentCircuitBreaker:
+          Enable: true
+          Rollback: true
+    DependsOn:
+    - EgressAppEgressA
+    - EgressAppEgressB
+    - FoundationS3GatewayEndpoint
+  VoiceTtsToken:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        PasswordLength: 48
+        ExcludePunctuation: true
+    Condition: EnableVoiceResources
+  VoiceTtsProfileKey:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        PasswordLength: 48
+        ExcludePunctuation: true
+    Condition: EnableVoiceResources
+  VoiceLiveKitSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        PasswordLength: 48
+        ExcludePunctuation: true
+    Condition: EnableVoiceResources
+  VoiceLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+    Condition: EnableVoiceResources
+  VoiceIngress:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Private TINA staging speech and WebRTC ports
+      VpcId:
+        Ref: FoundationVpc
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 7880
+        ToPort: 7881
+        SourceSecurityGroupId:
+          Fn::GetAtt:
+          - DataAppSecurityGroup
+          - GroupId
+      - IpProtocol: udp
+        FromPort: 7882
+        ToPort: 7882
+        SourceSecurityGroupId:
+          Fn::GetAtt:
+          - DataAppSecurityGroup
+          - GroupId
+      - IpProtocol: tcp
+        FromPort: 8000
+        ToPort: 8000
+        SourceSecurityGroupId:
+          Fn::GetAtt:
+          - DataAppSecurityGroup
+          - GroupId
+      - IpProtocol: tcp
+        FromPort: 8080
+        ToPort: 8080
+        SourceSecurityGroupId:
+          Fn::GetAtt:
+          - DataAppSecurityGroup
+          - GroupId
+    Condition: EnableVoiceResources
+  VoiceDiscovery:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      Name: voice
+      DnsConfig:
+        NamespaceId:
+          Ref: RuntimeDiscoveryNamespace
+        DnsRecords:
+        - Type: A
+          TTL: 15
+    Condition: EnableVoiceResources
+  VoiceExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: ecs-tasks.amazonaws.com
+          Action: sts:AssumeRole
+          Condition:
+            StringEquals:
+              aws:SourceAccount:
+                Ref: AWS::AccountId
+      Policies:
+      - PolicyName: PullImagesAndReadVoiceSecrets
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: ecr:GetAuthorizationToken
+            Resource: '*'
+          - Effect: Allow
+            Action:
+            - ecr:BatchGetImage
+            - ecr:BatchCheckLayerAvailability
+            - ecr:GetDownloadUrlForLayer
+            Resource:
+            - Fn::Sub: arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/tina-staging/vieneu
+            - Fn::Sub: arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/tina-staging/livekit
+            - Fn::Sub: arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/tina-staging/livekit-agent
+          - Effect: Allow
+            Action:
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource:
+              Fn::GetAtt:
+              - VoiceLogs
+              - Arn
+          - Effect: Allow
+            Action: secretsmanager:GetSecretValue
+            Resource:
+            - Ref: VoiceTtsToken
+            - Ref: VoiceTtsProfileKey
+            - Ref: VoiceLiveKitSecret
+    Condition: EnableVoiceResources
+  VoiceTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family:
+        Ref: AWS::StackName
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+      - FARGATE
+      Cpu: '2048'
+      Memory: '8192'
+      RuntimePlatform:
+        OperatingSystemFamily: LINUX
+        CpuArchitecture: ARM64
+      ExecutionRoleArn:
+        Fn::GetAtt:
+        - VoiceExecutionRole
+        - Arn
+      ContainerDefinitions:
+      - Name: vieneu
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/vieneu@${ImageDigest}
+          - ImageDigest:
+              Ref: VieNeuDigest
+        Essential: true
+        PortMappings:
+        - ContainerPort: 8000
+        LinuxParameters:
+          InitProcessEnabled: true
+        Secrets:
+        - Name: TTS_API_TOKEN
+          ValueFrom:
+            Ref: VoiceTtsToken
+        - Name: TINA_TTS_PROFILE_KEY
+          ValueFrom:
+            Ref: VoiceTtsProfileKey
+        HealthCheck:
+          Command:
+          - CMD
+          - python
+          - -c
+          - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4).close()
+          Interval: 15
+          Timeout: 5
+          Retries: 5
+          StartPeriod: 120
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: VoiceLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: ecs
+      - Name: livekit
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/livekit@${ImageDigest}
+          - ImageDigest:
+              Ref: LiveKitDigest
+        Essential: true
+        PortMappings:
+        - ContainerPort: 7880
+        - ContainerPort: 7881
+        - ContainerPort: 7882
+          Protocol: udp
+        Environment:
+        - Name: LIVEKIT_CONFIG
+          Value: "port: 7880\nbind_addresses: [\"0.0.0.0\"]\nrtc:\n  use_external_ip: false\n  tcp_port: 7881\n\
+            \  udp_port: 7882\nlogging:\n  level: warn\n"
+        Secrets:
+        - Name: LIVEKIT_API_SECRET
+          ValueFrom:
+            Ref: VoiceLiveKitSecret
+        EntryPoint:
+        - /bin/sh
+        - -ec
+        Command:
+        - 'export LIVEKIT_KEYS="tina-staging: $LIVEKIT_API_SECRET"; unset LIVEKIT_API_SECRET; exec /livekit-server'
+        HealthCheck:
+          Command:
+          - CMD
+          - wget
+          - -q
+          - -O
+          - /dev/null
+          - http://127.0.0.1:7880/
+          Interval: 15
+          Timeout: 5
+          Retries: 4
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: VoiceLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: ecs
+      - Name: agent
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/livekit-agent@${ImageDigest}
+          - ImageDigest:
+              Ref: LiveKitAgentDigest
+        Essential: true
+        DependsOn:
+        - ContainerName: vieneu
+          Condition: HEALTHY
+        - ContainerName: livekit
+          Condition: HEALTHY
+        PortMappings:
+        - ContainerPort: 8080
+        LinuxParameters:
+          InitProcessEnabled: true
+        Environment:
+        - Name: LIVEKIT_URL
+          Value: ws://127.0.0.1:7880
+        - Name: LIVEKIT_API_KEY
+          Value: tina-staging
+        - Name: MEETING_API_URL
+          Value: http://core.tina-staging.local:8080
+        - Name: TTS_SERVICE_URL
+          Value: http://127.0.0.1:8000
+        - Name: TINA_LIVEKIT_AUDIO
+          Value: '1'
+        Secrets:
+        - Name: LIVEKIT_API_SECRET
+          ValueFrom:
+            Ref: VoiceLiveKitSecret
+        - Name: TTS_API_TOKEN
+          ValueFrom:
+            Ref: VoiceTtsToken
+        HealthCheck:
+          Command:
+          - CMD
+          - python
+          - -c
+          - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/ready', timeout=12).close()
+          Interval: 15
+          Timeout: 14
+          Retries: 5
+          StartPeriod: 60
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: VoiceLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: ecs
+    Condition: EnableVoiceResources
+  VoiceVoice:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster:
+        Ref: FoundationCluster
+      TaskDefinition:
+        Ref: VoiceTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      PlatformVersion: 1.4.0
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          Subnets:
+          - Ref: FoundationAppA
+          - Ref: FoundationAppB
+          SecurityGroups:
+          - Fn::GetAtt:
+            - DataAppSecurityGroup
+            - GroupId
+          - Fn::GetAtt:
+            - VoiceIngress
+            - GroupId
+      ServiceRegistries:
+      - RegistryArn:
+          Fn::GetAtt:
+          - VoiceDiscovery
+          - Arn
+      DeploymentConfiguration:
+        MinimumHealthyPercent: 0
+        MaximumPercent: 100
+        DeploymentCircuitBreaker:
+          Enable: true
+          Rollback: true
+    Condition: EnableVoiceResources
+    DependsOn:
+    - CoreCoreService
+    - EgressAppEgressA
+    - EgressAppEgressB
+    - FoundationS3GatewayEndpoint
+  CoreCoreLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+  CoreCoreDbPassword:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        PasswordLength: 40
+        ExcludePunctuation: true
+  CoreAdminToken:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        PasswordLength: 48
+        ExcludePunctuation: true
+  CoreInternalSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        PasswordLength: 48
+        ExcludePunctuation: true
+  CoreCoreClients:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Trusted staging clients of the TINA control plane
+      VpcId:
+        Ref: FoundationVpc
+  CoreCoreIngress:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Gateway and admin health access plus meeting bot callbacks
+      VpcId:
+        Ref: FoundationVpc
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 8000
+        ToPort: 8001
+        SourceSecurityGroupId:
+          Fn::GetAtt:
+          - CoreCoreClients
+          - GroupId
+      - IpProtocol: tcp
+        FromPort: 8080
+        ToPort: 8080
+        SourceSecurityGroupId:
+          Fn::GetAtt:
+          - DataAppSecurityGroup
+          - GroupId
+      - IpProtocol: tcp
+        FromPort: 8000
+        ToPort: 8000
+        SourceSecurityGroupId:
+          Fn::GetAtt:
+          - EdgeOriginSecurityGroup
+          - GroupId
+  CoreDiscoveryService:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      Name: core
+      DnsConfig:
+        NamespaceId:
+          Ref: RuntimeDiscoveryNamespace
+        DnsRecords:
+        - Type: A
+          TTL: 15
+  CoreExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: ecs-tasks.amazonaws.com
+          Action: sts:AssumeRole
+          Condition:
+            StringEquals:
+              aws:SourceAccount:
+                Ref: AWS::AccountId
+      Policies:
+      - PolicyName: PullCoreAndInjectSecrets
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: ecr:GetAuthorizationToken
+            Resource: '*'
+          - Effect: Allow
+            Action:
+            - ecr:BatchGetImage
+            - ecr:BatchCheckLayerAvailability
+            - ecr:GetDownloadUrlForLayer
+            Resource:
+            - Fn::Sub: arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/tina-staging/admin-api
+            - Fn::Sub: arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/tina-staging/meeting-api
+            - Fn::Sub: arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/tina-staging/gateway
+          - Effect: Allow
+            Action:
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource:
+              Fn::GetAtt:
+              - CoreCoreLogs
+              - Arn
+          - Effect: Allow
+            Action: secretsmanager:GetSecretValue
+            Resource:
+            - Ref: CoreCoreDbPassword
+            - Ref: CoreAdminToken
+            - Ref: CoreInternalSecret
+            - Fn::GetAtt:
+              - DataPostgres
+              - MasterUserSecret.SecretArn
+            - Ref: DataValkeyAuth
+            - Ref: VieGemToken
+            - Fn::If:
+              - CoreWithVoice
+              - Ref: VoiceTtsToken
+              - Ref: AWS::NoValue
+            - Fn::If:
+              - CoreWithVoice
+              - Ref: VoiceTtsProfileKey
+              - Ref: AWS::NoValue
+  CoreTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: ecs-tasks.amazonaws.com
+          Action: sts:AssumeRole
+          Condition:
+            StringEquals:
+              aws:SourceAccount:
+                Ref: AWS::AccountId
+      Policies:
+      - PolicyName: ManageStagingRecordings
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: s3:ListBucket
+            Resource:
+              Fn::Sub:
+              - arn:${AWS::Partition}:s3:::${RecordingsBucket}
+              - RecordingsBucket:
+                  Ref: FoundationStagingRecordings
+          - Effect: Allow
+            Action:
+            - s3:GetObject
+            - s3:PutObject
+            - s3:DeleteObject
+            - s3:AbortMultipartUpload
+            Resource:
+            - Fn::Sub:
+              - arn:${AWS::Partition}:s3:::${RecordingsBucket}/recordings/*
+              - RecordingsBucket:
+                  Ref: FoundationStagingRecordings
+            - Fn::Sub:
+              - arn:${AWS::Partition}:s3:::${RecordingsBucket}/signal/*
+              - RecordingsBucket:
+                  Ref: FoundationStagingRecordings
+  CoreTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family:
+        Ref: AWS::StackName
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+      - FARGATE
+      Cpu: '2048'
+      Memory: '4096'
+      RuntimePlatform:
+        OperatingSystemFamily: LINUX
+        CpuArchitecture: ARM64
+      ExecutionRoleArn:
+        Fn::GetAtt:
+        - CoreExecutionRole
+        - Arn
+      TaskRoleArn:
+        Fn::GetAtt:
+        - CoreTaskRole
+        - Arn
+      ContainerDefinitions:
+      - Name: schema-init
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/admin-api@${ImageDigest}
+          - ImageDigest:
+              Ref: AdminDigest
+        Essential: false
+        Environment:
+        - Name: DB_HOST
+          Value:
+            Fn::GetAtt:
+            - DataPostgres
+            - Endpoint.Address
+        Secrets:
+        - Name: MASTER_PASSWORD
+          ValueFrom:
+            Fn::Sub:
+            - '${PostgresSecretArn}:password::'
+            - PostgresSecretArn:
+                Fn::GetAtt:
+                - DataPostgres
+                - MasterUserSecret.SecretArn
+        - Name: DB_PASSWORD
+          ValueFrom:
+            Ref: CoreCoreDbPassword
+        Command:
+        - python
+        - -c
+        - "import asyncio\nimport os\nimport re\nimport ssl\nimport urllib.request\n\nimport asyncpg\n\nasync def\
+          \ main():\n    with urllib.request.urlopen(\"https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem\"\
+          , timeout=15) as r:\n        tls = ssl.create_default_context(cadata=r.read().decode())\n    db = await\
+          \ asyncpg.connect(host=os.environ[\"DB_HOST\"], database=\"tina\", user=\"tinaadmin\",\n             \
+          \                  password=os.environ[\"MASTER_PASSWORD\"], ssl=tls, timeout=12)\n    try:\n        password\
+          \ = os.environ[\"DB_PASSWORD\"]\n        if not re.fullmatch(r\"[a-zA-Z0-9]{40}\", password):\n      \
+          \      raise ValueError(\"Unexpected staging database credential format\")\n        async with db.transaction():\n\
+          \            await db.execute(\"SELECT pg_advisory_xact_lock(528385)\")\n            if not await db.fetchval(\"\
+          SELECT 1 FROM pg_roles WHERE rolname='tina_core'\"):\n                await db.execute(\"CREATE ROLE tina_core\
+          \ LOGIN\")\n            literal = await db.fetchval(\"SELECT quote_literal($1::text)\", password)\n  \
+          \          await db.execute(\"ALTER ROLE tina_core PASSWORD \" + literal)\n            await db.execute(\"\
+          GRANT CONNECT ON DATABASE tina TO tina_core\")\n            await db.execute(\"GRANT USAGE, CREATE ON\
+          \ SCHEMA public TO tina_core\")\n        print(\"TINA_STAGING_DB_ROLE_READY\", flush=True)\n    finally:\n\
+          \        await db.close()\n\nasyncio.run(main())\n"
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: CoreCoreLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: ecs
+      - Name: admin
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/admin-api@${ImageDigest}
+          - ImageDigest:
+              Ref: AdminDigest
+        Essential: true
+        DependsOn:
+        - ContainerName: schema-init
+          Condition: SUCCESS
+        PortMappings:
+        - ContainerPort: 8001
+        Environment:
+        - Name: DB_HOST
+          Value:
+            Fn::GetAtt:
+            - DataPostgres
+            - Endpoint.Address
+        Secrets:
+        - Name: DB_PASSWORD
+          ValueFrom:
+            Ref: CoreCoreDbPassword
+        - Name: ADMIN_API_TOKEN
+          ValueFrom:
+            Ref: CoreAdminToken
+        - Name: INTERNAL_API_SECRET
+          ValueFrom:
+            Ref: CoreInternalSecret
+        Command:
+        - python
+        - -c
+        - "import os\nimport sys\nimport urllib.request\nfrom urllib.parse import quote\nfrom pathlib import Path\n\
+          \nca_path = Path(\"/tmp/rds-ca.pem\")\nwith urllib.request.urlopen(\"https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem\"\
+          , timeout=15) as response:\n    ca_path.write_bytes(response.read())\nos.environ[\"PGSSLROOTCERT\"] =\
+          \ str(ca_path)\npassword = quote(os.environ.pop(\"DB_PASSWORD\"), safe=\"\")\nhost = os.environ.pop(\"\
+          DB_HOST\")\nos.environ[\"DATABASE_URL\"] = f\"postgresql+asyncpg://tina_core:{password}@{host}:5432/tina?ssl=verify-full\"\
+          \nos.execv(sys.executable, [sys.executable, \"-m\", \"admin_api\"])\n"
+        HealthCheck:
+          Command:
+          - CMD
+          - python
+          - -c
+          - import urllib.request; urllib.request.urlopen('http://localhost:8001/health', timeout=4).close()
+          Interval: 15
+          Timeout: 5
+          Retries: 3
+          StartPeriod: 30
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: CoreCoreLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: ecs
+      - Name: meeting
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/meeting-api@${ImageDigest}
+          - ImageDigest:
+              Ref: MeetingDigest
+        Essential: true
+        DependsOn:
+        - ContainerName: admin
+          Condition: HEALTHY
+        PortMappings:
+        - ContainerPort: 8080
+        Environment:
+        - Name: DB_HOST
+          Value:
+            Fn::GetAtt:
+            - DataPostgres
+            - Endpoint.Address
+        - Name: VALKEY_HOST
+          Value:
+            Fn::GetAtt:
+            - DataValkey
+            - PrimaryEndPoint.Address
+        - Name: ADMIN_API_URL
+          Value: http://127.0.0.1:8001
+        - Name: RUNTIME_API_URL
+          Value: http://runtime.tina-staging.local:8090
+        - Name: MEETING_API_URL
+          Value: http://core.tina-staging.local:8080
+        - Name: S3_ENDPOINT
+          Value:
+            Fn::Sub: https://s3.${AWS::Region}.amazonaws.com
+        - Name: MINIO_BUCKET
+          Value:
+            Ref: FoundationStagingRecordings
+        - Name: TRANSCRIPTION_SERVICE_URL
+          Value: http://viegem.tina-staging.local:8000/v1/audio/transcriptions
+        - Name: TRANSCRIPTION_MODEL
+          Value: 5CD-AI/VieGem-ASR
+        - Fn::If:
+          - CoreWithVoice
+          - Name: TTS_SERVICE_URL
+            Value: http://voice.tina-staging.local:8000
+          - Ref: AWS::NoValue
+        - Fn::If:
+          - CoreWithVoice
+          - Name: LIVEKIT_AGENT_URL
+            Value: http://voice.tina-staging.local:8080
+          - Ref: AWS::NoValue
+        - Name: AGENT_API_URL
+          Value: http://agent-api.tina-staging.local:8100
+        - Fn::If:
+          - CoreWithVoicePilot
+          - Name: TINA_MEETING_VOICE
+            Value: '1'
+          - Ref: AWS::NoValue
+        - Fn::If:
+          - CoreWithVoicePilot
+          - Name: TINA_MEETING_VOICE_PILOT_ROOM
+            Value:
+              Ref: VoicePilotRoom
+          - Ref: AWS::NoValue
+        - Fn::If:
+          - CoreWithVoicePilot
+          - Name: TINA_VOICE_TURN_SHADOW
+            Value: '0'
+          - Ref: AWS::NoValue
+        Secrets:
+        - Name: DB_PASSWORD
+          ValueFrom:
+            Ref: CoreCoreDbPassword
+        - Name: VALKEY_PASSWORD
+          ValueFrom:
+            Ref: DataValkeyAuth
+        - Name: ADMIN_TOKEN
+          ValueFrom:
+            Ref: CoreAdminToken
+        - Name: INTERNAL_API_SECRET
+          ValueFrom:
+            Ref: CoreInternalSecret
+        - Name: TRANSCRIPTION_SERVICE_TOKEN
+          ValueFrom:
+            Ref: VieGemToken
+        - Fn::If:
+          - CoreWithVoice
+          - Name: TTS_API_TOKEN
+            ValueFrom:
+              Ref: VoiceTtsToken
+          - Ref: AWS::NoValue
+        - Fn::If:
+          - CoreWithVoice
+          - Name: TINA_TTS_PROFILE_KEY
+            ValueFrom:
+              Ref: VoiceTtsProfileKey
+          - Ref: AWS::NoValue
+        Command:
+        - python
+        - -c
+        - "import os\nimport sys\nimport urllib.request\nfrom urllib.parse import quote\nfrom pathlib import Path\n\
+          \nca_path = Path(\"/tmp/rds-ca.pem\")\nwith urllib.request.urlopen(\"https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem\"\
+          , timeout=15) as response:\n    ca_path.write_bytes(response.read())\nos.environ[\"PGSSLROOTCERT\"] =\
+          \ str(ca_path)\npassword = quote(os.environ.pop(\"DB_PASSWORD\"), safe=\"\")\nhost = os.environ.pop(\"\
+          DB_HOST\")\nos.environ[\"DATABASE_URL\"] = f\"postgresql+asyncpg://tina_core:{password}@{host}:5432/tina?ssl=verify-full\"\
+          \npassword = quote(os.environ.pop(\"VALKEY_PASSWORD\"), safe=\"\")\nhost = os.environ.pop(\"VALKEY_HOST\"\
+          )\nos.environ[\"REDIS_URL\"] = f\"rediss://:{password}@{host}:6379/0\"\nos.execv(sys.executable, [sys.executable,\
+          \ \"-m\", \"meeting_api\"])\n"
+        HealthCheck:
+          Command:
+          - CMD
+          - python
+          - -c
+          - import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=4).close()
+          Interval: 15
+          Timeout: 5
+          Retries: 3
+          StartPeriod: 30
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: CoreCoreLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: ecs
+      - Name: gateway
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/gateway@${ImageDigest}
+          - ImageDigest:
+              Ref: GatewayDigest
+        Essential: true
+        DependsOn:
+        - ContainerName: meeting
+          Condition: HEALTHY
+        PortMappings:
+        - ContainerPort: 8000
+        Environment:
+        - Name: MCP_URL
+          Value: http://mcp.tina-staging.local:8010
+        - Name: AGENT_API_URL
+          Value: http://agent-api.tina-staging.local:8100
+        - Name: VALKEY_HOST
+          Value:
+            Fn::GetAtt:
+            - DataValkey
+            - PrimaryEndPoint.Address
+        - Name: ADMIN_API_URL
+          Value: http://127.0.0.1:8001
+        - Name: MEETING_API_URL
+          Value: http://127.0.0.1:8080
+        Secrets:
+        - Name: VALKEY_PASSWORD
+          ValueFrom:
+            Ref: DataValkeyAuth
+        - Name: INTERNAL_API_SECRET
+          ValueFrom:
+            Ref: CoreInternalSecret
+        Command:
+        - python
+        - -c
+        - 'import os
+
+          import sys
+
+          from urllib.parse import quote
+
+
+          password = quote(os.environ.pop("VALKEY_PASSWORD"), safe="")
+
+          host = os.environ.pop("VALKEY_HOST")
+
+          os.environ["REDIS_URL"] = f"rediss://:{password}@{host}:6379/0"
+
+          os.execv(sys.executable, [sys.executable, "-m", "gateway"])
+
+          '
+        HealthCheck:
+          Command:
+          - CMD
+          - python
+          - -c
+          - import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=4).close()
+          Interval: 15
+          Timeout: 5
+          Retries: 3
+          StartPeriod: 30
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: CoreCoreLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: ecs
+  CoreCoreService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster:
+        Ref: FoundationCluster
+      TaskDefinition:
+        Ref: CoreTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      PlatformVersion: 1.4.0
+      LoadBalancers:
+      - ContainerName: gateway
+        ContainerPort: 8000
+        TargetGroupArn:
+          Ref: McpGatewayTargets
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          Subnets:
+          - Ref: FoundationAppA
+          - Ref: FoundationAppB
+          SecurityGroups:
+          - Fn::GetAtt:
+            - DataAppSecurityGroup
+            - GroupId
+          - Fn::GetAtt:
+            - RuntimeRuntimeClients
+            - GroupId
+          - Fn::GetAtt:
+            - CoreCoreIngress
+            - GroupId
+      ServiceRegistries:
+      - RegistryArn:
+          Fn::GetAtt:
+          - CoreDiscoveryService
+          - Arn
+      DeploymentConfiguration:
+        DeploymentCircuitBreaker:
+          Enable: true
+          Rollback: true
+    DependsOn:
+    - McpMcpRule
+    - EgressAppEgressA
+    - EgressAppEgressB
+    - FoundationS3GatewayEndpoint
+  ReachAgentApiClients:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Staging Agent API clients of Agent Reach
+      VpcId:
+        Ref: FoundationVpc
+  ReachIngress:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Agent Reach from authorized staging Agent API tasks
+      VpcId:
+        Ref: FoundationVpc
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 8080
+        ToPort: 8080
+        SourceSecurityGroupId:
+          Fn::GetAtt:
+          - ReachAgentApiClients
+          - GroupId
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0
+  ReachDiscovery:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      Name: agent-reach
+      DnsConfig:
+        NamespaceId:
+          Ref: RuntimeDiscoveryNamespace
+        DnsRecords:
+        - Type: A
+          TTL: 15
+  ReachLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+  ReachExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: ecs-tasks.amazonaws.com
+          Action: sts:AssumeRole
+          Condition:
+            StringEquals:
+              aws:SourceAccount:
+                Ref: AWS::AccountId
+      Policies:
+      - PolicyName: PullAgentReachAndWriteLogs
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: ecr:GetAuthorizationToken
+            Resource: '*'
+          - Effect: Allow
+            Action:
+            - ecr:BatchGetImage
+            - ecr:BatchCheckLayerAvailability
+            - ecr:GetDownloadUrlForLayer
+            Resource:
+              Fn::Sub: arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/tina-staging/agent-reach
+          - Effect: Allow
+            Action:
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource:
+              Fn::GetAtt:
+              - ReachLogs
+              - Arn
+  ReachTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family:
+        Ref: AWS::StackName
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+      - FARGATE
+      Cpu: '256'
+      Memory: '512'
+      RuntimePlatform:
+        OperatingSystemFamily: LINUX
+        CpuArchitecture: ARM64
+      ExecutionRoleArn:
+        Fn::GetAtt:
+        - ReachExecutionRole
+        - Arn
+      Volumes:
+      - Name: reach-scratch
+      ContainerDefinitions:
+      - Name: agent-reach
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/agent-reach@${ImageDigest}
+          - ImageDigest:
+              Ref: AgentReachDigest
+        Essential: true
+        ReadonlyRootFilesystem: true
+        MountPoints:
+        - SourceVolume: reach-scratch
+          ContainerPath: /tmp/tina-reach
+        PortMappings:
+        - ContainerPort: 8080
+        HealthCheck:
+          Command:
+          - CMD
+          - python
+          - -c
+          - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=4).close()
+          Interval: 15
+          Timeout: 5
+          Retries: 4
+          StartPeriod: 30
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: ReachLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: ecs
+  ReachAgentReach:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster:
+        Ref: FoundationCluster
+      TaskDefinition:
+        Ref: ReachTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      PlatformVersion: 1.4.0
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          Subnets:
+          - Ref: FoundationAppA
+          - Ref: FoundationAppB
+          SecurityGroups:
+          - Fn::GetAtt:
+            - ReachIngress
+            - GroupId
+      ServiceRegistries:
+      - RegistryArn:
+          Fn::GetAtt:
+          - ReachDiscovery
+          - Arn
+      DeploymentConfiguration:
+        DeploymentCircuitBreaker:
+          Enable: true
+          Rollback: true
+    DependsOn:
+    - EgressAppEgressA
+    - EgressAppEgressB
+    - FoundationS3GatewayEndpoint
+  AgentDispatchSigningKey:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        PasswordLength: 48
+        ExcludePunctuation: true
+  AgentLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+  AgentIngress:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Private TINA Agent API access from staging Core
+      VpcId:
+        Ref: FoundationVpc
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 8100
+        ToPort: 8100
+        SourceSecurityGroupId:
+          Fn::GetAtt:
+          - CoreCoreIngress
+          - GroupId
+  AgentWorkspaceSchedulerIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: AgentWithWorkspacePilot
+    Properties:
+      GroupId:
+        Fn::GetAtt:
+        - AgentIngress
+        - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+        - WorkspaceEphemeralWorkspaceSecurityGroup
+        - GroupId
+      IpProtocol: tcp
+      FromPort: 8100
+      ToPort: 8100
+  AgentDiscovery:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      Name: agent-api
+      DnsConfig:
+        NamespaceId:
+          Ref: RuntimeDiscoveryNamespace
+        DnsRecords:
+        - Type: A
+          TTL: 15
+  AgentExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: ecs-tasks.amazonaws.com
+          Action: sts:AssumeRole
+          Condition:
+            StringEquals:
+              aws:SourceAccount:
+                Ref: AWS::AccountId
+      Policies:
+      - PolicyName: PullImageAndReadAgentSecrets
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: ecr:GetAuthorizationToken
+            Resource: '*'
+          - Effect: Allow
+            Action:
+            - ecr:BatchGetImage
+            - ecr:BatchCheckLayerAvailability
+            - ecr:GetDownloadUrlForLayer
+            Resource:
+              Fn::Sub: arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/tina-staging/agent-api
+          - Effect: Allow
+            Action:
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource:
+              Fn::GetAtt:
+              - AgentLogs
+              - Arn
+          - Effect: Allow
+            Action: secretsmanager:GetSecretValue
+            Resource:
+            - Ref: AgentDispatchSigningKey
+            - Ref: DataValkeyAuth
+            - Ref: CoreInternalSecret
+  AgentVoiceModelRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: ecs-tasks.amazonaws.com
+          Action: sts:AssumeRole
+          Condition:
+            StringEquals:
+              aws:SourceAccount:
+                Ref: AWS::AccountId
+      Policies:
+      - Fn::If:
+        - AgentWithVoiceCompletion
+        - PolicyName: InvokeNovaLite
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action: bedrock:InvokeModel
+              Resource:
+                Fn::Sub: arn:${AWS::Partition}:bedrock:${AWS::Region}::foundation-model/amazon.nova-lite-v1:0
+        - Ref: AWS::NoValue
+      - Ref: AWS::NoValue
+      - Ref: AWS::NoValue
+  AgentTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family:
+        Ref: AWS::StackName
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+      - FARGATE
+      Cpu: '512'
+      Memory: '2048'
+      RuntimePlatform:
+        OperatingSystemFamily: LINUX
+        CpuArchitecture: ARM64
+      ExecutionRoleArn:
+        Fn::GetAtt:
+        - AgentExecutionRole
+        - Arn
+      TaskRoleArn:
+        Fn::GetAtt:
+        - AgentVoiceModelRole
+        - Arn
+      Volumes:
+      - Ref: AWS::NoValue
+      - Name: s3-cache
+      ContainerDefinitions:
+      - Name: init-s3-cache
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/agent-api@${ImageDigest}
+          - ImageDigest:
+              Ref: AgentApiDigest
+        Essential: false
+        EntryPoint:
+        - sh
+        - -c
+        Command:
+        - chown 1000:1000 /workspaces && chmod 0755 /workspaces
+        MountPoints:
+        - SourceVolume: s3-cache
+          ContainerPath: /workspaces
+          ReadOnly: false
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: AgentLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: init
+      - Name: agent-api
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/agent-api@${ImageDigest}
+          - ImageDigest:
+              Ref: AgentApiDigest
+        Essential: true
+        User: 1000:1000
+        DependsOn:
+        - ContainerName: init-s3-cache
+          Condition: SUCCESS
+        PortMappings:
+        - ContainerPort: 8100
+        LinuxParameters:
+          InitProcessEnabled: true
+        MountPoints:
+        - SourceVolume: s3-cache
+          ContainerPath: /workspaces
+          ReadOnly: false
+        - Ref: AWS::NoValue
+        Environment:
+        - Name: AWS_REGION
+          Value:
+            Ref: AWS::Region
+        - Name: VALKEY_HOST
+          Value:
+            Fn::GetAtt:
+            - DataValkey
+            - PrimaryEndPoint.Address
+        - Name: TINA_WORKSPACE_STORAGE
+          Value: s3
+        - Name: TINA_S3_WORKSPACE_BUCKET
+          Value:
+            Ref: WorkspaceWorkspaceStoreBucket
+        - Name: TINA_S3_WORKSPACE_KMS_KEY_ID
+          Value:
+            Fn::GetAtt:
+            - WorkspaceWorkspaceDataKey
+            - Arn
+        - Name: TINA_S3_SECRETS_KMS_KEY_ID
+          Value:
+            Fn::GetAtt:
+            - WorkspaceWorkspaceSecretsKey
+            - Arn
+        - Name: TINA_S3_WORKSPACE_USERS
+          Value:
+            Ref: WorkspaceOwnerIds
+        - Ref: AWS::NoValue
+        - Name: TINA_RUNTIME_API_URL
+          Value: http://runtime.tina-staging.local:8090
+        - Name: TINA_MEETING_API_URL
+          Value: http://core.tina-staging.local:8080
+        - Name: TINA_ADMIN_API_URL
+          Value: http://core.tina-staging.local:8001
+        - Name: TINA_GATEWAY_URL
+          Value: http://core.tina-staging.local:8000
+        - Name: TINA_REQUIRE_GATEWAY_IDENTITY
+          Value: '1'
+        - Name: TINA_ROUTINE_RECONCILE_INTERVAL_SEC
+          Value:
+            Fn::If:
+            - AgentWithWorkspacePilot
+            - '60'
+            - '0'
+        - Fn::If:
+          - AgentWithWorkspacePilot
+          - Name: TINA_AGENT_API_SELF_URL
+            Value: http://agent-api.tina-staging.local:8100
+          - Ref: AWS::NoValue
+        - Name: TINA_WORKSPACE_PILOT_USER_IDS
+          Value:
+            Ref: WorkspaceOwnerIds
+        - Name: TINA_WORKSPACE_BEDROCK_OWNER
+          Value:
+            Ref: WorkspaceOwnerIds
+        - Fn::If:
+          - AgentWithWorkspacePilot
+          - Name: TINA_WORKSPACE_BEDROCK_MODEL
+            Value: us.anthropic.claude-sonnet-4-6
+          - Ref: AWS::NoValue
+        - Ref: AWS::NoValue
+        - Ref: AWS::NoValue
+        - Name: TINA_POST_MEETING_ECS_DRAFT
+          Value: '1'
+        - Name: TINA_DRAFT_PILOT_USER_IDS
+          Value:
+            Ref: WorkspaceOwnerIds
+        - Name: TINA_AGENT_REACH_URL
+          Value: http://agent-reach.tina-staging.local:8080
+        - Fn::If:
+          - AgentWithVoiceCompletion
+          - Name: TINA_MEETING_VOICE_LOCAL_COMPLETION
+            Value: '1'
+          - Ref: AWS::NoValue
+        - Fn::If:
+          - AgentWithVoiceCompletion
+          - Name: TINA_LLM_PROVIDER
+            Value: bedrock-converse
+          - Ref: AWS::NoValue
+        - Fn::If:
+          - AgentWithVoiceCompletion
+          - Name: TINA_LLM_MODEL
+            Value: amazon.nova-lite-v1:0
+          - Ref: AWS::NoValue
+        - Ref: AWS::NoValue
+        - Ref: AWS::NoValue
+        - Ref: AWS::NoValue
+        - Ref: AWS::NoValue
+        Secrets:
+        - Name: VALKEY_PASSWORD
+          ValueFrom:
+            Ref: DataValkeyAuth
+        - Name: TINA_INTERNAL_API_SECRET
+          ValueFrom:
+            Ref: CoreInternalSecret
+        - Name: TINA_DISPATCH_SIGNING_KEY
+          ValueFrom:
+            Ref: AgentDispatchSigningKey
+        Command:
+        - python
+        - -c
+        - "import os\nimport tempfile\nfrom urllib.parse import quote\n\nhost = os.environ.pop(\"VALKEY_HOST\")\n\
+          password = quote(os.environ.pop(\"VALKEY_PASSWORD\"), safe=\"\")\nos.environ[\"TINA_REDIS_URL\"] = f\"\
+          rediss://:{password}@{host}:6379/0\"\nif os.environ.get(\"TINA_POST_MEETING_ECS_DRAFT\") == \"1\":\n \
+          \   os.environ[\"HOME\"] = tempfile.mkdtemp(prefix=\"tina-agent-home-\")\nos.execvp(\"uvicorn\", [\"uvicorn\"\
+          , \"control_plane.api:app\", \"--host\", \"0.0.0.0\", \"--port\", \"8100\"])\n"
+        HealthCheck:
+          Command:
+          - CMD
+          - python
+          - -c
+          - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8100/health', timeout=4).close()
+          Interval: 15
+          Timeout: 5
+          Retries: 4
+          StartPeriod: 30
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: AgentLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: ecs
+  AgentAgentApi:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster:
+        Ref: FoundationCluster
+      TaskDefinition:
+        Ref: AgentTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      PlatformVersion: 1.4.0
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          Subnets:
+          - Ref: FoundationAppA
+          - Ref: FoundationAppB
+          SecurityGroups:
+          - Fn::GetAtt:
+            - DataAppSecurityGroup
+            - GroupId
+          - Fn::GetAtt:
+            - CoreCoreClients
+            - GroupId
+          - Fn::GetAtt:
+            - RuntimeRuntimeClients
+            - GroupId
+          - Fn::GetAtt:
+            - AgentIngress
+            - GroupId
+          - Fn::GetAtt:
+            - ReachAgentApiClients
+            - GroupId
+      ServiceRegistries:
+      - RegistryArn:
+          Fn::GetAtt:
+          - AgentDiscovery
+          - Arn
+      DeploymentConfiguration:
+        DeploymentCircuitBreaker:
+          Enable: true
+          Rollback: true
+    DependsOn:
+    - WorkspaceAgentApiWorkspaceS3Policy
+    - EgressAppEgressA
+    - EgressAppEgressB
+    - FoundationS3GatewayEndpoint
+  McpIngress:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: MCP access from the staging Gateway
+      VpcId:
+        Ref: FoundationVpc
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 8010
+        ToPort: 8010
+        SourceSecurityGroupId:
+          Fn::GetAtt:
+          - CoreCoreIngress
+          - GroupId
+  McpDiscovery:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      Name: mcp
+      DnsConfig:
+        NamespaceId:
+          Ref: RuntimeDiscoveryNamespace
+        DnsRecords:
+        - Type: A
+          TTL: 15
+  McpGatewayTargets:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+      Port: 8000
+      Protocol: HTTP
+      TargetType: ip
+      HealthCheckPath: /health
+      HealthCheckIntervalSeconds: 15
+      HealthyThresholdCount: 2
+  McpMcpRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn:
+        Ref: EdgeListener
+      Priority: 20
+      Conditions:
+      - Field: path-pattern
+        Values:
+        - /mcp
+      Actions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: McpGatewayTargets
+  McpLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+  McpExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: ecs-tasks.amazonaws.com
+          Action: sts:AssumeRole
+          Condition:
+            StringEquals:
+              aws:SourceAccount:
+                Ref: AWS::AccountId
+      Policies:
+      - PolicyName: PullMcpAndWriteLogs
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: ecr:GetAuthorizationToken
+            Resource: '*'
+          - Effect: Allow
+            Action:
+            - ecr:BatchGetImage
+            - ecr:BatchCheckLayerAvailability
+            - ecr:GetDownloadUrlForLayer
+            Resource:
+              Fn::Sub: arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/tina-staging/mcp
+          - Effect: Allow
+            Action:
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource:
+              Fn::GetAtt:
+              - McpLogs
+              - Arn
+  McpTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family:
+        Ref: AWS::StackName
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+      - FARGATE
+      Cpu: '256'
+      Memory: '512'
+      RuntimePlatform:
+        OperatingSystemFamily: LINUX
+        CpuArchitecture: ARM64
+      ExecutionRoleArn:
+        Fn::GetAtt:
+        - McpExecutionRole
+        - Arn
+      ContainerDefinitions:
+      - Name: mcp
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/mcp@${ImageDigest}
+          - ImageDigest:
+              Ref: McpDigest
+        Essential: true
+        User: 65532:65532
+        Environment:
+        - Name: PYTHONDONTWRITEBYTECODE
+          Value: '1'
+        - Name: TINA_ENV
+          Value: production
+        - Name: GATEWAY_URL
+          Value: http://core.tina-staging.local:8000
+        - Name: TINA_MCP_READ_ONLY
+          Value: '1'
+        - Name: TINA_MCP_TRANSPORT_HOST
+          Value: mcp.tina-staging.local:8010
+        - Name: TINA_MCP_PUBLIC_ORIGIN
+          Value:
+            Fn::Sub: https://${EdgeDistribution.DomainName}
+        ReadonlyRootFilesystem: true
+        PortMappings:
+        - ContainerPort: 8010
+        HealthCheck:
+          Command:
+          - CMD
+          - python
+          - -c
+          - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8010/health', timeout=4).close()
+          Interval: 15
+          Timeout: 5
+          Retries: 4
+          StartPeriod: 30
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: McpLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: ecs
+  McpMcp:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster:
+        Ref: FoundationCluster
+      TaskDefinition:
+        Ref: McpTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      PlatformVersion: 1.4.0
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          Subnets:
+          - Ref: FoundationAppA
+          - Ref: FoundationAppB
+          SecurityGroups:
+          - Fn::GetAtt:
+            - McpIngress
+            - GroupId
+          - Fn::GetAtt:
+            - CoreCoreClients
+            - GroupId
+      ServiceRegistries:
+      - RegistryArn:
+          Fn::GetAtt:
+          - McpDiscovery
+          - Arn
+      DeploymentConfiguration:
+        DeploymentCircuitBreaker:
+          Enable: true
+          Rollback: true
+        MinimumHealthyPercent: 0
+        MaximumPercent: 100
+    DependsOn:
+    - EgressAppEgressA
+    - EgressAppEgressB
+    - FoundationS3GatewayEndpoint
+  FlowsDatabasePassword:
+    Type: AWS::SecretsManager::Secret
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      GenerateSecretString:
+        PasswordLength: 40
+        ExcludePunctuation: true
+  FlowsFlowsApiKey:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        PasswordLength: 48
+        ExcludePunctuation: true
+  FlowsLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+  FlowsIngress:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Private Flows API from TINA staging core clients
+      VpcId:
+        Ref: FoundationVpc
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 8200
+        ToPort: 8200
+        SourceSecurityGroupId:
+          Fn::GetAtt:
+          - CoreCoreClients
+          - GroupId
+  FlowsDiscovery:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      Name: flows
+      DnsConfig:
+        NamespaceId:
+          Ref: RuntimeDiscoveryNamespace
+        DnsRecords:
+        - Type: A
+          TTL: 15
+  FlowsExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: ecs-tasks.amazonaws.com
+          Action: sts:AssumeRole
+          Condition:
+            StringEquals:
+              aws:SourceAccount:
+                Ref: AWS::AccountId
+      Policies:
+      - PolicyName: LoadFlowsImageAndCredentials
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: ecr:GetAuthorizationToken
+            Resource: '*'
+          - Effect: Allow
+            Action:
+            - ecr:BatchGetImage
+            - ecr:BatchCheckLayerAvailability
+            - ecr:GetDownloadUrlForLayer
+            Resource:
+              Fn::Sub: arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/tina-staging/flows
+          - Effect: Allow
+            Action:
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource:
+              Fn::GetAtt:
+              - FlowsLogs
+              - Arn
+          - Effect: Allow
+            Action: secretsmanager:GetSecretValue
+            Resource:
+            - Fn::GetAtt:
+              - DataPostgres
+              - MasterUserSecret.SecretArn
+            - Ref: FlowsDatabasePassword
+            - Ref: FlowsFlowsApiKey
+            - Ref: CoreAdminToken
+            - Ref: CoreInternalSecret
+  FlowsTask:
+    Type: AWS::ECS::TaskDefinition
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: Run API and queue worker from the same image with their own Postgres database.
+        must: Both services wait for database provisioning. Only the provisioning container receives the RDS master
+          credential. Mailbox is a separate opt-in service.
+    Properties:
+      Family:
+        Ref: AWS::StackName
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+      - FARGATE
+      Cpu: '512'
+      Memory: '1024'
+      RuntimePlatform:
+        OperatingSystemFamily: LINUX
+        CpuArchitecture: ARM64
+      ExecutionRoleArn:
+        Fn::GetAtt:
+        - FlowsExecutionRole
+        - Arn
+      ContainerDefinitions:
+      - Name: db-init
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/flows@${ImageDigest}
+          - ImageDigest:
+              Ref: FlowsDigest
+        Essential: false
+        Environment:
+        - Name: FLOWS_DB_HOST
+          Value:
+            Fn::GetAtt:
+            - DataPostgres
+            - Endpoint.Address
+        Secrets:
+        - Name: RDS_MASTER
+          ValueFrom:
+            Fn::GetAtt:
+            - DataPostgres
+            - MasterUserSecret.SecretArn
+        - Name: FLOWS_DB_PASSWORD
+          ValueFrom:
+            Ref: FlowsDatabasePassword
+        Command:
+        - python
+        - -c
+        - "import json\nimport os\nfrom pathlib import Path\nimport psycopg\nfrom psycopg import sql\n\nhost = os.environ[\"\
+          FLOWS_DB_HOST\"]\nmaster = json.loads(os.environ.pop(\"RDS_MASTER\"))\npassword = os.environ.pop(\"FLOWS_DB_PASSWORD\"\
+          )\nwith psycopg.connect(host=host, dbname=\"postgres\", user=master[\"username\"],\n                 \
+          \    password=master[\"password\"], sslmode=\"require\", autocommit=True) as conn:\n    conn.execute(\"\
+          SELECT pg_advisory_lock(23117516)\")\n    if not conn.execute(\"SELECT 1 FROM pg_roles WHERE rolname =\
+          \ 'tina_flows'\").fetchone():\n        conn.execute(\"CREATE ROLE tina_flows LOGIN\")\n    conn.execute(sql.SQL(\"\
+          ALTER ROLE tina_flows PASSWORD {}\").format(sql.Literal(password)))\n    if not conn.execute(\"SELECT\
+          \ 1 FROM pg_database WHERE datname = 'tina_flows'\").fetchone():\n        conn.execute(\"CREATE DATABASE\
+          \ tina_flows\")\n    conn.execute(\"REVOKE CONNECT ON DATABASE tina_flows FROM PUBLIC\")\n    conn.execute(\"\
+          GRANT CONNECT ON DATABASE tina_flows TO tina_flows\")\nwith psycopg.connect(host=host, dbname=\"tina_flows\"\
+          , user=master[\"username\"],\n                     password=master[\"password\"], sslmode=\"require\"\
+          ) as conn:\n    conn.execute(\"GRANT USAGE, CREATE ON SCHEMA public TO tina_flows\")\nwith psycopg.connect(host=host,\
+          \ dbname=\"tina_flows\", user=\"tina_flows\",\n                     password=password, sslmode=\"require\"\
+          ) as conn:\n    conn.execute(Path(\"/app/schema.sql\").read_text())\n"
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: FlowsLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: ecs
+      - Name: api
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/flows@${ImageDigest}
+          - ImageDigest:
+              Ref: FlowsDigest
+        Essential: true
+        DependsOn:
+        - ContainerName: db-init
+          Condition: SUCCESS
+        PortMappings:
+        - ContainerPort: 8200
+        Environment:
+        - Name: FLOWS_DB_HOST
+          Value:
+            Fn::GetAtt:
+            - DataPostgres
+            - Endpoint.Address
+        - Name: TINA_FLOWS_API_HOST
+          Value: 0.0.0.0
+        - Name: TINA_FLOWS_API_PORT
+          Value: '8200'
+        - Name: TINA_FLOWS_ADMIN_API_URL
+          Value: http://core.tina-staging.local:8001
+        - Name: TINA_FLOWS_GATEWAY_URL
+          Value: http://core.tina-staging.local:8000
+        Secrets:
+        - Name: FLOWS_DB_PASSWORD
+          ValueFrom:
+            Ref: FlowsDatabasePassword
+        - Name: TINA_FLOWS_API_KEY
+          ValueFrom:
+            Ref: FlowsFlowsApiKey
+        - Name: TINA_FLOWS_ADMIN_KEY
+          ValueFrom:
+            Ref: CoreAdminToken
+        - Name: TINA_INTERNAL_API_SECRET
+          ValueFrom:
+            Ref: CoreInternalSecret
+        Command:
+        - python
+        - -c
+        - 'import os
+
+          from urllib.parse import quote
+
+          password = quote(os.environ.pop("FLOWS_DB_PASSWORD"), safe="")
+
+          host = os.environ["FLOWS_DB_HOST"]
+
+          os.environ["TINA_FLOWS_DB_URL"] = f"postgresql+psycopg://tina_flows:{password}@{host}/tina_flows?sslmode=require"
+
+          os.execvp("python", ["python", "-m", "flows_integrations.flows_api"])
+
+          '
+        HealthCheck:
+          Command:
+          - CMD
+          - python
+          - -c
+          - import urllib.request; urllib.request.urlopen('http://localhost:8200/health', timeout=3).close()
+          Interval: 15
+          Timeout: 5
+          Retries: 4
+          StartPeriod: 20
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: FlowsLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: ecs
+      - Name: worker
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/flows@${ImageDigest}
+          - ImageDigest:
+              Ref: FlowsDigest
+        Essential: true
+        DependsOn:
+        - ContainerName: api
+          Condition: HEALTHY
+        Environment:
+        - Name: FLOWS_DB_HOST
+          Value:
+            Fn::GetAtt:
+            - DataPostgres
+            - Endpoint.Address
+        - Name: TINA_FLOWS_ADMIN_API_URL
+          Value: http://core.tina-staging.local:8001
+        - Name: TINA_FLOWS_GATEWAY_URL
+          Value: http://core.tina-staging.local:8000
+        Secrets:
+        - Name: FLOWS_DB_PASSWORD
+          ValueFrom:
+            Ref: FlowsDatabasePassword
+        - Name: TINA_FLOWS_API_KEY
+          ValueFrom:
+            Ref: FlowsFlowsApiKey
+        - Name: TINA_FLOWS_ADMIN_KEY
+          ValueFrom:
+            Ref: CoreAdminToken
+        - Name: TINA_INTERNAL_API_SECRET
+          ValueFrom:
+            Ref: CoreInternalSecret
+        Command:
+        - python
+        - -c
+        - 'import os
+
+          from urllib.parse import quote
+
+          password = quote(os.environ.pop("FLOWS_DB_PASSWORD"), safe="")
+
+          host = os.environ["FLOWS_DB_HOST"]
+
+          os.environ["TINA_FLOWS_DB_URL"] = f"postgresql+psycopg://tina_flows:{password}@{host}/tina_flows?sslmode=require"
+
+          os.execvp("python", ["python", "-m", "flows_worker"])
+
+          '
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: FlowsLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: ecs
+  FlowsService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster:
+        Ref: FoundationCluster
+      TaskDefinition:
+        Ref: FlowsTask
+      DesiredCount: 1
+      LaunchType: FARGATE
+      PlatformVersion: 1.4.0
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          Subnets:
+          - Ref: FoundationAppA
+          - Ref: FoundationAppB
+          SecurityGroups:
+          - Fn::GetAtt:
+            - DataAppSecurityGroup
+            - GroupId
+          - Fn::GetAtt:
+            - CoreCoreClients
+            - GroupId
+          - Fn::GetAtt:
+            - FlowsIngress
+            - GroupId
+      ServiceRegistries:
+      - RegistryArn:
+          Fn::GetAtt:
+          - FlowsDiscovery
+          - Arn
+      DeploymentConfiguration:
+        DeploymentCircuitBreaker:
+          Enable: true
+          Rollback: true
+    DependsOn:
+    - EgressAppEgressA
+    - EgressAppEgressB
+    - FoundationS3GatewayEndpoint
+  TerminalNextAuthSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        PasswordLength: 48
+        ExcludePunctuation: true
+  TerminalTerminalLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+  TerminalTerminalIngress:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Terminal HTTP from the internal staging ALB
+      VpcId:
+        Ref: FoundationVpc
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 3000
+        ToPort: 3000
+        SourceSecurityGroupId:
+          Fn::GetAtt:
+          - EdgeOriginSecurityGroup
+          - GroupId
+  TerminalTerminalTargets:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId:
+        Ref: FoundationVpc
+      Port: 3000
+      Protocol: HTTP
+      TargetType: ip
+      HealthCheckPath: /api/auth/providers
+      HealthCheckIntervalSeconds: 15
+      HealthyThresholdCount: 2
+  TerminalTerminalRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn:
+        Ref: EdgeListener
+      Priority: 100
+      Conditions:
+      - Field: path-pattern
+        Values:
+        - /*
+      Actions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: TerminalTerminalTargets
+  TerminalExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: ecs-tasks.amazonaws.com
+          Action: sts:AssumeRole
+          Condition:
+            StringEquals:
+              aws:SourceAccount:
+                Ref: AWS::AccountId
+      Policies:
+      - PolicyName: PullTerminalAndInjectSecrets
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: ecr:GetAuthorizationToken
+            Resource: '*'
+          - Effect: Allow
+            Action:
+            - ecr:BatchGetImage
+            - ecr:BatchCheckLayerAvailability
+            - ecr:GetDownloadUrlForLayer
+            Resource:
+              Fn::Sub: arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/tina-staging/terminal
+          - Effect: Allow
+            Action:
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource:
+              Fn::GetAtt:
+              - TerminalTerminalLogs
+              - Arn
+          - Effect: Allow
+            Action: secretsmanager:GetSecretValue
+            Resource:
+            - Ref: CoreAdminToken
+            - Ref: CoreInternalSecret
+            - Ref: TerminalNextAuthSecret
+            - Ref: AWS::NoValue
+  TerminalTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: Expose the full workbench only to server-verified pilot identities.
+        must: Keep meetings as the default and match the image's build-time mode to the rollout parameter.
+    Properties:
+      Family:
+        Ref: AWS::StackName
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+      - FARGATE
+      Cpu: '512'
+      Memory: '1024'
+      RuntimePlatform:
+        OperatingSystemFamily: LINUX
+        CpuArchitecture: ARM64
+      ExecutionRoleArn:
+        Fn::GetAtt:
+        - TerminalExecutionRole
+        - Arn
+      ContainerDefinitions:
+      - Name: terminal
+        Image:
+          Fn::Sub:
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/tina-staging/terminal@${ImageDigest}
+          - ImageDigest:
+              Ref: TerminalDigest
+        Essential: true
+        PortMappings:
+        - ContainerPort: 3000
+        Environment:
+        - Name: NODE_ENV
+          Value: production
+        - Name: HOSTNAME
+          Value: 0.0.0.0
+        - Name: PORT
+          Value: '3000'
+        - Name: NEXT_PUBLIC_TERMINAL_MODE
+          Value:
+            Fn::If:
+            - TerminalWithWorkspacePilot
+            - workspace-pilot
+            - meetings
+        - Name: TINA_WORKSPACE_PILOT_STAGE
+          Value: routines
+        - Name: TINA_WORKSPACE_PILOT_USER_IDS
+          Value:
+            Ref: WorkspaceOwnerIds
+        - Name: GATEWAY_URL
+          Value: http://core.tina-staging.local:8000
+        - Name: TINA_API_URL
+          Value: http://core.tina-staging.local:8000
+        - Name: TINA_ADMIN_API_URL
+          Value: http://core.tina-staging.local:8001
+        - Name: TINA_ASR_CONTROL_URL
+          Value: ''
+        - Name: NEXTAUTH_URL
+          Value:
+            Fn::Sub: https://${EdgeDistribution.DomainName}
+        - Name: TERMINAL_URL
+          Value:
+            Fn::Sub: https://${EdgeDistribution.DomainName}
+        - Name: COGNITO_CLIENT_ID
+          Value:
+            Ref: CognitoClient
+        - Name: COGNITO_ISSUER
+          Value:
+            Fn::Sub: https://cognito-idp.${AWS::Region}.${AWS::URLSuffix}/${CognitoPool}
+        Secrets:
+        - Name: TINA_ADMIN_API_KEY
+          ValueFrom:
+            Ref: CoreAdminToken
+        - Name: TINA_INTERNAL_API_SECRET
+          ValueFrom:
+            Ref: CoreInternalSecret
+        - Name: NEXTAUTH_SECRET
+          ValueFrom:
+            Ref: TerminalNextAuthSecret
+        - Ref: AWS::NoValue
+        - Ref: AWS::NoValue
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: TerminalTerminalLogs
+            awslogs-region:
+              Ref: AWS::Region
+            awslogs-stream-prefix: ecs
+  TerminalTerminalService:
+    Type: AWS::ECS::Service
+    DependsOn:
+    - TerminalTerminalRule
+    - CognitoDomain
+    - EgressAppEgressA
+    - EgressAppEgressB
+    - FoundationS3GatewayEndpoint
+    Properties:
+      Cluster:
+        Ref: FoundationCluster
+      TaskDefinition:
+        Ref: TerminalTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      PlatformVersion: 1.4.0
+      HealthCheckGracePeriodSeconds: 60
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          Subnets:
+          - Ref: FoundationAppA
+          - Ref: FoundationAppB
+          SecurityGroups:
+          - Fn::GetAtt:
+            - CoreCoreClients
+            - GroupId
+          - Fn::GetAtt:
+            - TerminalTerminalIngress
+            - GroupId
+      LoadBalancers:
+      - ContainerName: terminal
+        ContainerPort: 3000
+        TargetGroupArn:
+          Ref: TerminalTerminalTargets
+      DeploymentConfiguration:
+        DeploymentCircuitBreaker:
+          Enable: true
+          Rollback: true
+  CognitoPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UsernameAttributes:
+      - email
+      UsernameConfiguration:
+        CaseSensitive: false
+      AutoVerifiedAttributes:
+      - email
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 12
+  CognitoDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain:
+        Fn::Sub: tina-workshop-${AWS::AccountId}
+      UserPoolId:
+        Ref: CognitoPool
+      ManagedLoginVersion: 1
+  CognitoClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId:
+        Ref: CognitoPool
+      GenerateSecret: false
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows:
+      - code
+      AllowedOAuthScopes:
+      - openid
+      - email
+      - profile
+      SupportedIdentityProviders:
+      - COGNITO
+      CallbackURLs:
+      - Fn::Sub: https://${EdgeDistribution.DomainName}/api/auth/callback/cognito
+      PreventUserExistenceErrors: ENABLED
+  WebAcl:
+    Type: AWS::WAFv2::WebACL
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: Filter common requests at the CloudFront edge.
+        must: Keep CloudFront scope and review rules before production.
+    Properties:
+      Scope: CLOUDFRONT
+      DefaultAction:
+        Allow: {}
+      VisibilityConfig:
+        SampledRequestsEnabled: true
+        CloudWatchMetricsEnabled: true
+        MetricName: TinaWorkshopAcl
+      Rules:
+      - Name: AWSManagedRulesCommonRuleSet
+        Priority: 0
+        OverrideAction:
+          None: {}
+        Statement:
+          ManagedRuleGroupStatement:
+            VendorName: AWS
+            Name: AWSManagedRulesCommonRuleSet
+        VisibilityConfig:
+          SampledRequestsEnabled: true
+          CloudWatchMetricsEnabled: true
+          MetricName: TinaCommonRules
+Outputs:
+  WebsiteUrl:
+    Description: CloudFront URL for this TINA instance.
+    Value:
+      Fn::Sub: https://${EdgeDistribution.DomainName}
+  CognitoUserPoolId:
+    Description: Invite the initial workshop user in this Cognito user pool.
+    Value:
+      Ref: CognitoPool
+  EcsCluster:
+    Description: ECS cluster for this instance.
+    Value:
+      Ref: FoundationCluster
+  RecordingsBucket:
+    Description: Retained recordings bucket.
+    Value:
+      Ref: FoundationStagingRecordings
+  WorkspaceBucket:
+    Description: Retained and versioned workspace bucket.
+    Value:
+      Ref: WorkspaceWorkspaceStoreBucket
+  PublicMcpUrl:
+    Description: Authenticated read-only MCP endpoint.
+    Value:
+      Fn::Sub:
+      - ${Origin}/mcp
+      - Origin:
+          Fn::Sub: https://${EdgeDistribution.DomainName}
