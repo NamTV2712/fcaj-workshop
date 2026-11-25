@@ -1,12 +1,12 @@
 ---
-title: "Triển khai TINA trên AWS"
+title: "Workshop"
 date: 2026-11-25
 weight: 5
 chapter: false
 pre: " <b> 5. </b> "
 ---
 
-# Triển khai website TINA trên AWS
+# Wakan – Trợ lý du lịch cá nhân hóa dùng AI
 
 Workshop hướng dẫn bạn dùng **tài khoản AWS của chính mình** để dựng một bản TINA thử nghiệm: CloudFront → ALB nội bộ → ECS Fargate, cùng PostgreSQL trên RDS, Valkey trên ElastiCache, S3 và ECR. Bạn tạo tài nguyên mới và đăng nhập vào URL do tài khoản của bạn cấp.
 
@@ -16,9 +16,9 @@ Bài này phối hợp **AWS Console cho CloudFormation, EC2 và WAF** với AWS
 
 Bản đầu triển khai **Terminal chế độ meetings**, đăng nhập Google, bot và có thể thêm VieGem để thử phiên âm phi thương mại. Workspace/agent đầy đủ, trợ lý giọng nói, các mô hình và tích hợp bổ sung không tự bật trong bản này; xem [phần tính năng mở rộng](5.4-data-compute/5.4.3-ecs-load-balancer/5.4.3.5-extensions/).
 
-## Triển khai gọn bằng một file
+## Triển khai nhanh bằng một file (khuyên dùng)
 
-Xem [triển khai một CloudFormation](5.4-full-cloudformation/) để dùng template gộp. Stack để trống cấu hình đăng nhập và dùng để kiểm tra hạ tầng cùng trang đầu. Phần Google bên dưới dành cho lộ trình nhiều stack.
+Xem [triển khai một CloudFormation](5.4-full-cloudformation/) để dùng template gộp `tina-full.yml` cùng bộ 12 image ARM64 dựng sẵn trên GHCR (đã gồm **VieGem**): chỉ cần dán lệnh vào **AWS CloudShell** (~15–20 phút), sau đó gắn Google OAuth của riêng bạn là chạy được web đầy đủ. Lộ trình nhiều stack bên dưới dành cho trường hợp muốn dựng và kiểm tra từng lớp hạ tầng riêng lẻ.
 
 ## Thứ tự thực hiện
 

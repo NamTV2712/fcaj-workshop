@@ -7,8 +7,11 @@ chapter: false
 pre: " <b> 5.3. </b> "
 ---
 
-Deploy the pinned foundation template with CloudFormation and add NAT egress with the CLI. The stack creates a VPC, subnets, ECS cluster, S3 bucket and three ECR repositories.
+## Create the Foundation with CloudFormation
 
-The complete step-by-step guide and screenshot locations are currently maintained in Vietnamese:
+Instead of creating each subnet manually, you upload a template in the CloudFormation Console to create a two-AZ VPC, route tables, an S3 gateway endpoint, an ECS cluster, an S3 bucket, and three foundational ECR repositories. Afterward, you use the CLI to add NAT egress and routing for the application.
 
-{{< workshop-vi >}}
+1. [Create the foundation in the Console](5.3.1-vpc-subnets/).
+2. [Create NAT and verify network routes](5.3.2-gateways-routing/).
+
+Keep the stack outputs for the subsequent stacks; the CLI commands in this workshop read those outputs directly from your account.

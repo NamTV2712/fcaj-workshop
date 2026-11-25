@@ -21,6 +21,10 @@ Parameters:
     Default: ''
     AllowedPattern: (|[1-9][0-9]*(,[1-9][0-9]*)*)
     Description: Explicit TINA user IDs, comma separated; set after first sign-in.
+  GoogleSecretArn:
+    Type: String
+    Default: ''
+    Description: Optional Secrets Manager ARN containing {"client_id":"...","client_secret":"..."} for Google OAuth sign-in.
   EnableVoice:
     Type: String
     Default: 'false'
@@ -95,6 +99,11 @@ Parameters:
     AllowedPattern: (|sha256:[a-f0-9]{64})
     Description: 'Required when voice is enabled: ARM64 image digest for LiveKitAgent'
 Conditions:
+  WithGoogleOAuth:
+    Fn::Not:
+    - Fn::Equals:
+      - Ref: GoogleSecretArn
+      - ''
   EnableVoiceResources:
     Fn::Equals:
     - Ref: EnableVoice
@@ -4802,7 +4811,10 @@ Resources:
             - Ref: CoreAdminToken
             - Ref: CoreInternalSecret
             - Ref: TerminalNextAuthSecret
-            - Ref: AWS::NoValue
+            - Fn::If:
+              - WithGoogleOAuth
+              - Ref: GoogleSecretArn
+              - Ref: AWS::NoValue
   TerminalTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Metadata:
@@ -4876,8 +4888,18 @@ Resources:
         - Name: NEXTAUTH_SECRET
           ValueFrom:
             Ref: TerminalNextAuthSecret
-        - Ref: AWS::NoValue
-        - Ref: AWS::NoValue
+        - Fn::If:
+          - WithGoogleOAuth
+          - Name: GOOGLE_CLIENT_ID
+            ValueFrom:
+              Fn::Sub: '${GoogleSecretArn}:client_id::'
+          - Ref: AWS::NoValue
+        - Fn::If:
+          - WithGoogleOAuth
+          - Name: GOOGLE_CLIENT_SECRET
+            ValueFrom:
+              Fn::Sub: '${GoogleSecretArn}:client_secret::'
+          - Ref: AWS::NoValue
         LogConfiguration:
           LogDriver: awslogs
           Options:

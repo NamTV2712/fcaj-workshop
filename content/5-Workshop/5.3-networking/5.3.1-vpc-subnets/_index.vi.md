@@ -23,6 +23,23 @@ aws iam create-service-linked-role --aws-service-name ecs.amazonaws.com
 
 Sau khi tạo, chờ IAM đồng bộ rồi tiếp tục. Nếu đã gặp lỗi `Unable to assume the service linked role` và stack `tina-staging` ở `ROLLBACK_COMPLETE`, xác nhận đó là stack thực hành vừa tạo, xóa stack lỗi, chờ `DELETE_COMPLETE` rồi tạo lại. Stack ở `CREATE_FAILED` có thể dùng **Retry** nếu Console hiện nút đó. Xem [role dành cho ECS trong tài liệu AWS](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using-service-linked-roles-for-clusters.html).
 
+Nếu muốn CloudFormation tạo role trong tài khoản **chưa có** `AWSServiceRoleForECS`, thêm đoạn dưới vào mục `Resources:` sẵn có của `foundation.yml`. Đặt `ECSServiceLinkedRole` ngang cấp với `Cluster`, rồi thêm `DependsOn` vào resource `Cluster`. Giữ nguyên toàn bộ `Properties` hiện có của `Cluster`. Khi tạo stack, xác nhận quyền tạo tài nguyên IAM nếu Console yêu cầu.
+
+```yaml
+  ECSServiceLinkedRole:
+    Type: AWS::IAM::ServiceLinkedRole
+    DeletionPolicy: Retain
+    Properties:
+      AWSServiceName: ecs.amazonaws.com
+
+  Cluster:
+    Type: AWS::ECS::Cluster
+    DependsOn: ECSServiceLinkedRole
+    # Giữ nguyên Properties của Cluster ngay bên dưới.
+```
+
+Role này dùng chung trong tài khoản. Nếu role đã tồn tại hoặc bạn tạo lại stack sau khi xóa, dùng template gốc với bước kiểm tra CloudShell ở trên. `Retain` giữ role lại khi xóa stack, nên khai báo tạo lại có thể báo trùng tên. [Tài liệu CloudFormation về ServiceLinkedRole](https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-iam-servicelinkedrole.html)
+
 1. Vào **CloudFormation → Stacks → Create stack → With new resources (standard)**.
 2. Mở [foundation.yml trên GitHub](https://github.com/poor-frog/TINA/blob/7d6bba8109f6eac51c0d8241a7083e3e364cf59d/deploy/aws/foundation.yml), chọn **Download raw file** và lưu thành `foundation.yml`. Trong CloudFormation, chọn **Template is ready → Upload a template file → Choose file**, chọn file vừa tải rồi bấm **Next**.
 

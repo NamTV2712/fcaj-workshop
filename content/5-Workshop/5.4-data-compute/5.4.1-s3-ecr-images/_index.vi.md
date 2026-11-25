@@ -75,10 +75,111 @@ git rev-parse HEAD
 docker buildx version
 ```
 
-Tải script build của workshop: {{< workshop-file path="scripts/tina-ecr-build.sh" label="tải tina-ecr-build.sh" >}}. Trong website đã xuất bản, nhấp phải liên kết đó → **Copy link address**. Thay URL vào lệnh sau trên EC2; nếu bạn đang xem tài liệu chưa xuất bản, chuyển đúng file `static/scripts/tina-ecr-build.sh` từ bản workshop của bạn sang EC2 trước.
+Tải script build của workshop: {{< workshop-file path="scripts/tina-ecr-build.sh" label="tải tina-ecr-build.sh" >}}, **hoặc** dán trực tiếp khối lệnh dưới đây vào EC2 để tạo `/root/tina-ecr-build.sh` mà không cần tải file ngoài:
+
+> **Mẹo triển khai nhanh:** Nếu bạn không muốn tự build Docker trên EC2, xem [5.4A Triển khai nhanh bằng 1 CloudFormation](../../5.4-full-cloudformation/) để copy thẳng bộ 12 image `linux/arm64` dựng sẵn (gồm cả VieGem) từ GHCR vào ECR ngay trong CloudShell.
+
+<details>
+<summary>Bấm để mở & copy trực tiếp toàn bộ script <code>/root/tina-ecr-build.sh</code></summary>
 
 ```bash
-curl -fL 'DAN_URL_TEP_SCRIPT_VUA_SAO_CHEP' -o /root/tina-ecr-build.sh
+cat > /root/tina-ecr-build.sh <<'EOF'
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
+set -Eeuo pipefail
+readonly EXPECTED_REVISION=7d6bba8109f6eac51c0d8241a7083e3e364cf59d
+SOURCE_DIR="$PWD"
+REGION="${AWS_REGION:-us-east-1}"
+readonly PREFIX=tina-staging
+TAG="${TINA_IMAGE_TAG:-ws-$(date -u +%Y%m%d%H%M%S)}"
+PLAN_ONLY=0; WITH_VIEGEM=0; WITH_ADDONS=0; WITH_FULL=0
+while (($#)); do
+  case "$1" in
+    --source) SOURCE_DIR="$2"; shift 2 ;;
+    --region) REGION="$2"; shift 2 ;;
+    --with-viegem) WITH_VIEGEM=1; shift ;;
+    --with-addons) WITH_ADDONS=1; shift ;;
+    --full) WITH_FULL=1; WITH_ADDONS=1; WITH_VIEGEM=1; shift ;;
+    --plan) PLAN_ONLY=1; shift ;;
+    *) echo "Unknown option: $1" >&2; exit 2 ;;
+  esac
+done
+SOURCE_DIR="$(cd -- "$SOURCE_DIR" && pwd -P)"
+REVISION="$(git -C "$SOURCE_DIR" rev-parse HEAD)"
+[[ "$REVISION" == "$EXPECTED_REVISION" ]] || { echo "Wrong source revision: expected $EXPECTED_REVISION, found $REVISION." >&2; exit 1; }
+images=(terminal gateway meeting-api admin-api runtime bot)
+((WITH_ADDONS)) && images+=(agent-api agent-reach agent-worker mcp flows)
+((WITH_VIEGEM)) && images+=(viegem)
+printf 'Revision: %s\nRegion: %s\nECR prefix: %s\nTag: %s\n' "$REVISION" "$REGION" "$PREFIX" "$TAG"
+((PLAN_ONLY)) && { echo 'Plan only: no image was built or pushed.'; exit 0; }
+ACCOUNT="$(aws sts get-caller-identity --region "$REGION" --query Account --output text --no-cli-pager)"
+REGISTRY="${ACCOUNT}.dkr.ecr.${REGION}.amazonaws.com"
+WORK_DIR="$(mktemp -d)"
+trap 'rm -rf -- "$WORK_DIR"' EXIT
+mkdir -p "$WORK_DIR/source"
+git -C "$SOURCE_DIR" archive --format=tar "$REVISION" | tar --exclude='.env' --exclude='.env.*' --exclude='.env.keys' -xf - -C "$WORK_DIR/source"
+SRC="$WORK_DIR/source"
+aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "$REGISTRY" >/dev/null
+push_image() {
+  local name="$1" dockerfile="$2" context="$3"; shift 3
+  local image="$REGISTRY/$PREFIX/$name:$TAG"
+  docker build --platform linux/arm64 --file "$SRC/$dockerfile" --tag "$image" "$@" "$SRC/$context"
+  docker push "$image"
+}
+if ((WITH_FULL)); then
+  push_image terminal clients/terminal/Dockerfile . --build-arg NEXT_PUBLIC_TERMINAL_MODE=workspace-pilot
+else
+  push_image terminal clients/terminal/Dockerfile . --build-arg NEXT_PUBLIC_TERMINAL_MODE=meetings
+fi
+push_image gateway core/gateway/services/gateway/Dockerfile .
+push_image meeting-api core/meetings/services/meeting-api/Dockerfile .
+push_image admin-api core/identity/services/admin-api/Dockerfile core/identity/services/admin-api
+if ((WITH_FULL)); then
+  docker build --platform linux/arm64 --file "$SRC/core/runtime/Dockerfile" --tag tina-workshop/runtime-base "$SRC/core/runtime"
+  push_image runtime deploy/aws/workspace-pilot.Dockerfile . --target runtime --build-arg RUNTIME_BASE=tina-workshop/runtime-base --build-arg AGENT_BASE=tina-workshop/runtime-base --build-arg WORKER_BASE=tina-workshop/runtime-base
+else
+  push_image runtime core/runtime/Dockerfile core/runtime
+fi
+docker build --platform linux/arm64 --file "$SRC/core/meetings/modules/join/Dockerfile.env" --tag tina/meet-join-env:dev "$SRC/core/meetings/modules/join"
+push_image bot core/meetings/services/bot/Dockerfile . --build-arg "TINA_IMAGE_VERSION=$REVISION"
+if ((WITH_ADDONS)); then
+  if ((WITH_FULL)); then
+    docker build --platform linux/arm64 --file "$SRC/core/agent/services/agent-api/Dockerfile" --tag tina/v012-agent-api:staging-voice "$SRC"
+    docker build --platform linux/arm64 --file "$SRC/deploy/aws/voice-worker.Dockerfile" --tag tina-workshop/agent-voice "$SRC"
+    push_image agent-api deploy/aws/workspace-pilot.Dockerfile . --target agent --build-arg AGENT_BASE=tina-workshop/agent-voice --build-arg RUNTIME_BASE=tina-workshop/agent-voice --build-arg WORKER_BASE=tina-workshop/agent-voice
+  else
+    push_image agent-api core/agent/services/agent-api/Dockerfile .
+  fi
+  push_image agent-reach deploy/agent-reach/Dockerfile deploy/agent-reach
+  if ((WITH_FULL)); then
+    docker build --platform linux/arm64 --file "$SRC/core/agent/worker/Dockerfile" --tag tina-workshop/worker-base "$SRC"
+    push_image agent-worker deploy/aws/workspace-pilot.Dockerfile . --target worker --build-arg WORKER_BASE=tina-workshop/worker-base --build-arg RUNTIME_BASE=tina-workshop/worker-base --build-arg AGENT_BASE=tina-workshop/worker-base
+  else
+    push_image agent-worker core/agent/worker/Dockerfile .
+  fi
+  push_image mcp core/meetings/services/mcp/Dockerfile core/meetings/services/mcp
+  push_image flows core/flows/Dockerfile .
+fi
+if ((WITH_VIEGEM)); then
+  ASSETS="${TINA_VIEGEM_CACHE:-$HOME/.cache/tina-workshop/viegem-fsmn}"
+  mkdir -p "$ASSETS"
+  docker build --platform linux/arm64 --build-arg TORCH_VARIANT=cpu --file "$SRC/deploy/transcription/viegem/Dockerfile" --tag tina/v012-viegem:staging-cpu-base "$SRC"
+  docker run --rm --platform linux/arm64 --mount "type=bind,src=$ASSETS,dst=/assets" tina/v012-viegem:staging-cpu-base python install-models.py --directory /assets
+  push_image viegem deploy/aws/viegem.Dockerfile deploy/aws --build-context "viegem_assets=$ASSETS"
+fi
+for name in "${images[@]}"; do
+  digest="$(aws ecr describe-images --region "$REGION" --repository-name "$PREFIX/$name" --image-ids "imageTag=$TAG" --query 'imageDetails[0].imageDigest' --output text --no-cli-pager)"
+  printf '%-14s %s/%s/%s@%s\n' "$name" "$REGISTRY" "$PREFIX" "$name" "$digest"
+done
+EOF
+chmod +x /root/tina-ecr-build.sh
+```
+
+</details>
+
+Sau khi đã có `/root/tina-ecr-build.sh`, chạy kiểm tra kế hoạch build (`--plan`):
+
+```bash
 export AWS_REGION=us-east-1
 export TINA_IMAGE_TAG=ws-v1
 bash /root/tina-ecr-build.sh --source /root/tina-source --region "$AWS_REGION" --plan

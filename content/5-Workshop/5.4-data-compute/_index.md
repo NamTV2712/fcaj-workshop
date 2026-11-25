@@ -7,8 +7,11 @@ chapter: false
 pre: " <b> 5.4. </b> "
 ---
 
-Create the remaining ECR repositories, build ARM64 images on your EC2 builder, deploy RDS and Valkey, then deploy the edge, runtime, core and Terminal in dependency order.
+## Build the system in dependency order
 
-The complete step-by-step guide and screenshot locations are currently maintained in Vietnamese:
+1. [Create ECR repositories and build ARM64 images on EC2](5.4.1-s3-ecr-images/).
+2. [Create RDS PostgreSQL, Valkey, and secrets](5.4.2-data-secrets/).
+3. [Deploy edge, runtime, core, Terminal, and optional ASR](5.4.3-ecs-load-balancer/).
+4. [Sign in and validate a meeting](5.4.4-application-validation/).
 
-{{< workshop-vi >}}
+Each section depends on the outputs of the previous section. The name `tina-staging` in the templates is a technical name in your own AWS account and does not require using the author's environment.
