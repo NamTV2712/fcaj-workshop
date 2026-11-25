@@ -23,9 +23,29 @@ In **ECS → Clusters → service → Tasks → task → Logs**, or **CloudWatch
 
 If ECS reports `CannotPullContainerError`, check that the digest is ARM64, the execution role has ECR permissions, and outbound NAT routing works. If you hit quota limits, check Service Quotas. If targets are unhealthy, inspect Terminal logs, port 3000, and the `/api/auth/providers` health check path.
 
-## 3. Cost
+## 3. Cost Estimation and Optimization
 
-Check **Billing → Budgets** and **Cost Explorer**; billing data can lag behind actual usage. Review NAT Gateway, public IPv4 addresses, EC2 builder/EBS, RDS, Valkey, Fargate, ALB, CloudFront, WAF, ECR, and snapshots. Budgets send alerts only—they do not automatically delete resources.
+Check **Billing → Budgets** and **Cost Explorer**; billing data can lag behind actual usage. Budgets send alerts only—they do not automatically delete resources.
+
+### Reference Cost Estimate (`us-east-1`, pilot workload)
+
+The table below estimates on-demand pricing in `us-east-1` for a pilot workload (~10 users, ~5 meetings/week, ~20 meeting-hours/month):
+
+| Service Category | Key Sizing | Est. Monthly Cost |
+| --- | --- | --- |
+| **ECS Fargate (ARM64)** | Terminal, Core, Runtime, Agent (24/7) + Bot/VieGem (on-demand ~20 h/month) | ~$38–42 |
+| **Networking** | 1 ALB (~$18) + 1 NAT Gateway (~$33) + 3 Public IPv4 (~$11) + CloudFront (~$1) | ~$63 |
+| **Data Stores** | RDS PostgreSQL `db.t4g.micro` (~$14) + ElastiCache Valkey `cache.t4g.micro` (~$11.7) + S3 (~$0.3) | ~$26 |
+| **Security & Observability** | AWS WAF (~$8) + Secrets Manager (~$2) + KMS (~$1) + CloudWatch (~$3.5) + ECR (~$1) | ~$15.5 |
+| **Total (24/7 full stack)** | Full pilot architecture | **~$145/month** |
+
+### Cost Optimization Strategies
+
+1. **ARM64 (Graviton) on Fargate & RDS `t4g`**: reduces compute costs by ~20% compared to equivalent x86_64 sizing.
+2. **VPC Endpoints (free S3 Gateway + ECR/Logs/Secrets Manager)**: keeps private image pulls, logs, and secret reads off the NAT Gateway, avoiding `$0.045/GB` NAT data processing fees.
+3. **Off-hours scale-down**: scaling non-essential ECS services to `desiredCount=0` and stopping RDS outside working hours (~10 h/day, weekdays) lowers pilot costs to **~$70–80/month**.
+4. **On-demand Bot & meeting tasks**: Bot tasks are spawned only when a meeting starts and stop automatically when it ends, avoiding 24/7 idle compute.
+5. **S3 Lifecycle & AWS Budgets**: auto-expire temporary `runtime-invocations/` objects after 1 day, transition older recordings to cheaper storage classes, and set **AWS Budgets** alerts at **50%, 80%, and 100%**.
 
 {{< workshop-screenshot file="21-budget.png" description="Lab account budget and alert status; redact email addresses and account ID." >}}
 
