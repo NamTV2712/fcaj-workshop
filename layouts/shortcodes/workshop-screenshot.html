@@ -1,0 +1,20 @@
+{{- $name := .Get "file" -}}
+{{- $description := .Get "description" -}}
+{{- if or (not $name) (not $description) -}}
+  {{- errorf "workshop-screenshot requires file and description: %s" .Position -}}
+{{- end -}}
+{{- if or (in $name "/") (in $name "\\") -}}
+  {{- errorf "workshop-screenshot file must be a filename: %s" .Position -}}
+{{- end -}}
+{{- $relativePath := printf "images/5-Workshop/tina/%s" $name -}}
+{{- if fileExists (printf "static/%s" $relativePath) }}
+<figure class="workshop-screenshot">
+  <img src="{{ $relativePath | relURL }}" alt="{{ $description }}" loading="lazy">
+  <figcaption>{{ $description }}</figcaption>
+</figure>
+{{- else }}
+<div class="notices info workshop-screenshot-missing">
+  <p>{{ if eq .Page.Lang "vi" }}<strong>Ảnh cần bổ sung:</strong>{{ else }}<strong>Screenshot needed:</strong>{{ end }} {{ $description }}<br>
+  <code>static/{{ $relativePath }}</code></p>
+</div>
+{{- end }}
