@@ -10,6 +10,8 @@ pre: " <b> 5.4A </b> "
 
 {{< workshop-file path="cloudformation/tina-full.yml" label="Download tina-full.yml" >}}
 
+![TINA AWS Architecture](/images/5-Workshop/tina/tina-aws-architecture.png)
+
 The `tina-full.yml` template provisions the entire TINA infrastructure in a **single stack**: a 2-AZ VPC, NAT Gateway, S3, CloudFront + WAF, an internal ALB, RDS PostgreSQL, ElastiCache Valkey, ECS Fargate (ARM64), Terminal, Bot, Runtime, **VieGem ASR**, Agent API, Agent Reach, MCP, Flows, and workspace storage.
 
 The entire deployment is split into **5 short sequential commands in AWS CloudShell (`us-east-1`)**—wait for each command to finish before running the next, with no EC2 builder or local Docker build required:

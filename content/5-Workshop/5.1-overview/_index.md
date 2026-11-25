@@ -9,16 +9,18 @@ pre: " <b> 5.1. </b> "
 
 ## What Will You Build?
 
-In a fresh AWS account, CloudFormation creates a two-Availability-Zone VPC, an ECS cluster, a private S3 bucket, outbound networking, RDS PostgreSQL, Valkey, CloudFront, an ALB, and the ECS services. You **build the images yourself from source** and push them to your own ECR repositories. Names include `staging` because some templates and ECR permissions in this source revision require that prefix; all resources still belong to your own account.
+In a fresh AWS account, CloudFormation creates a two-Availability-Zone VPC, an ARM64 ECS Fargate cluster, private S3 buckets, NAT Gateway/VPC Endpoints, RDS PostgreSQL, Valkey, CloudFront + WAF, an internal ALB, and all ECS services (Terminal, Gateway, Meeting/Admin API, Runtime, Bot, **VieGem ASR**, Agent/MCP/Flows, and optional LiveKit/VieNeu Voice). You can **copy the prebuilt `linux/arm64` images from GHCR (`workshop-arm64`)** straight into your own ECR via CloudShell (see [5.4A](../5.4-full-cloudformation/)) or build them from source. Names include `staging` because some templates and ECR permissions require that prefix; all resources still belong to your own account.
+
+![TINA AWS Architecture](/images/5-Workshop/tina/tina-aws-architecture.png)
 
 ```text
-Browser → CloudFront/WAF → Internal ALB → Terminal (ECS)
+Browser → CloudFront/WAF → Internal ALB → Terminal (ECS Fargate)
                                               ↓
                                   Gateway + meeting/admin API
                                     ↓           ↓        ↓
                              Runtime/ECS bot   RDS    Valkey
-                                    ↓           ↓
-                                  S3          VieGem (optional)
+                                    ↓           ↓        ↓
+                                  S3         VieGem   Agent/MCP/Flows
 ```
 
 To evaluate the lab, verify that the stacks created in your own account succeed, the services reach their desired state, and the sign-in/meeting flow works. A stack in `CREATE_COMPLETE` only confirms that AWS provisioned the resources—it does not prove that all TINA functionality works.

@@ -9,16 +9,18 @@ pre: " <b> 5.1. </b> "
 
 ## Bạn sẽ tạo gì?
 
-Trên tài khoản AWS mới, CloudFormation tạo VPC hai Availability Zone, ECS cluster, bucket riêng, mạng ra, RDS PostgreSQL, Valkey, CloudFront, ALB và các ECS service. Image được **bạn tự build từ source** rồi đẩy vào ECR của bạn. Dùng tên có `staging` vì một số template và quyền ECR của phiên bản nguồn này yêu cầu tên đó; các tài nguyên vẫn thuộc tài khoản của bạn.
+Trên tài khoản AWS mới, CloudFormation tạo VPC hai Availability Zone, ECS Fargate cluster (ARM64), S3 bucket riêng, NAT Gateway/VPC Endpoints, RDS PostgreSQL, Valkey, CloudFront + WAF, ALB nội bộ và toàn bộ các ECS service (Terminal, Gateway, Meeting/Admin API, Runtime, Bot, **VieGem ASR**, Agent/MCP/Flows và tùy chọn Voice LiveKit/VieNeu). Bạn có thể **copy nhanh bộ image `linux/arm64` dựng sẵn từ GHCR (`workshop-arm64`)** vào ECR bằng CloudShell (xem [5.4A](../5.4-full-cloudformation/)) hoặc tự build từ source. Dùng tên có `staging` vì một số template và quyền ECR yêu cầu tiền tố này; toàn bộ tài nguyên vẫn thuộc tài khoản của bạn.
+
+![Sơ đồ kiến trúc TINA trên AWS](/images/5-Workshop/tina/tina-aws-architecture.png)
 
 ```text
-Trình duyệt → CloudFront/WAF → ALB nội bộ → Terminal (ECS)
+Trình duyệt → CloudFront/WAF → ALB nội bộ → Terminal (ECS Fargate)
                                               ↓
                                   Gateway + meeting/admin API
                                     ↓           ↓        ↓
                              Runtime/ECS bot   RDS    Valkey
-                                    ↓           ↓
-                                  S3          VieGem (tùy chọn)
+                                    ↓           ↓        ↓
+                                  S3         VieGem   Agent/MCP/Flows
 ```
 
 Để đánh giá bài thực hành, cần xem stack của chính người học tạo thành công, service đạt trạng thái mong muốn và thử luồng đăng nhập/meeting. Stack `CREATE_COMPLETE` chỉ xác nhận AWS đã tạo tài nguyên, chưa chứng minh toàn bộ chức năng TINA hoạt động.
