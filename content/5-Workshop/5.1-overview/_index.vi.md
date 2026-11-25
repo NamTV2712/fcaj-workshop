@@ -39,5 +39,3 @@ Sau khi hoàn thành các phần bên dưới, ảnh này thể hiện danh sác
 - ECS core, runtime và terminal chạy ổn định; target group terminal healthy.
 - Tạo cuộc họp thử được phép, quan sát bot; nếu bật ASR, kiểm tra transcript và ghi rõ lỗi nếu có.
 - Biết nguồn chi phí và xóa đúng tài nguyên khi kết thúc.
-
-Không dùng CloudFormation `static/cloudformation/tina-infrastructure.yaml` cũ trong kho workshop: nó không phải bộ template được dùng trong lộ trình này.

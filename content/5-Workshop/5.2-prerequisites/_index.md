@@ -18,11 +18,13 @@ pre: " <b> 5.2. </b> "
 
 {{< workshop-screenshot file="00-budget.png" description="Budget and alert threshold for your lab account; mask your email and account ID." >}}
 
-4. In **Service Quotas**, check your quotas for Fargate On-Demand, EC2 Graviton, and Elastic IPs. Each bot requires 4 vCPU / 8 GiB; core uses 2 vCPU, VieGem uses 2 vCPU, plus runtime and terminal. Leave enough headroom for replacement tasks during ECS redeployments. If any quota is too low, request an increase before proceeding.
+4. In **Service Quotas**, check your quotas for Fargate On-Demand, EC2 Graviton, Elastic IPs, and RDS. Each bot requires 4 vCPU / 8 GiB; core uses 2 vCPU, VieGem uses 2 vCPU, plus runtime and terminal. Leave enough headroom for replacement tasks during ECS redeployments. Note that **AWS Free Plan** accounts enforce a strict cap on the number of RDS instances—if other RDS instances are already running, creating PostgreSQL may fail with `ServiceLimitExceeded`.
 
 NAT Gateway, public IPv4 addresses, Fargate, RDS, Valkey, ALB, WAF, S3, ECR, the builder instance, and CloudFront may incur charges. Check the [AWS Pricing Calculator](https://calculator.aws/) for your Region and expected runtime. This workshop is not guaranteed to stay within the AWS Free Tier.
 
-## 2. Source Code and Templates
+> **Fast Path (Recommended):** If you choose the single-file CloudFormation deployment with prebuilt ARM64 images from GHCR, once you complete **Section 1** above, simply open **AWS CloudShell (`us-east-1`)** and jump straight to **[5.4A Single CloudFormation Deployment](../5.4-full-cloudformation/)** (you can skip Sections 2 and 3 below).
+
+## 2. Source Code and Templates (for the multi-stack path 5.3 → 5.4)
 
 This workshop uses the pinned commit `7d6bba8109f6eac51c0d8241a7083e3e364cf59d` in the [TINA repository](https://github.com/poor-frog/TINA), which includes the ECS backend. Do not substitute `main`: the checked `main` branch does not contain the corresponding ECS backend.
 

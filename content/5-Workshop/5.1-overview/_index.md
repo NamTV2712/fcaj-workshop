@@ -39,5 +39,3 @@ The next screenshot shows the service status inside your cluster:
 - The ECS core, runtime, and terminal services run stably, and the terminal target group is healthy.
 - Create an authorized test meeting and observe the bot; if ASR is enabled, verify the transcript and note any errors encountered.
 - Understand the cost drivers and cleanly delete all resources when finished.
-
-Do not use the legacy `static/cloudformation/tina-infrastructure.yaml` template in the workshop repository: it is not part of the template set used in this walkthrough.

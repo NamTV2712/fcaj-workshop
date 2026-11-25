@@ -18,11 +18,13 @@ pre: " <b> 5.2. </b> "
 
 {{< workshop-screenshot file="00-budget.png" description="Budget và ngưỡng cảnh báo của tài khoản thực hành; che email và account ID." >}}
 
-4. Trong **Service Quotas**, kiểm tra quota Fargate On-Demand, EC2 Graviton và Elastic IP. Mỗi bot cần 4 vCPU/8 GiB; core 2 vCPU, VieGem 2 vCPU, cùng runtime và terminal. Chừa đủ quota cho cả task thay thế khi ECS triển khai lại. Nếu quota thiếu, yêu cầu tăng trước khi tiếp tục.
+4. Trong **Service Quotas**, kiểm tra quota Fargate On-Demand, EC2 Graviton, Elastic IP và RDS. Mỗi bot cần 4 vCPU/8 GiB; core 2 vCPU, VieGem 2 vCPU, cùng runtime và terminal. Chừa đủ quota cho cả task thay thế khi ECS triển khai lại. Lưu ý tài khoản **AWS Free Plan** có giới hạn số lượng RDS instance tối đa — nếu tài khoản đã chạy sẵn RDS khác, bước tạo PostgreSQL có thể báo `ServiceLimitExceeded`.
 
 NAT Gateway, IPv4 công cộng, Fargate, RDS, Valkey, ALB, WAF, S3, ECR, builder và CloudFront có thể tính phí. Xem [AWS Pricing Calculator](https://calculator.aws/) theo Region và thời gian bạn định chạy. Đây không phải bài đảm bảo thuộc Free Tier.
 
-## 2. Mã nguồn và template
+> **Lộ trình nhanh (khuyên dùng):** Nếu bạn chọn triển khai nhanh bằng một file CloudFormation và bộ image ARM64 dựng sẵn trên GHCR, sau khi hoàn tất **Mục 1** ở trên, bạn chỉ cần mở **AWS CloudShell (`us-east-1`)** rồi chuyển thẳng sang **[5.4A Triển khai bằng một CloudFormation](../5.4-full-cloudformation/)** (bỏ qua Mục 2 và Mục 3 bên dưới).
+
+## 2. Mã nguồn và template (dành cho lộ trình nhiều stack 5.3 → 5.4)
 
 Bài dùng commit cố định `7d6bba8109f6eac51c0d8241a7083e3e364cf59d` trong [repository TINA](https://github.com/poor-frog/TINA), có ECS backend. Đừng thay bằng `main`: phiên bản `main` đã kiểm tra không có backend ECS tương ứng.
 
