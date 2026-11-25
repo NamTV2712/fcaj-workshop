@@ -24,7 +24,6 @@ allowed to push to the private ECR repositories. Create the repositories first.
 --with-viegem downloads the model assets and builds the non-commercial ASR image.
 --with-addons also builds the optional agent, MCP and flows images.
 --full builds workspace-pilot, agent, MCP, flows and VieGem images for tina-full.yml.
-Place tina-cognito.patch next to this script when using --full.
 The prefix tina-staging is required by the pinned CloudFormation templates.
 TINA_IMAGE_TAG can override the image tag.
 EOF
@@ -92,10 +91,6 @@ mkdir -p "$WORK_DIR/source" "$WORK_DIR/docker-config"
 git -C "$SOURCE_DIR" archive --format=tar "$REVISION" |
   tar --exclude='.env' --exclude='.env.*' --exclude='.env.keys' -xf - -C "$WORK_DIR/source"
 SRC="$WORK_DIR/source"
-if ((WITH_FULL)); then
-  SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
-  git -C "$SRC" apply --no-index "$SCRIPT_DIR/tina-cognito.patch"
-fi
 export DOCKER_CONFIG="$WORK_DIR/docker-config" DOCKER_BUILDKIT=1 AWS_PAGER=''
 aws ecr get-login-password --region "$REGION" |
   docker login --username AWS --password-stdin "$REGISTRY" >/dev/null

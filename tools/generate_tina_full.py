@@ -288,7 +288,7 @@ def main():
     result = {"AWSTemplateFormatVersion": "2010-09-09",
       "Description": "TINA workshop: network, ECS Fargate, data, web, agent, workspace and optional voice. Source " + REVISION,
       "Metadata": {"AWSToolsMetrics": {"AWSAgentToolkit": "aws-cloudformation@3"},
-                   "com.aws.cloudformation.Context": {"arch": "One isolated evaluation stack; image digests and OAuth secret are supplied by the operator.",
+                   "com.aws.cloudformation.Context": {"arch": "One isolated evaluation stack; the operator supplies image digests.",
                      "must": "Retain private data; use only reviewed ARM64 images and a fresh account; activate workspace for explicit user IDs."}},
       "Parameters": {}, "Conditions": {"EnableVoiceResources": {"Fn::Equals": [ref("EnableVoice"), "true"]}}, "Resources": {}, "Outputs": {}}
     params = result["Parameters"]
@@ -331,42 +331,6 @@ def main():
                 transformed["Condition"] = "EnableVoiceResources"
             result["Resources"][prefix + name] = transformed
 
-    result["Resources"].update({
-        "CognitoPool": {
-            "Type": "AWS::Cognito::UserPool",
-            "Properties": {
-                "UsernameAttributes": ["email"],
-                "UsernameConfiguration": {"CaseSensitive": False},
-                "AutoVerifiedAttributes": ["email"],
-                "AdminCreateUserConfig": {"AllowAdminCreateUserOnly": True},
-                "Policies": {"PasswordPolicy": {"MinimumLength": 12}},
-            },
-        },
-        "CognitoDomain": {
-            "Type": "AWS::Cognito::UserPoolDomain",
-            "Properties": {
-                "Domain": sub("tina-workshop-${AWS::AccountId}"),
-                "UserPoolId": ref("CognitoPool"),
-                "ManagedLoginVersion": 1,
-            },
-        },
-        "CognitoClient": {
-            "Type": "AWS::Cognito::UserPoolClient",
-            "Properties": {
-                "UserPoolId": ref("CognitoPool"), "GenerateSecret": False,
-                "AllowedOAuthFlowsUserPoolClient": True, "AllowedOAuthFlows": ["code"],
-                "AllowedOAuthScopes": ["openid", "email", "profile"],
-                "SupportedIdentityProviders": ["COGNITO"],
-                "CallbackURLs": [sub("https://${EdgeDistribution.DomainName}/api/auth/callback/cognito")],
-                "PreventUserExistenceErrors": "ENABLED",
-            },
-        },
-    })
-    terminal = result["Resources"]["TerminalTaskDefinition"]["Properties"]["ContainerDefinitions"][0]
-    terminal["Environment"].extend([
-        {"Name": "COGNITO_CLIENT_ID", "Value": ref("CognitoClient")},
-        {"Name": "COGNITO_ISSUER", "Value": sub("https://cognito-idp.${AWS::Region}.${AWS::URLSuffix}/${CognitoPool}")},
-    ])
     result["Resources"]["WebAcl"] = {
         "Type": "AWS::WAFv2::WebACL", "Metadata": {"com.aws.cloudformation.Context": {"why": "Filter common requests at the CloudFront edge.", "must": "Keep CloudFront scope and review rules before production."}},
         "Properties": {"Scope": "CLOUDFRONT", "DefaultAction": {"Allow": {}},
@@ -397,13 +361,11 @@ def main():
     add_dependencies("CoreCoreService", "McpMcpRule")
     add_dependencies("AgentAgentApi", "WorkspaceAgentApiWorkspaceS3Policy")
     add_dependencies("VoiceVoice", "CoreCoreService")
-    add_dependencies("TerminalTerminalService", "CognitoDomain")
     for name, resource in result["Resources"].items():
         if resource.get("Type") == "AWS::ECS::Service":
             add_dependencies(name, "EgressAppEgressA", "EgressAppEgressB", "FoundationS3GatewayEndpoint")
     result["Outputs"] = {
       "WebsiteUrl": {"Description": "CloudFront URL for this TINA instance.", "Value": edge_url},
-      "CognitoUserPoolId": {"Description": "Invite the initial workshop user in this Cognito user pool.", "Value": ref("CognitoPool")},
       "EcsCluster": {"Description": "ECS cluster for this instance.", "Value": cluster},
       "RecordingsBucket": {"Description": "Retained recordings bucket.", "Value": bucket},
       "WorkspaceBucket": {"Description": "Retained and versioned workspace bucket.", "Value": ref("WorkspaceWorkspaceStoreBucket")},

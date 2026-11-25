@@ -6,7 +6,7 @@ Metadata:
   AWSToolsMetrics:
     AWSAgentToolkit: aws-cloudformation@3
   com.aws.cloudformation.Context:
-    arch: One isolated evaluation stack; image digests and OAuth secret are supplied by the operator.
+    arch: One isolated evaluation stack; the operator supplies image digests.
     must: Retain private data; use only reviewed ARM64 images and a fresh account; activate workspace for explicit
       user IDs.
 Parameters:
@@ -4866,12 +4866,6 @@ Resources:
         - Name: TERMINAL_URL
           Value:
             Fn::Sub: https://${EdgeDistribution.DomainName}
-        - Name: COGNITO_CLIENT_ID
-          Value:
-            Ref: CognitoClient
-        - Name: COGNITO_ISSUER
-          Value:
-            Fn::Sub: https://cognito-idp.${AWS::Region}.${AWS::URLSuffix}/${CognitoPool}
         Secrets:
         - Name: TINA_ADMIN_API_KEY
           ValueFrom:
@@ -4896,7 +4890,6 @@ Resources:
     Type: AWS::ECS::Service
     DependsOn:
     - TerminalTerminalRule
-    - CognitoDomain
     - EgressAppEgressA
     - EgressAppEgressB
     - FoundationS3GatewayEndpoint
@@ -4931,46 +4924,6 @@ Resources:
         DeploymentCircuitBreaker:
           Enable: true
           Rollback: true
-  CognitoPool:
-    Type: AWS::Cognito::UserPool
-    Properties:
-      UsernameAttributes:
-      - email
-      UsernameConfiguration:
-        CaseSensitive: false
-      AutoVerifiedAttributes:
-      - email
-      AdminCreateUserConfig:
-        AllowAdminCreateUserOnly: true
-      Policies:
-        PasswordPolicy:
-          MinimumLength: 12
-  CognitoDomain:
-    Type: AWS::Cognito::UserPoolDomain
-    Properties:
-      Domain:
-        Fn::Sub: tina-workshop-${AWS::AccountId}
-      UserPoolId:
-        Ref: CognitoPool
-      ManagedLoginVersion: 1
-  CognitoClient:
-    Type: AWS::Cognito::UserPoolClient
-    Properties:
-      UserPoolId:
-        Ref: CognitoPool
-      GenerateSecret: false
-      AllowedOAuthFlowsUserPoolClient: true
-      AllowedOAuthFlows:
-      - code
-      AllowedOAuthScopes:
-      - openid
-      - email
-      - profile
-      SupportedIdentityProviders:
-      - COGNITO
-      CallbackURLs:
-      - Fn::Sub: https://${EdgeDistribution.DomainName}/api/auth/callback/cognito
-      PreventUserExistenceErrors: ENABLED
   WebAcl:
     Type: AWS::WAFv2::WebACL
     Metadata:
@@ -5003,10 +4956,6 @@ Outputs:
     Description: CloudFront URL for this TINA instance.
     Value:
       Fn::Sub: https://${EdgeDistribution.DomainName}
-  CognitoUserPoolId:
-    Description: Invite the initial workshop user in this Cognito user pool.
-    Value:
-      Ref: CognitoPool
   EcsCluster:
     Description: ECS cluster for this instance.
     Value:

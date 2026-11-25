@@ -10,7 +10,7 @@ pre: " <b> 5.4A </b> "
 
 {{< workshop-file path="cloudformation/tina-full.yml" label="Tải tina-full.yml" >}}
 
-Đây là một template gồm VPC, NAT, S3, CloudFront/WAF, ALB, RDS, Valkey, ECS Fargate, Terminal, bot, Runtime, VieGem, Agent API, Agent Reach, MCP, Flows và kho workspace. Stack cũng tạo Cognito để đăng nhập bằng email và mật khẩu. Image và model vẫn cần chuẩn bị trước.
+Đây là một template gồm VPC, NAT, S3, CloudFront/WAF, ALB, RDS, Valkey, ECS Fargate, Terminal, bot, Runtime, VieGem, Agent API, Agent Reach, MCP, Flows và kho workspace. Image và model cần chuẩn bị trước. Bản này dùng để kiểm tra hạ tầng và trang mở đầu.
 
 **Trạng thái:** template đã qua kiểm tra tĩnh, chưa được triển khai và kiểm thử toàn bộ trong tài khoản AWS mới. Không dùng cho production. Thực hiện trong tài khoản thử riêng, `us-east-1`, và theo dõi chi phí. Cách một file này tạo VPC mới: **không tạo thêm foundation/egress theo lộ trình nhiều stack trước đó**.
 
@@ -18,7 +18,7 @@ pre: " <b> 5.4A </b> "
 
 TINA có [image dựng sẵn trên GitHub Packages](https://github.com/orgs/poor-frog/packages?repo_name=TINA). Khi kiểm tra manifest của cả 12 image bên dưới, tag `latest` và tag commit `62e5350…` chỉ có `linux/amd64`. Registry trả 404 cho tag commit AWS `7d6bba8…` ở cả 12 repository. Template này dùng Fargate ARM64 và cần Runtime có backend ECS, nên đừng đưa các tag đã kiểm tra vào bước triển khai.
 
-Nếu có bộ image dựng sẵn tương thích với bản AWS này, có thể bỏ EC2 builder và bước build. Sao chép các image ARM64 theo digest vào đúng repository ECR bên dưới, rồi dùng digest trong ECR để tạo stack. Xác nhận bộ image có Runtime backend ECS, Terminal chế độ `workspace-pilot` có tích hợp Cognito và VieGem có model trước khi dùng. Khi chưa có bộ image tương thích, dùng script build ở phần dưới.
+Nếu có bộ image dựng sẵn tương thích với bản AWS này, có thể bỏ EC2 builder và bước build. Sao chép các image ARM64 theo digest vào đúng repository ECR bên dưới, rồi dùng digest trong ECR để tạo stack. Xác nhận bộ image có Runtime backend ECS, Terminal chế độ `workspace-pilot` và VieGem có model trước khi dùng. Khi chưa có bộ image tương thích, dùng script build ở phần dưới.
 
 Tạo trước 12 ECR repository private trong tài khoản mới, tên chính xác dưới đây. Ví dụ CloudShell:
 
@@ -31,7 +31,7 @@ done
 
 Chuẩn bị một EC2 Amazon Linux 2023 **Arm64** với Docker/Buildx, Git, AWS CLI, đủ RAM/dung lượng và instance role có quyền push vào các repository trên. Các bước tạo instance profile và máy builder được mô tả tại [phần builder](../5.4-data-compute/5.4.1-s3-ecr-images/); ở cách một file này, đặt builder trong **VPC public có Internet của bạn**, không tạo stack foundation ở phần đó. Ví dụ dùng máy 8 vCPU/32 GiB, đĩa 200 GiB; kiểm tra quota và chi phí trước.
 
-Trong Session Manager của builder, tải đúng commit nguồn `7d6bba8109f6eac51c0d8241a7083e3e364cf59d` và script {{< workshop-file path="scripts/tina-ecr-build.sh" label="tina-ecr-build.sh" >}} như hướng dẫn builder. Tải thêm {{< workshop-file path="scripts/tina-cognito.patch" label="tina-cognito.patch" >}} và lưu cạnh script tại `/root/tina-cognito.patch`. Dùng URL tải thật của file, tương tự script build. Chạy với tag mới:
+Trong Session Manager của builder, tải đúng commit nguồn `7d6bba8109f6eac51c0d8241a7083e3e364cf59d` và script {{< workshop-file path="scripts/tina-ecr-build.sh" label="tina-ecr-build.sh" >}} như hướng dẫn builder. Chạy với tag mới:
 
 ```bash
 export AWS_REGION=us-east-1 TINA_IMAGE_TAG=ws-v1
@@ -60,12 +60,10 @@ Không tiếp tục nếu kết quả là `None` hoặc sai Region.
 
 {{< workshop-screenshot file="26-cloudformation-full.png" description="CloudFormation stack một file, danh sách tham số đã che account ID và ARN." >}}
 
-4. Mở tab **Outputs** và lấy `WebsiteUrl`, `CognitoUserPoolId`. Vào **Amazon Cognito → User pools → pool theo ID → Users → Create user**. Nhập email của bạn, chọn gửi thư mời qua email và dùng mật khẩu tạm thời. Chỉ đánh dấu email là **verified** khi bạn đã xác nhận quyền sở hữu địa chỉ đó. Pool chỉ cho quản trị viên tạo người dùng.
-5. Mở `WebsiteUrl`, chọn **Continue with email**, đăng nhập bằng email được mời và đổi mật khẩu tạm thời khi Cognito yêu cầu. Đăng nhập bằng tài khoản chủ trước khi mời người khác vì TINA cấp quyền quản trị cho lần đăng nhập đầu tiên. Sau đó chạy phần [kiểm thử meeting, bot và phiên âm](../5.4-data-compute/5.4.4-application-validation/).
+4. Mở tab **Outputs**, lấy `WebsiteUrl`. Mở URL và kiểm tra trang đầu TINA, sau đó xem ECS service và target group. Endpoint `/edge-health` phải trả `TINA_EDGE_READY` khi tuyến CloudFront tới ALB hoạt động.
 
-Callback Cognito được tạo tự động từ URL CloudFront. Tích hợp Google Calendar và ghép nối extension dựa vào tài khoản Gmail nằm ngoài luồng Cognito này.
+Stack này không cấu hình đăng nhập. Terminal yêu cầu phiên đăng nhập để mở màn hình họp và workspace. Vì vậy, bước trên kiểm tra hạ tầng và trang đầu, còn kiểm thử họp, bot và phiên âm qua giao diện chưa thực hiện được.
 
-Workspace được giới hạn theo **TINA user ID**: cập nhật stack `WorkspaceOwnerIds` bằng ID của tài khoản đã đăng nhập và bảo đảm quyền dùng model Bedrock phù hợp; không dùng wildcard. Hiện tài liệu chưa có bước xác định ID đã được kiểm thử từ tài khoản mới, nên phần kích hoạt workspace cần được xác minh khi thực hành.
 
 ## 4. Voice và dữ liệu khi xóa
 

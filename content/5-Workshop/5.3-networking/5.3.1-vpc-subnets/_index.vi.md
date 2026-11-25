@@ -9,8 +9,24 @@ pre: " <b> 5.3.1 </b> "
 
 ## 1. Tạo stack nền tảng trên AWS Console
 
+Nếu đây là lần đầu dùng ECS trong tài khoản thực hành, mở AWS CloudShell và kiểm tra role ECS dùng để quản lý cluster:
+
+```bash
+aws iam get-role --role-name AWSServiceRoleForECS --query 'Role.Arn' --output text
+```
+
+Nếu lệnh báo `NoSuchEntity`, chạy lệnh dưới đây để tạo role. Nếu báo `AccessDenied`, nhờ quản trị viên AWS kiểm tra và tạo role bằng danh tính có quyền `iam:CreateServiceLinkedRole` cho `ecs.amazonaws.com`.
+
+```bash
+aws iam create-service-linked-role --aws-service-name ecs.amazonaws.com
+```
+
+Sau khi tạo, chờ IAM đồng bộ rồi tiếp tục. Nếu đã gặp lỗi `Unable to assume the service linked role` và stack `tina-staging` ở `ROLLBACK_COMPLETE`, xác nhận đó là stack thực hành vừa tạo, xóa stack lỗi, chờ `DELETE_COMPLETE` rồi tạo lại. Stack ở `CREATE_FAILED` có thể dùng **Retry** nếu Console hiện nút đó. Xem [role dành cho ECS trong tài liệu AWS](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using-service-linked-roles-for-clusters.html).
+
 1. Vào **CloudFormation → Stacks → Create stack → With new resources (standard)**.
-2. Chọn **Template is ready → Upload a template file → Choose file**; chọn `deploy/aws/foundation.yml` trong ZIP đã giải nén trên máy bạn. Chọn **Next**.
+2. Mở [foundation.yml trên GitHub](https://github.com/poor-frog/TINA/blob/7d6bba8109f6eac51c0d8241a7083e3e364cf59d/deploy/aws/foundation.yml), chọn **Download raw file** và lưu thành `foundation.yml`. Trong CloudFormation, chọn **Template is ready → Upload a template file → Choose file**, chọn file vừa tải rồi bấm **Next**.
+
+   Trong repo **poor-frog/TINA**, chọn nhánh `feat/s3-ephemeral-workspaces` rồi mở `deploy/aws/foundation.yml`. Link trên mở đúng commit `7d6bba8…` để bạn tải riêng file cho bước Console.
 
 {{< workshop-screenshot file="03a-create-vpc.png" description="Màn hình CloudFormation chọn tệp foundation.yml để tạo VPC và nền tảng." >}}
 

@@ -6,6 +6,6 @@ chapter: false
 pre: " <b> 5.4A </b> "
 ---
 
-One template combines the TINA AWS infrastructure. It requires ARM64 images including the Cognito-enabled Terminal build and has not yet been rehearsed in a new account. CloudFormation provisions Cognito for invited users. Workspace activation and optional voice assets require additional setup.
+The combined stack provisions the AWS infrastructure and requires matching ARM64 images. It leaves web sign-in unconfigured, so test the landing page and infrastructure health. End-to-end use remains unverified.
 
 {{< workshop-vi >}}

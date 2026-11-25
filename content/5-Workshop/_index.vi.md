@@ -18,7 +18,7 @@ Bản đầu triển khai **Terminal chế độ meetings**, đăng nhập Googl
 
 ## Triển khai gọn bằng một file
 
-Xem [triển khai một CloudFormation](5.4-full-cloudformation/) để dùng template gộp. Stack tạo Cognito và cấu hình đăng nhập bằng email, nên người học không cần tạo Google OAuth. Các bước Google bên dưới dành cho lộ trình nhiều stack.
+Xem [triển khai một CloudFormation](5.4-full-cloudformation/) để dùng template gộp. Stack để trống cấu hình đăng nhập và dùng để kiểm tra hạ tầng cùng trang đầu. Phần Google bên dưới dành cho lộ trình nhiều stack.
 
 ## Thứ tự thực hiện
 

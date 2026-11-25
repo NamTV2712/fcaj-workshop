@@ -9,7 +9,7 @@ pre: " <b> 5.4.4 </b> "
 
 ## 1. Kiểm tra website và đăng nhập
 
-Nếu dùng [template gộp](../../5.4-full-cloudformation/), lấy `WebsiteUrl` trong Outputs và đăng nhập bằng tài khoản Cognito được mời. Phần Google bên dưới áp dụng cho lộ trình nhiều stack.
+Nếu dùng [template gộp](../../5.4-full-cloudformation/), lấy `WebsiteUrl` trong Outputs để kiểm tra trang đầu. Bản gộp chưa có đăng nhập, nên các bước kiểm thử sau đăng nhập trên trang này chỉ áp dụng cho lộ trình nhiều stack.
 
 Lấy URL CloudFront do tài khoản của bạn tạo:
 
@@ -40,7 +40,7 @@ Kết thúc meeting và kiểm tra task bot dừng. Nếu ghi âm được bật
 | Kiểm tra | Kết quả mong đợi | Ghi nhận |
 | --- | --- | --- |
 | Web | URL CloudFront hiển thị Terminal | Pass/Fail và thời điểm |
-| Đăng nhập | Tài khoản thử Cognito hoặc Google vào được TINA | Pass/Fail, không ghi secret |
+| Đăng nhập | Tài khoản thử Google vào được TINA | Pass/Fail, không ghi secret |
 | ECS | Runtime, core và Terminal ổn định, target healthy | desired/running, event |
 | Meeting | Bot vào được phòng thử và dừng sau cuộc họp | Kết quả thật |
 | Phiên âm | Transcript xuất hiện khi có ASR | Pass/Fail hoặc chưa cấu hình |

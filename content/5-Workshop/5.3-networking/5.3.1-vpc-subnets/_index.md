@@ -7,7 +7,7 @@ chapter: false
 pre: " <b> 5.3.1 </b> "
 ---
 
-Upload `deploy/aws/foundation.yml` in CloudFormation Console and name the stack `tina-staging`. Wait for completion and inspect its VPC, subnets and stack outputs.
+Open the [pinned foundation.yml in poor-frog/TINA](https://github.com/poor-frog/TINA/blob/7d6bba8109f6eac51c0d8241a7083e3e364cf59d/deploy/aws/foundation.yml) and choose **Download raw file**. Upload the downloaded file in CloudFormation Console and name the stack `tina-staging`. Wait for completion and inspect its VPC, subnets and stack outputs.
 
 The complete step-by-step guide and screenshot locations are currently maintained in Vietnamese:
 
