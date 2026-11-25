@@ -6,7 +6,7 @@ chapter: false
 pre: " <b> 5. </b> "
 ---
 
-# Wakan – Trợ lý du lịch cá nhân hóa dùng AI
+# TINA – Hệ thống họp & trợ lý AI tự triển khai trên AWS
 
 Workshop hướng dẫn bạn dùng **tài khoản AWS của chính mình** để dựng một bản TINA thử nghiệm: CloudFront → ALB nội bộ → ECS Fargate, cùng PostgreSQL trên RDS, Valkey trên ElastiCache, S3 và ECR. Bạn tạo tài nguyên mới và đăng nhập vào URL do tài khoản của bạn cấp.
 

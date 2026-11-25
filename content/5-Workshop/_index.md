@@ -6,7 +6,7 @@ chapter: false
 pre: " <b> 5. </b> "
 ---
 
-# Wakan – AI-Powered Personalized Travel Assistant
+# TINA – Self-Hosted Meeting & AI Agent System on AWS
 
 This workshop guides you through using **your own AWS account** to build a test deployment of TINA: CloudFront → internal ALB → ECS Fargate, backed by PostgreSQL on RDS, Valkey on ElastiCache, S3, and ECR. You create fresh resources and sign in at the URL provisioned by your account.
 
