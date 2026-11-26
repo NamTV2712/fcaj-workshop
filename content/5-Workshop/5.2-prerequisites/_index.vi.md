@@ -45,9 +45,20 @@ export TINA_REV=7d6bba8109f6eac51c0d8241a7083e3e364cf59d
 export TINA_SRC="$HOME/tina-workshop/TINA-${TINA_REV}"
 export TINA_ACCOUNT="$(aws sts get-caller-identity --query Account --output text)"
 export TINA_TAG=ws-v1
-stackout() { aws cloudformation describe-stacks --region "$AWS_REGION" --stack-name "$1" --query "Stacks[0].Outputs[?OutputKey=='$2'].OutputValue | [0]" --output text; }
-repoarn() { aws ecr describe-repositories --region "$AWS_REGION" --repository-names "tina-staging/$1" --query 'repositories[0].repositoryArn' --output text; }
-image() { local d; d="$(aws ecr describe-images --region "$AWS_REGION" --repository-name "tina-staging/$1" --image-ids "imageTag=$TINA_TAG" --query 'imageDetails[0].imageDigest' --output text)" || return 1; printf '%s.dkr.ecr.%s.amazonaws.com/tina-staging/%s@%s' "$TINA_ACCOUNT" "$AWS_REGION" "$1" "$d"; }
+stackout() {
+  aws cloudformation describe-stacks --region "$AWS_REGION" --stack-name "$1" \
+    --query "Stacks[0].Outputs[?OutputKey=='$2'].OutputValue | [0]" --output text
+}
+repoarn() {
+  aws ecr describe-repositories --region "$AWS_REGION" --repository-names "tina-staging/$1" \
+    --query 'repositories[0].repositoryArn' --output text
+}
+image() {
+  local d
+  d="$(aws ecr describe-images --region "$AWS_REGION" --repository-name "tina-staging/$1" \
+    --image-ids "imageTag=$TINA_TAG" --query 'imageDetails[0].imageDigest' --output text)" || return 1
+  printf '%s.dkr.ecr.%s.amazonaws.com/tina-staging/%s@%s' "$TINA_ACCOUNT" "$AWS_REGION" "$1" "$d"
+}
 EOF
 grep -q 'tina-workshop/env.sh' ~/.bashrc || echo 'source "$HOME/tina-workshop/env.sh"' >> ~/.bashrc
 source "$HOME/tina-workshop/env.sh"
