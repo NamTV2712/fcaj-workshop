@@ -27,7 +27,21 @@ done
 
 If a repository already exists in your account, verify its name and permissions, remove it from the loop, and run the command for the remaining ones. Do not change the `tina-staging` prefix: several execution roles in this pinned template version grant read access specifically to this prefix.
 
-## 3. Create an IAM instance profile for the builder
+> **Fast option (recommended — skip Sections 3, 4, and 5, avoid EC2 OOM / SSM Offline):**
+> Instead of launching an EC2 builder to compile Docker images (which requires heavy RAM), run the block below **directly in CloudShell** to copy the prebuilt `linux/arm64` images from GHCR into your ECR under tag `$TINA_TAG` (`ws-v1`), then jump straight to **[5.4.2](../5.4.2-data-secrets/)**:
+>
+> ```bash
+> if [ ! -x /tmp/crane ]; then
+>   curl -sSL "https://github.com/google/go-containerregistry/releases/latest/download/go-containerregistry_Linux_x86_64.tar.gz" | tar -xz -C /tmp crane
+> fi
+> ECR_REG="${TINA_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+> aws ecr get-login-password --region "$AWS_REGION" | /tmp/crane auth login "$ECR_REG" -u AWS --password-stdin
+> for name in terminal gateway meeting-api admin-api runtime bot viegem; do
+>   /tmp/crane copy "ghcr.io/poor-frog/tina-${name}:workshop-arm64" "${ECR_REG}/tina-staging/${name}:${TINA_TAG}"
+> done
+> ```
+
+## 3. Create an IAM instance profile for the builder (only if building on EC2)
 
 The following commands create a temporary EC2 role with the Systems Manager policy and ECR push permissions scoped to `tina-staging/*` repositories. Run this once in CloudShell using an identity with IAM management permissions:
 
@@ -60,9 +74,10 @@ If a role or profile with the same name already exists, stop and verify ownershi
 
 ## 5. Build and push images from EC2
 
-Run the commands in this section **inside the EC2 Session Manager session**, not in CloudShell. Install Docker and Git, then switch to a root shell for this temporary build session:
+Run the commands in this section **inside the EC2 Session Manager session**, not in CloudShell. Add an 8 GiB swap file first to prevent out-of-memory hangs (which cause SSM Agent to go `Offline` while building `bot`/`viegem`), install Docker and Git, then switch to a root shell for this temporary build session:
 
 ```bash
+sudo fallocate -l 8G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile
 sudo dnf install -y docker git
 sudo systemctl enable --now docker
 sudo -i

@@ -17,7 +17,7 @@ Template `tina-full.yml` dựng toàn bộ hạ tầng TINA trong **một stack 
 Toàn bộ quá trình triển khai được chia thành **5 lệnh ngắn chạy tuần tự trên AWS CloudShell (`us-east-1`)** — chạy xong lệnh nào mới chạy tiếp lệnh sau, không cần tạo EC2 builder hay tự build Docker:
 
 1. **Lệnh 1**: Chuẩn bị biến môi trường, role ECS và công cụ `crane`.
-2. **Lệnh 2**: Copy 12 image `linux/arm64` dựng sẵn (gồm **VieGem**) từ GHCR vào ECR của bạn.
+2. **Lệnh 2**: Copy đủ **15 image `linux/arm64` dựng sẵn** (12 image chính có **VieGem** + 3 image Voice `livekit`, `livekit-agent`, `vieneu`) từ GHCR vào ECR của bạn.
 3. **Lệnh 3**: Lấy Prefix List (`CloudFront`, `S3`) và upload `tina-full.yml` lên S3 tạm.
 4. **Lệnh 4**: Tạo stack `tina-workshop-full`, chờ hoàn tất và lấy `WebsiteUrl`.
 5. **Lệnh 5**: Gắn Google OAuth của riêng bạn để đăng nhập vào web.
@@ -58,14 +58,14 @@ echo "OK: Account=$AWS_ACCOUNT | ECR=$ECR_REG"
 
 ---
 
-## Lệnh 2 — Copy 12 image ARM64 (gồm VieGem) từ GHCR vào ECR
+## Lệnh 2 — Copy đủ 15 image ARM64 (gồm VieGem & Voice) từ GHCR vào ECR
 
-Dán lệnh sau để tạo 12 repository `tina-staging/*` trong ECR và copy toàn bộ 12 image `linux/arm64` từ `ghcr.io/poor-frog/tina-*:workshop-arm64` sang ECR của bạn (mất khoảng 1–3 phút):
+Dán lệnh sau để tạo 15 repository `tina-staging/*` trong ECR và copy toàn bộ 15 image `linux/arm64` từ `ghcr.io/poor-frog/tina-*:workshop-arm64` sang ECR của bạn (mất khoảng 2–3 phút):
 
 ```bash
 GHCR_PREFIX="ghcr.io/poor-frog"
 GHCR_TAG="workshop-arm64"
-SERVICES=(terminal gateway meeting-api admin-api runtime bot agent-api agent-reach agent-worker mcp flows viegem)
+SERVICES=(terminal gateway meeting-api admin-api runtime bot agent-api agent-reach agent-worker mcp flows viegem livekit livekit-agent vieneu)
 : > /tmp/tina-digests.env
 
 for name in "${SERVICES[@]}"; do
@@ -83,11 +83,11 @@ for name in "${SERVICES[@]}"; do
 done
 
 source /tmp/tina-digests.env
-echo "=== Đã lưu đủ 12 digest vào /tmp/tina-digests.env ==="
+echo "=== Đã lưu đủ 15 digest vào /tmp/tina-digests.env ==="
 cat /tmp/tina-digests.env
 ```
 
-**Giải thích:** Thay vì phải tạo EC2 ARM64 và tự build Docker trong 1–2 tiếng, `crane copy` sao chép thẳng image từ GHCR sang ECR và lưu đủ 12 chuỗi `sha256:...` vào `/tmp/tina-digests.env`. Đợi in ra đủ 12 dòng `export ..._DIGEST=sha256:...` rồi chuyển sang Lệnh 3.
+**Giải thích:** Thay vì phải tạo EC2 ARM64 và tự build Docker trong 1–2 tiếng, `crane copy` sao chép thẳng cả 15 image từ GHCR sang ECR (12 image chính có VieGem + 3 image Voice `livekit`, `livekit-agent`, `vieneu`) và lưu đủ 15 chuỗi `sha256:...` vào `/tmp/tina-digests.env`. Đợi in ra đủ 15 dòng `export ..._DIGEST=sha256:...` rồi chuyển sang Lệnh 3.
 
 <details>
 <summary>Tùy chọn nâng cao: tự build 12 image từ source bằng EC2 ARM64 (nếu không dùng GHCR)</summary>
@@ -153,9 +153,9 @@ aws cloudformation create-stack --region "$AWS_REGION" \
     ParameterKey=McpDigest,ParameterValue="$MCP_DIGEST" \
     ParameterKey=FlowsDigest,ParameterValue="$FLOWS_DIGEST" \
     ParameterKey=VieGemDigest,ParameterValue="$VIEGEM_DIGEST" \
-    ParameterKey=VieNeuDigest,ParameterValue="" \
-    ParameterKey=LiveKitDigest,ParameterValue="" \
-    ParameterKey=LiveKitAgentDigest,ParameterValue=""
+    ParameterKey=VieNeuDigest,ParameterValue="$VIENEU_DIGEST" \
+    ParameterKey=LiveKitDigest,ParameterValue="$LIVEKIT_DIGEST" \
+    ParameterKey=LiveKitAgentDigest,ParameterValue="$LIVEKIT_AGENT_DIGEST"
 
 echo "Đang chờ CloudFormation dựng xong (~12-18 phút)..."
 aws cloudformation wait stack-create-complete --region "$AWS_REGION" --stack-name "$STACK_NAME"

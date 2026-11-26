@@ -27,7 +27,21 @@ done
 
 Nếu một repository đã tồn tại trong tài khoản của bạn, kiểm tra đúng tên/quyền và bỏ tên đó khỏi vòng lặp rồi chạy các tên còn thiếu. Không thay tiền tố `tina-staging`: một số execution role trong phiên bản template cố định cho phép đọc đúng tiền tố này.
 
-## 3. Tạo IAM instance profile cho builder
+> **Cách nhanh (khuyên dùng — bỏ qua Mục 3, 4, 5, tránh lỗi EC2 hết RAM / SSM Offline):**
+> Thay vì tạo máy EC2 để build Docker (rất nặng RAM), bạn có thể chạy khối lệnh dưới đây **ngay trong CloudShell** để copy sẵn các image `linux/arm64` (đã build sẵn từ GHCR) vào ECR với đúng nhãn `$TINA_TAG` (`ws-v1`), rồi chuyển thẳng sang **[5.4.2](../5.4.2-data-secrets/)**:
+>
+> ```bash
+> if [ ! -x /tmp/crane ]; then
+>   curl -sSL "https://github.com/google/go-containerregistry/releases/latest/download/go-containerregistry_Linux_x86_64.tar.gz" | tar -xz -C /tmp crane
+> fi
+> ECR_REG="${TINA_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+> aws ecr get-login-password --region "$AWS_REGION" | /tmp/crane auth login "$ECR_REG" -u AWS --password-stdin
+> for name in terminal gateway meeting-api admin-api runtime bot viegem; do
+>   /tmp/crane copy "ghcr.io/poor-frog/tina-${name}:workshop-arm64" "${ECR_REG}/tina-staging/${name}:${TINA_TAG}"
+> done
+> ```
+
+## 3. Tạo IAM instance profile cho builder (chỉ làm nếu tự build trên EC2)
 
 Lệnh dưới đây tạo role dùng tạm cho EC2, gắn policy Systems Manager và quyền push ECR có giới hạn trong các repository `tina-staging/*`. Chạy một lần trong CloudShell bằng danh tính có quyền quản lý IAM:
 
@@ -60,9 +74,10 @@ Nếu role/profile cùng tên đã tồn tại, dừng lại và kiểm tra quy�
 
 ## 5. Build và push image từ EC2
 
-Lệnh trong mục này chạy **trên phiên Session Manager của EC2**, không chạy trong CloudShell. Cài Docker và Git, sau đó dùng shell root cho phiên build tạm:
+Lệnh trong mục này chạy **trên phiên Session Manager của EC2**, không chạy trong CloudShell. Tạo thêm 8 GiB swap để tránh bị hết RAM (OOM làm SSM chuyển sang `Offline` khi build `bot`/`viegem`), cài Docker và Git, sau đó dùng shell root cho phiên build tạm:
 
 ```bash
+sudo fallocate -l 8G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile
 sudo dnf install -y docker git
 sudo systemctl enable --now docker
 sudo -i

@@ -18,7 +18,7 @@ The initial deployment runs **Terminal in meetings mode**, Google sign-in, the m
 
 ## Quick Single-File Deployment (Recommended)
 
-See [single CloudFormation deployment](5.4-full-cloudformation/) to use the combined `tina-full.yml` template together with the pre-built set of 12 ARM64 images on GHCR (including **VieGem**): simply paste the commands into **AWS CloudShell** (~15–20 minutes), then attach your own Google OAuth credentials to run the full web app. The multi-stack walkthrough below is for cases where you want to build and inspect each infrastructure layer individually.
+See [single CloudFormation deployment](5.4-full-cloudformation/) to use the combined `tina-full.yml` template together with the pre-built set of 15 ARM64 images on GHCR (including **VieGem** and 3 Voice images): simply paste 5 short commands into **AWS CloudShell** (~15–20 minutes), then attach your own Google OAuth credentials to run the full web app. The multi-stack walkthrough below is for cases where you want to build and inspect each infrastructure layer individually.
 
 ## Walkthrough Order
 

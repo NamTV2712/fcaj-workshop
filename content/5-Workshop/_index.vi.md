@@ -18,7 +18,7 @@ Bản đầu triển khai **Terminal chế độ meetings**, đăng nhập Googl
 
 ## Triển khai nhanh bằng một file (khuyên dùng)
 
-Xem [triển khai một CloudFormation](5.4-full-cloudformation/) để dùng template gộp `tina-full.yml` cùng bộ 12 image ARM64 dựng sẵn trên GHCR (đã gồm **VieGem**): chỉ cần dán lệnh vào **AWS CloudShell** (~15–20 phút), sau đó gắn Google OAuth của riêng bạn là chạy được web đầy đủ. Lộ trình nhiều stack bên dưới dành cho trường hợp muốn dựng và kiểm tra từng lớp hạ tầng riêng lẻ.
+Xem [triển khai một CloudFormation](5.4-full-cloudformation/) để dùng template gộp `tina-full.yml` cùng bộ 15 image ARM64 dựng sẵn trên GHCR (gồm **VieGem** và 3 image Voice): chỉ cần dán 5 lệnh ngắn vào **AWS CloudShell** (~15–20 phút), sau đó gắn Google OAuth của riêng bạn là chạy được web đầy đủ. Lộ trình nhiều stack bên dưới dành cho trường hợp muốn dựng và kiểm tra từng lớp hạ tầng riêng lẻ.
 
 ## Thứ tự thực hiện
 

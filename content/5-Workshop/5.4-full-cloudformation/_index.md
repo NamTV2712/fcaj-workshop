@@ -17,7 +17,7 @@ The `tina-full.yml` template provisions the entire TINA infrastructure in a **si
 The entire deployment is split into **5 short sequential commands in AWS CloudShell (`us-east-1`)**—wait for each command to finish before running the next, with no EC2 builder or local Docker build required:
 
 1. **Command 1**: Set up environment variables, the ECS service-linked role, and the `crane` tool.
-2. **Command 2**: Copy 12 prebuilt `linux/arm64` images (including **VieGem**) from GHCR into your ECR.
+2. **Command 2**: Copy all **15 prebuilt `linux/arm64` images** (12 core images including **VieGem** + 3 Voice images `livekit`, `livekit-agent`, `vieneu`) from GHCR into your ECR.
 3. **Command 3**: Look up Managed Prefix Lists (`CloudFront`, `S3`) and upload `tina-full.yml` to a temporary S3 bucket.
 4. **Command 4**: Create the `tina-workshop-full` stack, wait for completion, and retrieve `WebsiteUrl`.
 5. **Command 5**: Attach your own Google OAuth credentials to enable web sign-in.
@@ -58,14 +58,14 @@ echo "OK: Account=$AWS_ACCOUNT | ECR=$ECR_REG"
 
 ---
 
-## Command 2 — Copy 12 ARM64 images (including VieGem) from GHCR to ECR
+## Command 2 — Copy all 15 ARM64 images (including VieGem & Voice) from GHCR to ECR
 
-Paste the command below to create 12 `tina-staging/*` repositories in ECR and copy all 12 `linux/arm64` images from `ghcr.io/poor-frog/tina-*:workshop-arm64` into your ECR (takes about 1–3 minutes):
+Paste the command below to create 15 `tina-staging/*` repositories in ECR and copy all 15 `linux/arm64` images from `ghcr.io/poor-frog/tina-*:workshop-arm64` into your ECR (takes about 2–3 minutes):
 
 ```bash
 GHCR_PREFIX="ghcr.io/poor-frog"
 GHCR_TAG="workshop-arm64"
-SERVICES=(terminal gateway meeting-api admin-api runtime bot agent-api agent-reach agent-worker mcp flows viegem)
+SERVICES=(terminal gateway meeting-api admin-api runtime bot agent-api agent-reach agent-worker mcp flows viegem livekit livekit-agent vieneu)
 : > /tmp/tina-digests.env
 
 for name in "${SERVICES[@]}"; do
@@ -83,11 +83,11 @@ for name in "${SERVICES[@]}"; do
 done
 
 source /tmp/tina-digests.env
-echo "=== Saved all 12 digests to /tmp/tina-digests.env ==="
+echo "=== Saved all 15 digests to /tmp/tina-digests.env ==="
 cat /tmp/tina-digests.env
 ```
 
-**Explanation:** Instead of launching an ARM64 EC2 instance and building Docker images for 1–2 hours, `crane copy` transfers the images directly from GHCR to ECR and records all 12 `sha256:...` digests in `/tmp/tina-digests.env`. Wait until all 12 `export ..._DIGEST=sha256:...` lines are printed before moving to Command 3.
+**Explanation:** Instead of launching an ARM64 EC2 instance and building Docker images for 1–2 hours, `crane copy` transfers all 15 images (12 core images including VieGem + 3 Voice images `livekit`, `livekit-agent`, `vieneu`) directly from GHCR to ECR and records all 15 `sha256:...` digests in `/tmp/tina-digests.env`. Wait until all 15 `export ..._DIGEST=sha256:...` lines are printed before moving to Command 3.
 
 <details>
 <summary>Advanced option: build all 12 images from source on an ARM64 EC2 instance (without GHCR)</summary>
@@ -153,9 +153,9 @@ aws cloudformation create-stack --region "$AWS_REGION" \
     ParameterKey=McpDigest,ParameterValue="$MCP_DIGEST" \
     ParameterKey=FlowsDigest,ParameterValue="$FLOWS_DIGEST" \
     ParameterKey=VieGemDigest,ParameterValue="$VIEGEM_DIGEST" \
-    ParameterKey=VieNeuDigest,ParameterValue="" \
-    ParameterKey=LiveKitDigest,ParameterValue="" \
-    ParameterKey=LiveKitAgentDigest,ParameterValue=""
+    ParameterKey=VieNeuDigest,ParameterValue="$VIENEU_DIGEST" \
+    ParameterKey=LiveKitDigest,ParameterValue="$LIVEKIT_DIGEST" \
+    ParameterKey=LiveKitAgentDigest,ParameterValue="$LIVEKIT_AGENT_DIGEST"
 
 echo "Waiting for CloudFormation stack creation (~12-18 minutes)..."
 aws cloudformation wait stack-create-complete --region "$AWS_REGION" --stack-name "$STACK_NAME"
