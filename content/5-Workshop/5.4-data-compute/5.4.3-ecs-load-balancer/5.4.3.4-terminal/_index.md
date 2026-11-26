@@ -11,6 +11,9 @@ pre: " <b> 5.4.3.4 </b> "
 1. Run `stackout tina-ws-edge StageUrl` in CloudShell and copy **your** CloudFront HTTPS URL without a trailing `/`.
 2. Open the [Google Cloud Console](https://console.cloud.google.com/) and create or select a Google Cloud project you manage. Go to **Google Auth Platform → Branding/Audience**, configure your application details, and select **Testing** if you are only testing; add your Google account under **Test users**. Google may rename menu labels in its console UI.
 3. Go to **Clients → Create client → Web application**. Add an **Authorized redirect URI** matching `https://<your-cloudfront-domain>/api/auth/callback/google`. Save it to obtain your client ID and client secret. Refer to [Google OAuth for web server applications](https://developers.google.com/identity/protocols/oauth2/web-server) if you run into URI errors. Public or production usage may require a domain you own and Google app verification.
+
+{{< workshop-screenshot file="5.4.3.4-1.2-ggcloudconsole.png" description="Configuring the Google OAuth Web application client and Authorized redirect URI in Google Cloud Console." >}}
+
 4. In CloudShell, create a temporary file readable only by its owner and open it in an editor:
 
 ```bash

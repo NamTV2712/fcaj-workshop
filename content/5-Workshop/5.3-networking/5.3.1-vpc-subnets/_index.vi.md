@@ -40,8 +40,8 @@ Nếu muốn CloudFormation tạo role trong tài khoản **chưa có** `AWSServ
 
 Role này dùng chung trong tài khoản. Nếu role đã tồn tại hoặc bạn tạo lại stack sau khi xóa, dùng template gốc với bước kiểm tra CloudShell ở trên. `Retain` giữ role lại khi xóa stack, nên khai báo tạo lại có thể báo trùng tên. [Tài liệu CloudFormation về ServiceLinkedRole](https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-iam-servicelinkedrole.html)
 
-1. Vào **CloudFormation → Stacks → Create stack → With new resources (standard)**.
-2. Mở [foundation.yml trên GitHub](https://github.com/poor-frog/TINA/blob/7d6bba8109f6eac51c0d8241a7083e3e364cf59d/deploy/aws/foundation.yml), chọn **Download raw file** và lưu thành `foundation.yml`. Trong CloudFormation, chọn **Template is ready → Upload a template file → Choose file**, chọn file vừa tải rồi bấm **Next**.
+1. Vào **CloudFormation → Stacks → Create stack**.
+2. Mở [foundation.yml trên GitHub](https://github.com/poor-frog/TINA/blob/7d6bba8109f6eac51c0d8241a7083e3e364cf59d/deploy/aws/foundation.yml), chọn **Download raw file** và lưu thành `foundation.yml`. Trong CloudFormation, chọn **Upload a template file → Choose file**, chọn file vừa tải rồi bấm **Next**.
 
    Trong repo **poor-frog/TINA**, chọn nhánh `feat/s3-ephemeral-workspaces` rồi mở `deploy/aws/foundation.yml`. Link trên mở đúng commit `7d6bba8…` để bạn tải riêng file cho bước Console.
 

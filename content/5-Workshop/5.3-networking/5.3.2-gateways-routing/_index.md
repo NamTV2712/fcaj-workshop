@@ -23,7 +23,7 @@ aws cloudformation deploy --region "$AWS_REGION" \
 
 Verify the Internet Gateway attached to the VPC under **VPC → Internet gateways**:
 
-{{< workshop-screenshot file="04a-igw-attached.png" description="VPC Internet Gateway in the attached state." >}}
+{{< workshop-screenshot file="04a-igw-attached.jpg" description="VPC Internet Gateway in the attached state." >}}
 
 Verify the NAT Gateway under **VPC → NAT gateways**; the stack must be `CREATE_COMPLETE` and the NAT Gateway **Available**:
 
@@ -37,7 +37,7 @@ In **VPC → Route tables**, inspect the app route tables: the `0.0.0.0/0` route
 
 Under **VPC → Endpoints**, locate the endpoint ID matching the `S3EndpointId` output from the foundation stack:
 
-{{< workshop-screenshot file="05-s3-endpoint.png" description="S3 gateway endpoint and its associated app route tables." >}}
+{{< workshop-screenshot file="05-s3-endpoint.jpg" description="S3 gateway endpoint and its associated app route tables." >}}
 
 Security groups for the application and database will be created by the data stack in a later section. You do not need to create them manually now.
 

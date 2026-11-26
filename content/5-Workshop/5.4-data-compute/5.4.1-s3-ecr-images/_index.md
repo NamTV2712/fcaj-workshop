@@ -9,9 +9,9 @@ pre: " <b> 5.4.1 </b> "
 
 ## 1. Verify your S3 bucket
 
-In **S3 → General purpose buckets**, find the `StagingRecordingsBucket` name from the `tina-staging` stack outputs. This bucket was created privately in your account; keep **Block all public access** enabled. Under **Properties → Lifecycle rules**, verify the expiration rule for the `runtime-invocations/` prefix. Do not upload private data for screenshots.
+In **S3 → General purpose buckets**, find the `StagingRecordingsBucket` name from the `tina-staging` stack outputs. This bucket was created privately in your account; keep **Block all public access** enabled. Under **Management → Lifecycle rules**, verify the expiration rule for the `runtime-invocations/` prefix. Do not upload private data for screenshots.
 
-{{< workshop-screenshot file="07-s3-lab.png" description="Recordings bucket in your lab account, showing Block Public Access enabled and the lifecycle rule." >}}
+{{< workshop-screenshot file="07-s3-lab.jpg" description="Recordings bucket in your lab account, showing Block Public Access enabled and the lifecycle rule." >}}
 
 ## 2. Create the remaining ECR repositories
 
@@ -70,9 +70,9 @@ If a role or profile with the same name already exists, stop and verify ownershi
 ## 4. Launch an ARM64 build instance in the EC2 Console
 
 1. Go to **EC2 → Instances → Launch instances**. Name it `tina-workshop-builder`.
-2. Choose **Amazon Linux 2023**, architecture **64-bit (Arm)**; for example, `m7g.2xlarge` if your Region and quotas allow. Building the bot and model images is resource-intensive; selecting an instance with too little RAM may run out of memory. This instance incurs charges while running.
+2. Choose **Amazon Linux 2023**, architecture **64-bit (Arm)**; for example, **`t4g.small`** (Free Plan compatible; larger instances such as `m7g.2xlarge` require a Paid Plan or higher quota). Smaller RAM instances require the 8 GiB swap file in Section 5—or use the **Fast option (`crane copy` in CloudShell)** in Section 2 to avoid running out of memory while building `bot`/`viegem`. This instance incurs charges while running.
 3. **Key pair:** choose *Proceed without a key pair*. Under **Network settings**, select the `tina-staging` stack VPC, one public subnet from `PublicSubnetIds`, and enable **Auto-assign public IP**. Create a security group with no inbound rules, keeping outbound rules for Internet access.
-4. **Configure storage:** for example, 200 GiB gp3 with encryption enabled. Under **Advanced details → IAM instance profile**, select `tina-workshop-builder-profile`; enable **IMDSv2 required** if shown. Click **Launch instance**.
+4. **Configure storage:** for example, 200 GiB gp3; click the **Advanced** button in the top-right corner of the **Configure storage** panel to enable encryption (**Encrypted → Yes**). Under **Advanced details → IAM instance profile**, select `tina-workshop-builder-profile`; enable **IMDSv2 required** if shown. Click **Launch instance**.
 5. Wait until the instance state is Running and Systems Manager detects it. Select the instance → **Connect → Session Manager → Connect**. If the tab cannot connect, verify the IAM profile, SSM Agent, public IP, route to the Internet Gateway, and outbound HTTPS access.
 
 ## 5. Build and push images from EC2
@@ -93,12 +93,12 @@ git rev-parse HEAD
 docker buildx version
 ```
 
-Download the workshop build script: {{< workshop-file path="scripts/tina-ecr-build.sh" label="download tina-ecr-build.sh" >}}, **or** paste the block below directly into EC2 to create `/root/tina-ecr-build.sh` without downloading an external file:
+Download the workshop build script: {{< workshop-file path="scripts/tina-ecr-build.sh" label="download tina-ecr-build.sh" >}}, **or** click the **▶ Click to expand...** line below to reveal and paste the block directly into EC2 to create `/root/tina-ecr-build.sh` without downloading an external file:
 
-> **Fast deployment tip:** If you prefer not to build Docker images on EC2, see [5.4A Quick Deploy with 1 CloudFormation Stack](../../5.4-full-cloudformation/) to copy the prebuilt set of 12 `linux/arm64` images (including VieGem) directly from GHCR into ECR right from CloudShell.
+> **Fast deployment tip:** If you prefer not to build Docker images on EC2, see [5.4A Quick Deploy with 1 CloudFormation Stack](../../5.4-full-cloudformation/) to copy the prebuilt set of 15 `linux/arm64` images (including VieGem and Voice) directly from GHCR into ECR right from CloudShell.
 
 <details>
-<summary>Click to expand & copy the complete <code>/root/tina-ecr-build.sh</code> script</summary>
+<summary style="cursor:pointer;font-weight:600;color:#0073bb;text-decoration:underline;">▶ Click to expand &amp; copy the complete <code>/root/tina-ecr-build.sh</code> script</summary>
 
 ```bash
 cat > /root/tina-ecr-build.sh <<'EOF'

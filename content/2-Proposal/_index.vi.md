@@ -11,12 +11,12 @@ pre: " <b> 2. </b> "
 
 **Nhóm (Group):** `KimThiem`
 
-| Họ và tên | Mã số sinh viên | Email |
-| --- | --- | --- |
-| Trần Kiến Quốc | SE190250 | quockientran100@gmail.com |
-| Hoàng Đình Quang | SE192303 | quanghd023@gmail.com / abc123hocngu@gmail.com |
-| Lê Hoài Thanh Quang | SE190062 | lethanhquang094@gmail.com |
-| Thái Việt Nam | SE192065 | vnam27122005@gmail.com |
+| Họ và tên | Mã số sinh viên | Trường | Email |
+| --- | --- | --- | --- |
+| Trần Kiến Quốc | SE190250 | FPT University | quockientran100@gmail.com |
+| Hoàng Đình Quang | SE192303 | FPT University | quanghd023@gmail.com |
+| Lê Hoài Thanh Quang | SE190062 | FPT University | lethanhquang094@gmail.com |
+| Thái Việt Nam | SE192065 | FPT University | vnam27122005@gmail.com |
 
 ### 1. Tóm tắt điều hành
 TINA là trợ lý cuộc họp AI do nhóm 4 thành viên xây dựng trong kỳ thực tập First Cloud AI Journey (FCAJ). Bot của TINA tham gia Google Meet, Zoom hoặc Microsoft Teams, phiên âm hội thoại theo thời gian thực (ưu tiên tiếng Việt, có chế độ xem tiếng Anh và song ngữ), tạo ghi chú và tóm tắt trực tiếp, đồng thời cho phép người tham gia đặt câu hỏi về cuộc họp ("Ask TINA"), kể cả trả lời bằng giọng nói khi gọi wake word. Khi cuộc họp kết thúc, mỗi người tham dự nhận được email follow-up kèm link tới bản tóm tắt và bản ghi âm.

@@ -23,7 +23,7 @@ aws cloudformation deploy --region "$AWS_REGION" \
 
 Kiểm tra Internet Gateway gắn với VPC tại **VPC → Internet gateways**:
 
-{{< workshop-screenshot file="04a-igw-attached.png" description="Internet Gateway của VPC đã attached." >}}
+{{< workshop-screenshot file="04a-igw-attached.jpg" description="Internet Gateway của VPC đã attached." >}}
 
 Kiểm tra NAT tại **VPC → NAT gateways**; stack phải `CREATE_COMPLETE` và NAT **Available**:
 
@@ -37,7 +37,7 @@ Trong **VPC → Route tables**, xem app route table: tuyến `0.0.0.0/0` trỏ N
 
 Tại **VPC → Endpoints**, tìm endpoint ID từ output `S3EndpointId` của foundation:
 
-{{< workshop-screenshot file="05-s3-endpoint.png" description="S3 gateway endpoint và các route table app được liên kết." >}}
+{{< workshop-screenshot file="05-s3-endpoint.jpg" description="S3 gateway endpoint và các route table app được liên kết." >}}
 
 Security group cho application và database sẽ được stack data tạo ở phần sau. Bạn không cần tạo sẵn security group cho chúng.
 

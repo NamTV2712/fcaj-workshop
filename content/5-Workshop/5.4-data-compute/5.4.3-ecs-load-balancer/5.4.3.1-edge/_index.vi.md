@@ -15,6 +15,8 @@ pre: " <b> 5.4.3.1 </b> "
 
 {{< workshop-screenshot file="23-waf-acl.png" description="Web ACL phạm vi CloudFront đã tạo, che account ID trong ARN." >}}
 
+{{< workshop-screenshot file="23-waf-acl(2).png" description="Chi tiết Web ACL phạm vi CloudFront đã tạo, che account ID trong ARN." >}}
+
 ## 2. Triển khai CloudFront và ALB nội bộ
 
 Trong CloudShell, thay giá trị placeholder bằng ARN Web ACL **của bạn**:

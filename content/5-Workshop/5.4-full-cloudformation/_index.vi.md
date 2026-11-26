@@ -90,7 +90,7 @@ cat /tmp/tina-digests.env
 **Giải thích:** Thay vì phải tạo EC2 ARM64 và tự build Docker trong 1–2 tiếng, `crane copy` sao chép thẳng cả 15 image từ GHCR sang ECR (12 image chính có VieGem + 3 image Voice `livekit`, `livekit-agent`, `vieneu`) và lưu đủ 15 chuỗi `sha256:...` vào `/tmp/tina-digests.env`. Đợi in ra đủ 15 dòng `export ..._DIGEST=sha256:...` rồi chuyển sang Lệnh 3.
 
 <details>
-<summary>Tùy chọn nâng cao: tự build 12 image từ source bằng EC2 ARM64 (nếu không dùng GHCR)</summary>
+<summary style="cursor:pointer;font-weight:600;color:#0073bb;text-decoration:underline;">▶ Tùy chọn nâng cao: tự build 12 image từ source bằng EC2 ARM64 (nếu không dùng GHCR)</summary>
 
 Nếu muốn tự build từ commit `7d6bba8109f6eac51c0d8241a7083e3e364cf59d`, xem hướng dẫn tạo EC2 ARM64 và script inline `/root/tina-ecr-build.sh` tại [5.4.1 S3, ECR và build image ARM64](../5.4-data-compute/5.4.1-s3-ecr-images/) rồi chạy với cờ `--full`.
 
@@ -181,6 +181,9 @@ curl -sS "${WEBSITE_URL}/edge-health" && echo ""
 2. Thêm **Authorized redirect URI** theo đúng `WebsiteUrl` ở Lệnh 4:
    `https://<domain-cloudfront-cua-ban>/api/auth/callback/google`
    Lưu để lấy `Client ID` và `Client secret` (nếu app ở chế độ **Testing**, thêm Gmail của bạn vào **Test users**).
+
+{{< workshop-screenshot file="5.4.3.4-1.2-ggcloudconsole.png" description="Cấu hình Google OAuth Web application client và Authorized redirect URI trên Google Cloud Console." >}}
+
 3. Quay lại **CloudShell**, thay `DAN_GOOGLE_CLIENT_ID` và `DAN_GOOGLE_CLIENT_SECRET` rồi chạy lệnh cuối:
 
 ```bash

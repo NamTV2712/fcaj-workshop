@@ -11,6 +11,9 @@ pre: " <b> 5.4.3.4 </b> "
 1. Chạy `stackout tina-ws-edge StageUrl` trong CloudShell, lấy URL HTTPS CloudFront **của bạn**, không có dấu `/` ở cuối.
 2. Vào [Google Cloud Console](https://console.cloud.google.com/), tạo hoặc chọn Google Cloud project do bạn quản lý. Vào **Google Auth Platform → Branding/Audience**, cấu hình thông tin ứng dụng và chọn **Testing** nếu chỉ thử; thêm tài khoản Google của bạn vào **Test users**. Giao diện Google có thể đổi tên mục.
 3. Vào **Clients → Create client → Web application**. Thêm **Authorized redirect URI** đúng mẫu `https://<cloudfront-domain-cua-ban>/api/auth/callback/google`. Lưu và nhận client ID, client secret. Đọc [Google OAuth web server](https://developers.google.com/identity/protocols/oauth2/web-server) nếu gặp lỗi URI. Dùng công khai/production có thể cần tên miền thuộc quyền quản lý và xác minh ứng dụng với Google.
+
+{{< workshop-screenshot file="5.4.3.4-1.2-ggcloudconsole.png" description="Cấu hình Google OAuth Web application client và Authorized redirect URI trên Google Cloud Console." >}}
+
 4. Trong CloudShell, tạo một file tạm chỉ chủ sở hữu đọc được, mở trình soạn thảo:
 
 ```bash

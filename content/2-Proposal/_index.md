@@ -11,12 +11,12 @@ pre: " <b> 2. </b> "
 
 **Group:** `KimThiem`
 
-| Full Name | Student ID | Email |
-| --- | --- | --- |
-| Trần Kiến Quốc | SE190250 | quockientran100@gmail.com |
-| Hoàng Đình Quang | SE192303 | quanghd023@gmail.com / abc123hocngu@gmail.com |
-| Lê Hoài Thanh Quang | SE190062 | lethanhquang094@gmail.com |
-| Thái Việt Nam | SE192065 | vnam27122005@gmail.com |
+| Full Name | Student ID | University | Email |
+| --- | --- | --- | --- |
+| Trần Kiến Quốc | SE190250 | FPT University | quockientran100@gmail.com |
+| Hoàng Đình Quang | SE192303 | FPT University | quanghd023@gmail.com |
+| Lê Hoài Thanh Quang | SE190062 | FPT University | lethanhquang094@gmail.com |
+| Thái Việt Nam | SE192065 | FPT University | vnam27122005@gmail.com |
 
 ### 1. Executive Summary
 TINA is an AI meeting assistant built by a four-person team during the First Cloud AI Journey (FCAJ) internship. A meeting bot joins Google Meet, Zoom or Microsoft Teams, transcribes the conversation in real time (Vietnamese first, with English and bilingual views), produces live notes and a summary, and lets participants ask questions about the meeting ("Ask TINA"), including spoken replies through a wake word. When the meeting ends, every known attendee receives a follow-up email linking to the saved summary and recording.

@@ -40,8 +40,8 @@ If you want CloudFormation to create the role in an account that **does not yet 
 
 This role is shared across the account. If the role already exists or you recreate the stack after deleting it, use the original template together with the CloudShell check above. `Retain` keeps the role when the stack is deleted, so declaring it again may fail with a duplicate-name error. See the [CloudFormation ServiceLinkedRole documentation](https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-iam-servicelinkedrole.html).
 
-1. Go to **CloudFormation → Stacks → Create stack → With new resources (standard)**.
-2. Open [foundation.yml on GitHub](https://github.com/poor-frog/TINA/blob/7d6bba8109f6eac51c0d8241a7083e3e364cf59d/deploy/aws/foundation.yml), choose **Download raw file**, and save it as `foundation.yml`. In CloudFormation, select **Template is ready → Upload a template file → Choose file**, pick the downloaded file, and click **Next**.
+1. Go to **CloudFormation → Stacks → Create stack**.
+2. Open [foundation.yml on GitHub](https://github.com/poor-frog/TINA/blob/7d6bba8109f6eac51c0d8241a7083e3e364cf59d/deploy/aws/foundation.yml), choose **Download raw file**, and save it as `foundation.yml`. In CloudFormation, select **Upload a template file → Choose file**, pick the downloaded file, and click **Next**.
 
    In the **poor-frog/TINA** repo, this file lives on the `feat/s3-ephemeral-workspaces` branch at `deploy/aws/foundation.yml`. The link above points directly to commit `7d6bba8…` so you can download just this file for the Console step.
 

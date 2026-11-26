@@ -15,6 +15,8 @@ pre: " <b> 5.4.3.1 </b> "
 
 {{< workshop-screenshot file="23-waf-acl.png" description="CloudFront-scope Web ACL created, with the account ID redacted in the ARN." >}}
 
+{{< workshop-screenshot file="23-waf-acl(2).png" description="CloudFront-scope Web ACL details, with the account ID redacted in the ARN." >}}
+
 ## 2. Deploy CloudFront and the internal ALB
 
 In CloudShell, replace the placeholder value with **your** Web ACL ARN:

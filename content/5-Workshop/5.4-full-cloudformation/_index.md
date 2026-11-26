@@ -90,7 +90,7 @@ cat /tmp/tina-digests.env
 **Explanation:** Instead of launching an ARM64 EC2 instance and building Docker images for 1–2 hours, `crane copy` transfers all 15 images (12 core images including VieGem + 3 Voice images `livekit`, `livekit-agent`, `vieneu`) directly from GHCR to ECR and records all 15 `sha256:...` digests in `/tmp/tina-digests.env`. Wait until all 15 `export ..._DIGEST=sha256:...` lines are printed before moving to Command 3.
 
 <details>
-<summary>Advanced option: build all 12 images from source on an ARM64 EC2 instance (without GHCR)</summary>
+<summary style="cursor:pointer;font-weight:600;color:#0073bb;text-decoration:underline;">▶ Advanced option: build all 12 images from source on an ARM64 EC2 instance (without GHCR)</summary>
 
 If you want to build from commit `7d6bba8109f6eac51c0d8241a7083e3e364cf59d` yourself, follow the ARM64 EC2 setup and inline `/root/tina-ecr-build.sh` script in [5.4.1 S3, ECR, and ARM64 image builds](../5.4-data-compute/5.4.1-s3-ecr-images/) and run it with the `--full` flag.
 
@@ -181,6 +181,9 @@ curl -sS "${WEBSITE_URL}/edge-health" && echo ""
 2. Add an **Authorized redirect URI** matching `WebsiteUrl` from Command 4:
    `https://<your-cloudfront-domain>/api/auth/callback/google`
    Save it to obtain your `Client ID` and `Client secret` (if the app is in **Testing** mode, add your Gmail address under **Test users**).
+
+{{< workshop-screenshot file="5.4.3.4-1.2-ggcloudconsole.png" description="Configuring the Google OAuth Web application client and Authorized redirect URI in Google Cloud Console." >}}
+
 3. Return to **CloudShell**, replace `PASTE_GOOGLE_CLIENT_ID` and `PASTE_GOOGLE_CLIENT_SECRET`, and run the final command:
 
 ```bash

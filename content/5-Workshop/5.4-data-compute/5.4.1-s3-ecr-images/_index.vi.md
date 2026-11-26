@@ -9,9 +9,9 @@ pre: " <b> 5.4.1 </b> "
 
 ## 1. Xác nhận bucket của bạn
 
-Trên **S3 → General purpose buckets**, tìm tên `StagingRecordingsBucket` trong output stack `tina-staging`. Bucket được tạo riêng trong tài khoản này; để **Block all public access** bật. Trong **Properties → Lifecycle rules**, xác nhận quy tắc hết hạn tiền tố `runtime-invocations/`. Không tải lên dữ liệu riêng tư để chụp ảnh.
+Trên **S3 → General purpose buckets**, tìm tên `StagingRecordingsBucket` trong output stack `tina-staging`. Bucket được tạo riêng trong tài khoản này; để **Block all public access** bật. Trong **Management → Lifecycle rules**, xác nhận quy tắc hết hạn tiền tố `runtime-invocations/`. Không tải lên dữ liệu riêng tư để chụp ảnh.
 
-{{< workshop-screenshot file="07-s3-lab.png" description="Bucket recordings của tài khoản thực hành, chế độ chặn truy cập công khai và lifecycle rule." >}}
+{{< workshop-screenshot file="07-s3-lab.jpg" description="Bucket recordings của tài khoản thực hành, chế độ chặn truy cập công khai và lifecycle rule." >}}
 
 ## 2. Tạo các ECR repository còn thiếu
 
@@ -70,9 +70,9 @@ Nếu role/profile cùng tên đã tồn tại, dừng lại và kiểm tra quy�
 ## 4. Tạo máy build ARM64 trên EC2 Console
 
 1. Vào **EC2 → Instances → Launch instances**. Đặt tên `tina-workshop-builder`.
-2. Chọn **Amazon Linux 2023**, kiến trúc **64-bit (Arm)**; ví dụ `m7g.2xlarge` nếu Region và quota cho phép. Build bot/model nặng; chọn máy ít RAM có thể hết bộ nhớ. Máy này có phí theo thời gian chạy.
+2. Chọn **Amazon Linux 2023**, kiến trúc **64-bit (Arm)**; ví dụ **`t4g.small`** (tương thích tài khoản Free Plan; các máy lớn hơn như `m7g.2xlarge` chỉ dùng được từ Paid Plan trở lên). Lưu ý máy RAM nhỏ cần bật swap 8 GiB ở Mục 5 hoặc dùng **Cách nhanh (`crane copy` trên CloudShell)** ở Mục 2 để tránh hết bộ nhớ khi build `bot`/`viegem`. Máy này có phí theo thời gian chạy.
 3. **Key pair:** chọn *Proceed without a key pair*. Ở **Network settings**, chọn VPC của stack `tina-staging`, một public subnet trong `PublicSubnetIds`, bật **Auto-assign public IP**. Tạo security group không có inbound rule, giữ outbound cho kết nối Internet.
-4. **Configure storage:** ví dụ 200 GiB gp3, bật mã hóa. Trong **Advanced details → IAM instance profile**, chọn `tina-workshop-builder-profile`; bật **IMDSv2 required** nếu tùy chọn xuất hiện. Chọn **Launch instance**.
+4. **Configure storage:** ví dụ 200 GiB gp3, nhấn nút **Advanced** ở góc phải khung **Configure storage** để bật mã hóa (**Encrypted → Yes**). Trong **Advanced details → IAM instance profile**, chọn `tina-workshop-builder-profile`; bật **IMDSv2 required** nếu tùy chọn xuất hiện. Chọn **Launch instance**.
 5. Chờ instance Running và Systems Manager nhận diện máy. Chọn instance → **Connect → Session Manager → Connect**. Nếu tab không kết nối, kiểm tra IAM profile, SSM Agent, public IP, route tới Internet Gateway và outbound HTTPS.
 
 ## 5. Build và push image từ EC2
@@ -93,12 +93,12 @@ git rev-parse HEAD
 docker buildx version
 ```
 
-Tải script build của workshop: {{< workshop-file path="scripts/tina-ecr-build.sh" label="tải tina-ecr-build.sh" >}}, **hoặc** dán trực tiếp khối lệnh dưới đây vào EC2 để tạo `/root/tina-ecr-build.sh` mà không cần tải file ngoài:
+Tải script build của workshop: {{< workshop-file path="scripts/tina-ecr-build.sh" label="tải tina-ecr-build.sh" >}}, **hoặc** bấm vào dòng **▶ Bấm để mở & copy...** ngay bên dưới để hiện toàn bộ code và dán trực tiếp vào EC2 tạo `/root/tina-ecr-build.sh` (không cần tải file ngoài):
 
-> **Mẹo triển khai nhanh:** Nếu bạn không muốn tự build Docker trên EC2, xem [5.4A Triển khai nhanh bằng 1 CloudFormation](../../5.4-full-cloudformation/) để copy thẳng bộ 12 image `linux/arm64` dựng sẵn (gồm cả VieGem) từ GHCR vào ECR ngay trong CloudShell.
+> **Mẹo triển khai nhanh:** Nếu bạn không muốn tự build Docker trên EC2, xem [5.4A Triển khai nhanh bằng 1 CloudFormation](../../5.4-full-cloudformation/) để copy thẳng bộ 15 image `linux/arm64` dựng sẵn (gồm cả VieGem và Voice) từ GHCR vào ECR ngay trong CloudShell.
 
 <details>
-<summary>Bấm để mở & copy trực tiếp toàn bộ script <code>/root/tina-ecr-build.sh</code></summary>
+<summary style="cursor:pointer;font-weight:600;color:#0073bb;text-decoration:underline;">▶ Bấm để mở &amp; copy trực tiếp toàn bộ script <code>/root/tina-ecr-build.sh</code></summary>
 
 ```bash
 cat > /root/tina-ecr-build.sh <<'EOF'
