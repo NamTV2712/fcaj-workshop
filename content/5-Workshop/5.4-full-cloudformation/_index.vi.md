@@ -10,7 +10,7 @@ pre: " <b> 5.4A </b> "
 
 {{< workshop-file path="cloudformation/tina-full.yml" label="Tải tina-full.yml" >}}
 
-![Sơ đồ kiến trúc TINA trên AWS](/images/5-Workshop/tina/tina-aws-architecture.png)
+![Sơ đồ kiến trúc TINA trên AWS](/images/5-Workshop/tina/tina-aws-architecture.jpg)
 
 Template `tina-full.yml` dựng toàn bộ hạ tầng TINA trong **một stack duy nhất**: VPC 2 AZ, NAT Gateway, S3, CloudFront + WAF, ALB nội bộ, RDS PostgreSQL, ElastiCache Valkey, ECS Fargate (ARM64), Terminal, Bot, Runtime, **VieGem ASR**, Agent API, Agent Reach, MCP, Flows và kho workspace.
 

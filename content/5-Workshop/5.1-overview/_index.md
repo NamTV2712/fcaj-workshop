@@ -11,7 +11,7 @@ pre: " <b> 5.1. </b> "
 
 In a fresh AWS account, CloudFormation creates a two-Availability-Zone VPC, an ARM64 ECS Fargate cluster, private S3 buckets, NAT Gateway/VPC Endpoints, RDS PostgreSQL, Valkey, CloudFront + WAF, an internal ALB, and all ECS services (Terminal, Gateway, Meeting/Admin API, Runtime, Bot, **VieGem ASR**, Agent/MCP/Flows, and optional LiveKit/VieNeu Voice). You can **copy the prebuilt `linux/arm64` images from GHCR (`workshop-arm64`)** straight into your own ECR via CloudShell (see [5.4A](../5.4-full-cloudformation/)) or build them from source. Names include `staging` because some templates and ECR permissions require that prefix; all resources still belong to your own account.
 
-![TINA AWS Architecture](/images/5-Workshop/tina/tina-aws-architecture.png)
+![TINA AWS Architecture](/images/5-Workshop/tina/tina-aws-architecture.jpg)
 
 ```text
 Browser → CloudFront/WAF → Internal ALB → Terminal (ECS Fargate)

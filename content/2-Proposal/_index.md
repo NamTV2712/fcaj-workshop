@@ -21,7 +21,7 @@ pre: " <b> 2. </b> "
 ### 1. Executive Summary
 TINA is an AI meeting assistant built by a four-person team during the First Cloud AI Journey (FCAJ) internship. A meeting bot joins Google Meet, Zoom or Microsoft Teams, transcribes the conversation in real time (Vietnamese first, with English and bilingual views), produces live notes and a summary, and lets participants ask questions about the meeting ("Ask TINA"), including spoken replies through a wake word. When the meeting ends, every known attendee receives a follow-up email linking to the saved summary and recording.
 
-The platform runs on AWS in `us-east-1`. Containerized services run on Amazon ECS with AWS Fargate behind CloudFront, AWS WAF and an Application Load Balancer. Amazon Cognito (federated with Google OAuth) handles sign-in. Amazon RDS and Amazon ElastiCache store transcripts and live state, Amazon S3 stores recordings, Amazon Bedrock powers summaries and the meeting agent, and Amazon SES delivers follow-up emails. The first version targets an internal pilot team of about 10 users holding around 5 meetings per week.
+The platform runs on AWS in `us-east-1`. Containerized services run on Amazon ECS with AWS Fargate behind CloudFront, AWS WAF and an Application Load Balancer. Google OAuth (integrated via NextAuth) handles sign-in. Amazon RDS and Amazon ElastiCache store transcripts and live state, Amazon S3 stores recordings, Amazon Bedrock powers summaries and the meeting agent, and Amazon SES delivers follow-up emails. The first version targets an internal pilot team of about 10 users holding around 5 meetings per week.
 
 ### 2. Problem Statement
 ### What's the Problem?
@@ -35,7 +35,7 @@ Key features:
 - Live notes, end-of-meeting summary and transcript search.
 - "Ask TINA" agent with meeting context, plus wake-word and spoken replies.
 - Post-meeting follow-up email with summary and recording links.
-- Google sign-in through Cognito; secrets in AWS Secrets Manager, encryption with AWS KMS.
+- Google OAuth sign-in (NextAuth); secrets in AWS Secrets Manager, encryption with AWS KMS.
 
 ### Benefits and Return on Investment
 - **Time saved**: removes manual note-taking and follow-up writing, saving roughly 15–30 minutes per meeting for the note-taker; at ~5 meetings/week that is 5–10 hours per month for the pilot team.
@@ -47,10 +47,10 @@ Key features:
 ### 3. Solution Architecture
 TINA uses a containerized architecture on Amazon ECS (AWS Fargate) inside a VPC across two Availability Zones in `us-east-1`. Public traffic enters through CloudFront and AWS WAF, then an Application Load Balancer. All application tasks run in private subnets. Data stores sit in separate private data subnets, and outbound traffic (meeting platforms, Google OAuth) leaves through a NAT Gateway.
 
-![TINA AWS Architecture](/images/2-Proposal/tina_aws_architecture.png)
+![TINA AWS Architecture](/images/2-Proposal/tina_aws_architecture.jpg)
 
 **Request and data flow (numbers match the diagram):**
-1. The user opens TINA through **CloudFront** (protected by **WAF**) and signs in through **Cognito** with Google OAuth.
+1. The user opens TINA through **CloudFront** (protected by **WAF**) and signs in with **Google OAuth**.
 2. CloudFront forwards requests to the VPC through the **Internet Gateway**.
 3. Traffic reaches the **Application Load Balancer**.
 4. The ALB routes HTTPS traffic to the **Web serving** task (Next.js terminal, API, WebSocket gateway).
@@ -71,7 +71,6 @@ TINA uses a containerized architecture on Amazon ECS (AWS Fargate) inside a VPC 
 - **Application Load Balancer**: HTTPS/WebSocket routing to the Web task with health checks.
 - **Amazon ECS on AWS Fargate**: Runs five services — Web serving, Bot (Playwright), STT (VieGem), TTS (VieNeu), Agent — without managing servers.
 - **Amazon ECR**: Private registry for container images.
-- **Amazon Cognito**: User pool with Google OAuth federation; issues JWTs for the web app.
 - **Amazon RDS (PostgreSQL)**: Meetings, transcripts, notes, users and settings.
 - **Amazon ElastiCache (Redis)**: Live transcript streams, pub/sub and short-lived state.
 - **Amazon S3**: Meeting recordings and exported artifacts.
@@ -82,7 +81,7 @@ TINA uses a containerized architecture on Amazon ECS (AWS Fargate) inside a VPC 
 - **AWS Cost Explorer, AWS Budgets**: Cost tracking and budget alerts.
 
 ### Component Design
-- **Client**: Web app (TINA Terminal) and Chrome extension; users sign in with Google through Cognito.
+- **Client**: Web app (TINA Terminal) and Chrome extension; users sign in with Google OAuth (NextAuth).
 - **Edge layer**: CloudFront + WAF in front of the ALB; only HTTPS is exposed publicly.
 - **Web serving task**: UI, REST API, WebSocket gateway for live transcripts, meeting orchestration and email dispatch.
 - **Bot task**: One Playwright browser per meeting; captures audio per participant channel and plays TTS audio back into the meeting.
@@ -102,7 +101,7 @@ The project follows four phases:
 **Technical Requirements**
 - **Application**: TypeScript/Next.js (web), Python (meeting API, agent), Playwright (bot), Docker images for every service; pnpm/turbo monorepo.
 - **Speech**: VieGem STT and VieNeu TTS models served over authenticated HTTP inside the VPC; model artifacts stored in S3/ECR.
-- **AWS**: ECS Fargate task definitions and services, ALB target groups with health checks, RDS PostgreSQL, ElastiCache Redis, S3 buckets with encryption and lifecycle rules, Cognito user pool with Google IdP, Bedrock model access, SES verified domain.
+- **AWS**: ECS Fargate task definitions and services, ALB target groups with health checks, RDS PostgreSQL, ElastiCache Redis/Valkey, S3 buckets with encryption and lifecycle rules, Google OAuth via Secrets Manager, Bedrock model access, SES verified domain.
 - **Security**: Least-privilege IAM task roles, Secrets Manager for credentials, KMS encryption at rest, TLS in transit, security groups that only allow ALB → Web and internal service-to-service traffic.
 - **DevOps**: GitHub Actions for build/test, image push to ECR and ECS deployment; CloudWatch logs and alarms.
 
@@ -116,7 +115,7 @@ The project follows four phases:
 | | Lê Hoài Thanh Quang | Test Bedrock models for notes/summaries and estimate costs with the AWS Pricing Calculator. |
 | Week 8 | **All Members** | Agree on contracts between Web, Bot, STT, TTS and Agent (transcript segments, events, APIs); containerize every service. |
 | | Trần Kiến Quốc | Containerize the TTS (VieNeu) service and set up GitHub Actions to build and push images to ECR. |
-| | Thái Việt Nam | Provision VPC, NAT Gateway, ALB, ECS cluster, CloudFront + WAF and the Cognito User Pool with Google OAuth. |
+| | Thái Việt Nam | Provision VPC, NAT Gateway, ALB, ECS cluster, CloudFront + WAF and Google OAuth sign-in configuration. |
 | | Hoàng Đình Quang | Containerize the Bot (Playwright) and STT services and write their Fargate task definitions. |
 | | Lê Hoài Thanh Quang | Set up RDS PostgreSQL, ElastiCache Redis and the S3 recordings bucket with encryption. |
 | Week 9 | **All Members** | Peer code review; integrate the Bot → STT → RDS/ElastiCache → Web live transcript flow. |
@@ -164,7 +163,6 @@ Estimates use on-demand prices in `us-east-1` (US East – N. Virginia) and the 
     - AWS KMS (1 customer managed key): $1.00/month.
     - Amazon CloudWatch (~5 GB logs, alarms): $3.50/month.
     - Amazon ECR (~10 GB images): $1.00/month.
-    - Amazon Cognito (under 10,000 MAU): $0.00/month.
 
 **Total: ~$147.76/month, ~$1,773/12 months** (full architecture, 24/7).
 
@@ -184,7 +182,7 @@ Estimates use on-demand prices in `us-east-1` (US East – N. Virginia) and the 
 - **ASR accuracy**: Use VieGem tuned for Vietnamese, endpointing that confirms stable text, measure accuracy on recorded test meetings.
 - **Platform changes**: Per-platform capture adapters, regression tests on Playwright flows, quick image rollout through CI/CD.
 - **Latency**: Keep STT inside the VPC, stream partial results, use a fast/low-cost Bedrock model for live notes.
-- **Privacy**: Consent notice before recording, Cognito authentication, recipient-bound links, KMS encryption, private subnets, least-privilege IAM, retention rules on S3.
+- **Privacy**: Consent notice before recording, Google OAuth (NextAuth) authentication, recipient-bound links, KMS encryption, private subnets, least-privilege IAM, retention rules on S3.
 - **Bedrock**: Request quota in advance, keep a fallback model configured.
 
 #### Contingency Plans

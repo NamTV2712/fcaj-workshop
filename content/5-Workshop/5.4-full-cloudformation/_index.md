@@ -10,7 +10,7 @@ pre: " <b> 5.4A </b> "
 
 {{< workshop-file path="cloudformation/tina-full.yml" label="Download tina-full.yml" >}}
 
-![TINA AWS Architecture](/images/5-Workshop/tina/tina-aws-architecture.png)
+![TINA AWS Architecture](/images/5-Workshop/tina/tina-aws-architecture.jpg)
 
 The `tina-full.yml` template provisions the entire TINA infrastructure in a **single stack**: a 2-AZ VPC, NAT Gateway, S3, CloudFront + WAF, an internal ALB, RDS PostgreSQL, ElastiCache Valkey, ECS Fargate (ARM64), Terminal, Bot, Runtime, **VieGem ASR**, Agent API, Agent Reach, MCP, Flows, and workspace storage.
 

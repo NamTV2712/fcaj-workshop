@@ -11,7 +11,7 @@ pre: " <b> 5.1. </b> "
 
 Trên tài khoản AWS mới, CloudFormation tạo VPC hai Availability Zone, ECS Fargate cluster (ARM64), S3 bucket riêng, NAT Gateway/VPC Endpoints, RDS PostgreSQL, Valkey, CloudFront + WAF, ALB nội bộ và toàn bộ các ECS service (Terminal, Gateway, Meeting/Admin API, Runtime, Bot, **VieGem ASR**, Agent/MCP/Flows và tùy chọn Voice LiveKit/VieNeu). Bạn có thể **copy nhanh bộ image `linux/arm64` dựng sẵn từ GHCR (`workshop-arm64`)** vào ECR bằng CloudShell (xem [5.4A](../5.4-full-cloudformation/)) hoặc tự build từ source. Dùng tên có `staging` vì một số template và quyền ECR yêu cầu tiền tố này; toàn bộ tài nguyên vẫn thuộc tài khoản của bạn.
 
-![Sơ đồ kiến trúc TINA trên AWS](/images/5-Workshop/tina/tina-aws-architecture.png)
+![Sơ đồ kiến trúc TINA trên AWS](/images/5-Workshop/tina/tina-aws-architecture.jpg)
 
 ```text
 Trình duyệt → CloudFront/WAF → ALB nội bộ → Terminal (ECS Fargate)

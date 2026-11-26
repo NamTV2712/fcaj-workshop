@@ -21,7 +21,7 @@ pre: " <b> 2. </b> "
 ### 1. Tóm tắt điều hành
 TINA là trợ lý cuộc họp AI do nhóm 4 thành viên xây dựng trong kỳ thực tập First Cloud AI Journey (FCAJ). Bot của TINA tham gia Google Meet, Zoom hoặc Microsoft Teams, phiên âm hội thoại theo thời gian thực (ưu tiên tiếng Việt, có chế độ xem tiếng Anh và song ngữ), tạo ghi chú và tóm tắt trực tiếp, đồng thời cho phép người tham gia đặt câu hỏi về cuộc họp ("Ask TINA"), kể cả trả lời bằng giọng nói khi gọi wake word. Khi cuộc họp kết thúc, mỗi người tham dự nhận được email follow-up kèm link tới bản tóm tắt và bản ghi âm.
 
-Nền tảng chạy trên AWS tại `us-east-1`. Các dịch vụ được đóng gói container, chạy trên Amazon ECS với AWS Fargate, phía sau CloudFront, AWS WAF và Application Load Balancer. Amazon Cognito (liên kết Google OAuth) xử lý đăng nhập. Amazon RDS và Amazon ElastiCache lưu transcript và trạng thái trực tiếp, Amazon S3 lưu bản ghi âm, Amazon Bedrock tạo tóm tắt và vận hành agent, Amazon SES gửi email follow-up. Phiên bản đầu hướng tới nhóm thí điểm nội bộ khoảng 10 người dùng với khoảng 5 cuộc họp mỗi tuần.
+Nền tảng chạy trên AWS tại `us-east-1`. Các dịch vụ được đóng gói container, chạy trên Amazon ECS với AWS Fargate, phía sau CloudFront, AWS WAF và Application Load Balancer. Google OAuth (tích hợp qua NextAuth) xử lý đăng nhập. Amazon RDS và Amazon ElastiCache lưu transcript và trạng thái trực tiếp, Amazon S3 lưu bản ghi âm, Amazon Bedrock tạo tóm tắt và vận hành agent, Amazon SES gửi email follow-up. Phiên bản đầu hướng tới nhóm thí điểm nội bộ khoảng 10 người dùng với khoảng 5 cuộc họp mỗi tuần.
 
 ### 2. Tuyên bố vấn đề
 ### Vấn đề hiện tại
@@ -35,7 +35,7 @@ Tính năng chính:
 - Ghi chú trực tiếp, tóm tắt cuối buổi và tìm kiếm transcript.
 - Agent "Ask TINA" hiểu ngữ cảnh cuộc họp, hỗ trợ wake word và trả lời bằng giọng nói.
 - Email follow-up sau cuộc họp kèm link tóm tắt và bản ghi âm.
-- Đăng nhập Google qua Cognito; bí mật lưu trong AWS Secrets Manager, mã hóa bằng AWS KMS.
+- Đăng nhập Google OAuth (NextAuth); bí mật lưu trong AWS Secrets Manager, mã hóa bằng AWS KMS.
 
 ### Lợi ích và hoàn vốn đầu tư (ROI)
 - **Tiết kiệm thời gian**: Bỏ việc ghi chép và soạn follow-up thủ công, tiết kiệm khoảng 15–30 phút mỗi cuộc họp cho người ghi chép; với ~5 cuộc họp/tuần là 5–10 giờ mỗi tháng cho nhóm thí điểm.
@@ -47,10 +47,10 @@ Tính năng chính:
 ### 3. Kiến trúc giải pháp
 TINA sử dụng kiến trúc container trên Amazon ECS (AWS Fargate) trong một VPC trải trên 2 Availability Zone tại `us-east-1`. Lưu lượng công khai đi vào qua CloudFront và AWS WAF, rồi tới Application Load Balancer. Mọi task ứng dụng chạy trong private subnet. Các kho dữ liệu nằm trong private data subnet riêng, và lưu lượng đi ra ngoài (nền tảng họp, Google OAuth) đi qua NAT Gateway.
 
-![TINA AWS Architecture](/images/2-Proposal/tina_aws_architecture.png)
+![TINA AWS Architecture](/images/2-Proposal/tina_aws_architecture.jpg)
 
 **Luồng xử lý (số thứ tự khớp với sơ đồ):**
-1. Người dùng truy cập TINA qua **CloudFront** (được bảo vệ bởi **WAF**) và đăng nhập qua **Cognito** bằng Google OAuth.
+1. Người dùng truy cập TINA qua **CloudFront** (được bảo vệ bởi **WAF**) và đăng nhập bằng **Google OAuth**.
 2. CloudFront chuyển request vào VPC qua **Internet Gateway**.
 3. Lưu lượng tới **Application Load Balancer**.
 4. ALB định tuyến HTTPS tới task **Web serving** (Next.js terminal, API, WebSocket gateway).
@@ -71,7 +71,6 @@ TINA sử dụng kiến trúc container trên Amazon ECS (AWS Fargate) trong m�
 - **Application Load Balancer**: Định tuyến HTTPS/WebSocket tới task Web kèm health check.
 - **Amazon ECS trên AWS Fargate**: Chạy 5 dịch vụ — Web serving, Bot (Playwright), STT (VieGem), TTS (VieNeu), Agent — không cần quản lý máy chủ.
 - **Amazon ECR**: Registry riêng cho image container.
-- **Amazon Cognito**: User pool liên kết Google OAuth; cấp JWT cho ứng dụng web.
 - **Amazon RDS (PostgreSQL)**: Lưu cuộc họp, transcript, ghi chú, người dùng và cấu hình.
 - **Amazon ElastiCache (Redis)**: Stream transcript trực tiếp, pub/sub và trạng thái ngắn hạn.
 - **Amazon S3**: Lưu bản ghi âm cuộc họp và tệp xuất.
@@ -82,7 +81,7 @@ TINA sử dụng kiến trúc container trên Amazon ECS (AWS Fargate) trong m�
 - **AWS Cost Explorer, AWS Budgets**: Theo dõi chi phí và cảnh báo ngân sách.
 
 ### Thiết kế thành phần
-- **Client**: Ứng dụng web (TINA Terminal) và Chrome extension; người dùng đăng nhập Google qua Cognito.
+- **Client**: Ứng dụng web (TINA Terminal) và Chrome extension; người dùng đăng nhập bằng Google OAuth (NextAuth).
 - **Lớp biên**: CloudFront + WAF đứng trước ALB; chỉ mở HTTPS ra Internet.
 - **Task Web serving**: Giao diện, REST API, WebSocket gateway cho transcript trực tiếp, điều phối cuộc họp và gửi email.
 - **Task Bot**: Mỗi cuộc họp một trình duyệt Playwright; thu âm theo kênh từng người tham gia và phát âm thanh TTS vào cuộc họp.
@@ -102,7 +101,7 @@ Dự án gồm 4 giai đoạn:
 **Yêu cầu kỹ thuật**
 - **Ứng dụng**: TypeScript/Next.js (web), Python (meeting API, agent), Playwright (bot), Docker image cho mọi dịch vụ; monorepo pnpm/turbo.
 - **Giọng nói**: Model STT VieGem và TTS VieNeu phục vụ qua HTTP có xác thực bên trong VPC; artifact model lưu trên S3/ECR.
-- **AWS**: Task definition và service ECS Fargate, target group ALB có health check, RDS PostgreSQL, ElastiCache Redis, S3 bucket có mã hóa và lifecycle rule, Cognito user pool với Google IdP, quyền truy cập model Bedrock, domain đã xác minh trên SES.
+- **AWS**: Task definition và service ECS Fargate, target group ALB có health check, RDS PostgreSQL, ElastiCache Redis/Valkey, S3 bucket có mã hóa và lifecycle rule, Google OAuth qua Secrets Manager, quyền truy cập model Bedrock, domain đã xác minh trên SES.
 - **Bảo mật**: IAM task role tối thiểu quyền, Secrets Manager cho thông tin xác thực, mã hóa KMS khi lưu trữ, TLS khi truyền, security group chỉ cho phép ALB → Web và lưu lượng nội bộ giữa các dịch vụ.
 - **DevOps**: GitHub Actions để build/test, đẩy image lên ECR và triển khai ECS; log và cảnh báo trên CloudWatch.
 
@@ -116,7 +115,7 @@ Dự án gồm 4 giai đoạn:
 | | Lê Hoài Thanh Quang | Thử nghiệm model Bedrock cho ghi chú/tóm tắt và ước tính chi phí bằng AWS Pricing Calculator. |
 | Tuần 8 | **Cả nhóm** | Thống nhất contract giữa Web, Bot, STT, TTS và Agent (đoạn transcript, sự kiện, API); đóng gói container cho mọi dịch vụ. |
 | | Trần Kiến Quốc | Đóng gói container dịch vụ TTS (VieNeu), thiết lập GitHub Actions để build và đẩy image lên ECR. |
-| | Thái Việt Nam | Dựng VPC, NAT Gateway, ALB, ECS cluster, CloudFront + WAF và Cognito User Pool liên kết Google OAuth. |
+| | Thái Việt Nam | Dựng VPC, NAT Gateway, ALB, ECS cluster, CloudFront + WAF và cấu hình đăng nhập Google OAuth. |
 | | Hoàng Đình Quang | Đóng gói container Bot (Playwright) và STT, viết task definition Fargate. |
 | | Lê Hoài Thanh Quang | Thiết lập RDS PostgreSQL, ElastiCache Redis và S3 bucket lưu bản ghi âm có mã hóa. |
 | Tuần 9 | **Cả nhóm** | Review chéo code; tích hợp luồng transcript trực tiếp Bot → STT → RDS/ElastiCache → Web. |
@@ -164,7 +163,6 @@ Dự án gồm 4 giai đoạn:
     - AWS KMS (1 customer managed key): 1,00 USD/tháng.
     - Amazon CloudWatch (~5 GB log, cảnh báo): 3,50 USD/tháng.
     - Amazon ECR (~10 GB image): 1,00 USD/tháng.
-    - Amazon Cognito (dưới 10.000 MAU): 0,00 USD/tháng.
 
 **Tổng: ~147,76 USD/tháng, ~1.773 USD/12 tháng** (toàn bộ kiến trúc, chạy 24/7).
 
@@ -184,7 +182,7 @@ Dự án gồm 4 giai đoạn:
 - **Độ chính xác ASR**: Dùng VieGem tối ưu cho tiếng Việt, cơ chế endpointing xác nhận phần text ổn định, đo độ chính xác trên các cuộc họp mẫu đã ghi.
 - **Thay đổi nền tảng**: Adapter thu âm riêng cho từng nền tảng, regression test cho luồng Playwright, cập nhật image nhanh qua CI/CD.
 - **Độ trễ**: Đặt STT trong VPC, stream kết quả tạm thời, dùng model Bedrock nhanh/chi phí thấp cho ghi chú trực tiếp.
-- **Quyền riêng tư**: Thông báo xin đồng ý trước khi ghi âm, xác thực qua Cognito, link gắn với người nhận, mã hóa KMS, private subnet, IAM tối thiểu quyền, quy tắc lưu giữ trên S3.
+- **Quyền riêng tư**: Thông báo xin đồng ý trước khi ghi âm, xác thực Google OAuth (NextAuth), link gắn với người nhận, mã hóa KMS, private subnet, IAM tối thiểu quyền, quy tắc lưu giữ trên S3.
 - **Bedrock**: Đăng ký hạn mức trước, cấu hình sẵn model dự phòng.
 
 #### Kế hoạch dự phòng
