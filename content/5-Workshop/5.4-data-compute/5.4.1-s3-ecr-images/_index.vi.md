@@ -31,6 +31,9 @@ Nếu một repository đã tồn tại trong tài khoản của bạn, kiểm t
 > Thay vì tạo máy EC2 để build Docker (rất nặng RAM), bạn có thể chạy khối lệnh dưới đây **ngay trong CloudShell** để copy sẵn các image `linux/arm64` (đã build sẵn từ GHCR) vào ECR với đúng nhãn `$TINA_TAG` (`ws-v1`), rồi chuyển thẳng sang **[5.4.2](../5.4.2-data-secrets/)**:
 >
 > ```bash
+> export AWS_REGION="${AWS_REGION:-us-east-1}"
+> export TINA_ACCOUNT="${TINA_ACCOUNT:-$(aws sts get-caller-identity --query Account --output text)}"
+> export TINA_TAG="${TINA_TAG:-ws-v1}"
 > if [ ! -x /tmp/crane ]; then
 >   curl -sSL "https://github.com/google/go-containerregistry/releases/latest/download/go-containerregistry_Linux_x86_64.tar.gz" | tar -xz -C /tmp crane
 > fi

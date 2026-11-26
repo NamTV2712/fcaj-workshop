@@ -31,6 +31,9 @@ If a repository already exists in your account, verify its name and permissions,
 > Instead of launching an EC2 builder to compile Docker images (which requires heavy RAM), run the block below **directly in CloudShell** to copy the prebuilt `linux/arm64` images from GHCR into your ECR under tag `$TINA_TAG` (`ws-v1`), then jump straight to **[5.4.2](../5.4.2-data-secrets/)**:
 >
 > ```bash
+> export AWS_REGION="${AWS_REGION:-us-east-1}"
+> export TINA_ACCOUNT="${TINA_ACCOUNT:-$(aws sts get-caller-identity --query Account --output text)}"
+> export TINA_TAG="${TINA_TAG:-ws-v1}"
 > if [ ! -x /tmp/crane ]; then
 >   curl -sSL "https://github.com/google/go-containerregistry/releases/latest/download/go-containerregistry_Linux_x86_64.tar.gz" | tar -xz -C /tmp crane
 > fi
