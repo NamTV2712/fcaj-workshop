@@ -9,7 +9,7 @@ pre: " <b> 5.4.2 </b> "
 
 ## 1. Deploy RDS and Valkey
 
-In **CloudShell**, run the following after the foundation and egress stacks are complete:
+In **CloudShell**, run the following after the foundation and egress stacks are complete *(if CloudShell reconnected and `$TINA_SRC` or `stackout` is missing, run `source "$HOME/tina-workshop/env.sh"` first)*:
 
 ```bash
 VPC_ID="$(stackout tina-staging VpcId)"

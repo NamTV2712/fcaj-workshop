@@ -37,17 +37,22 @@ Trên Console, chọn biểu tượng **CloudShell** và xác nhận Region `us-
 Trong CloudShell, tải cùng phiên bản template và khai báo các hàm đọc output:
 
 ```bash
+mkdir -p "$HOME/tina-workshop"
+cat > "$HOME/tina-workshop/env.sh" <<'EOF'
 export AWS_REGION=us-east-1
 export AWS_PAGER=''
 export TINA_REV=7d6bba8109f6eac51c0d8241a7083e3e364cf59d
-mkdir -p "$HOME/tina-workshop"
-curl -fL "https://github.com/poor-frog/TINA/archive/${TINA_REV}.zip" -o "$HOME/tina-workshop/source.zip"
-unzip -q -o "$HOME/tina-workshop/source.zip" -d "$HOME/tina-workshop"
 export TINA_SRC="$HOME/tina-workshop/TINA-${TINA_REV}"
-stackout() { aws cloudformation describe-stacks --region "$AWS_REGION" --stack-name "$1" --query "Stacks[0].Outputs[?OutputKey=='$2'].OutputValue | [0]" --output text; }
-repoarn() { aws ecr describe-repositories --region "$AWS_REGION" --repository-names "tina-staging/$1" --query 'repositories[0].repositoryArn' --output text; }
 export TINA_ACCOUNT="$(aws sts get-caller-identity --query Account --output text)"
 export TINA_TAG=ws-v1
+stackout() { aws cloudformation describe-stacks --region "$AWS_REGION" --stack-name "$1" --query "Stacks[0].Outputs[?OutputKey=='$2'].OutputValue | [0]" --output text; }
+repoarn() { aws ecr describe-repositories --region "$AWS_REGION" --repository-names "tina-staging/$1" --query 'repositories[0].repositoryArn' --output text; }
+image() { local d; d="$(aws ecr describe-images --region "$AWS_REGION" --repository-name "tina-staging/$1" --image-ids "imageTag=$TINA_TAG" --query 'imageDetails[0].imageDigest' --output text)" || return 1; printf '%s.dkr.ecr.%s.amazonaws.com/tina-staging/%s@%s' "$TINA_ACCOUNT" "$AWS_REGION" "$1" "$d"; }
+EOF
+grep -q 'tina-workshop/env.sh' ~/.bashrc || echo 'source "$HOME/tina-workshop/env.sh"' >> ~/.bashrc
+source "$HOME/tina-workshop/env.sh"
+curl -fL "https://github.com/poor-frog/TINA/archive/${TINA_REV}.zip" -o "$HOME/tina-workshop/source.zip"
+unzip -q -o "$HOME/tina-workshop/source.zip" -d "$HOME/tina-workshop"
 ```
 
-Các lệnh ghi file trong thư mục CloudShell của bạn. Nếu CloudShell mở lại và mất biến/hàm, chạy lại khối trên; không phải tạo lại stack. Các bước sau dùng nhãn image `ws-v1`; nếu build lại sau khi đã push một phần, chọn nhãn mới và dùng nhất quán ở cả EC2 lẫn CloudShell vì ECR đặt immutable.
+Các lệnh trên tự lưu biến và hàm vào `~/tina-workshop/env.sh` (và nạp sẵn trong `~/.bashrc`), nên dù CloudShell bị đóng/mở lại ở các bước `5.3` → `5.4` vẫn không bị mất `$TINA_SRC`, `$TINA_ACCOUNT`, `$TINA_TAG` hay `stackout`. Các bước sau dùng nhãn image `ws-v1`; nếu build lại sau khi đã push một phần, chọn nhãn mới và dùng nhất quán ở cả EC2 lẫn CloudShell vì ECR đặt immutable.

@@ -9,7 +9,7 @@ pre: " <b> 5.4.2 </b> "
 
 ## 1. Tạo RDS và Valkey
 
-Trong **CloudShell**, chạy sau khi foundation và egress hoàn tất:
+Trong **CloudShell**, chạy sau khi foundation và egress hoàn tất *(nếu CloudShell mới mở lại bị lỗi thiếu `$TINA_SRC` hoặc `stackout`, chạy `source "$HOME/tina-workshop/env.sh"` trước)*:
 
 ```bash
 VPC_ID="$(stackout tina-staging VpcId)"
