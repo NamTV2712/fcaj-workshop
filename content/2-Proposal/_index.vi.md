@@ -52,7 +52,7 @@ TINA đưa một bot vào cuộc họp thông qua trình duyệt headless (Playw
 - **Theo dõi công việc tốt hơn:** Quyết định và đầu việc được lưu thành bản ghi có thể tìm kiếm và gửi tới mọi người tham dự.
 - **Làm chủ dữ liệu:** Toàn bộ dữ liệu cuộc họp, bản ghi âm và mô hình nằm trong tài khoản AWS của nhóm.
 - **Giá trị học tập:** Nhóm có kinh nghiệm thực tế với ECS/Fargate, networking, cơ sở dữ liệu managed, generative AI trên Bedrock và CI/CD — nền tảng tái sử dụng cho các sản phẩm AI sau này.
-- **Chi phí:** Khoảng **148 USD/tháng** (on-demand) khi toàn bộ kiến trúc chạy 24/7 (xem mục 6). Khi tắt dịch vụ ngoài giờ, chi phí nằm trong hạn mức AWS credits của nhóm cho giai đoạn thực tập và thí điểm, thấp hơn nhiều so với license SaaS tính theo đầu người cho 10 người dùng.
+- **Chi phí:** Khoảng **137 USD/tháng** (on-demand `us-east-1`, Fargate ARM64 & Valkey) khi toàn bộ kiến trúc chạy 24/7 (xem mục 6). Khi tắt dịch vụ ngoài giờ, chi phí nằm trong hạn mức AWS credits của nhóm cho giai đoạn thực tập và thí điểm, thấp hơn nhiều so với license SaaS tính theo đầu người cho 10 người dùng.
 
 ### 4. Kiến trúc & Triển khai kỹ thuật
 #### Kiến trúc giải pháp
@@ -150,26 +150,26 @@ TINA sử dụng kiến trúc container trên Amazon ECS (AWS Fargate) trong m�
 #### Bảng chi phí hạ tầng
 | Nhóm | Dịch vụ | Cấu hình / Mức sử dụng | Chi phí/tháng (USD) |
 | --- | --- | --- | ---: |
-| **Tính toán (ECS Fargate)** | Web serving | 0,5 vCPU, 1 GB, 24/7 | 18,02 |
-| | Agent | 0,5 vCPU, 1 GB, 24/7 | 18,02 |
-| | Bot – Playwright | 1 vCPU, 2 GB, 20 giờ | 0,99 |
-| | STT – VieGem | 2 vCPU, 4 GB, 20 giờ | 1,97 |
-| | TTS – VieNeu | 1 vCPU, 2 GB, 20 giờ | 0,99 |
+| **Tính toán (ECS Fargate ARM64)** | Web serving | 0,5 vCPU, 1 GB, 24/7 | 14,42 |
+| | Agent | 0,5 vCPU, 1 GB, 24/7 | 14,42 |
+| | Bot – Playwright | 1 vCPU, 2 GB, 20 giờ | 0,79 |
+| | STT – VieGem | 2 vCPU, 4 GB, 20 giờ | 1,58 |
+| | TTS – VieNeu | 1 vCPU, 2 GB, 20 giờ | 0,79 |
 | **Mạng** | Application Load Balancer | 1 ALB, LCU thấp | 18,00 |
-| | NAT Gateway | 1 gateway, ~10 GB xử lý | 33,30 |
+| | NAT Gateway | 1 gateway, ≈10 GB xử lý | 33,30 |
 | | Địa chỉ IPv4 công khai | 3 địa chỉ | 10,95 |
 | | Amazon CloudFront | Chủ yếu trong free tier | 1,00 |
 | **Dữ liệu** | Amazon RDS PostgreSQL | `db.t4g.micro`, Single-AZ, 20 GB gp3 | 14,00 |
-| | Amazon ElastiCache (Valkey/Redis) | `cache.t4g.micro` | 11,68 |
-| | Amazon S3 | ~10 GB bản ghi âm + request | 0,33 |
-| **AI & Gửi thư** | Amazon Bedrock | Ghi chú, tóm tắt, dịch, hỏi đáp | ~3,00 |
-| | Amazon SES | ~200 email | 0,01 |
+| | Amazon ElastiCache (Valkey) | `cache.t4g.micro` | 9,34 |
+| | Amazon S3 | ≈10 GB bản ghi âm + request | 0,33 |
+| **AI & Gửi thư** | Amazon Bedrock | `amazon.nova-lite-v1:0` + model dự phòng (ghi chú, tóm tắt, dịch, hỏi đáp) | ≈3,00 |
+| | Amazon SES | ≈200 email | 0,01 |
 | **Bảo mật & Vận hành** | AWS WAF | 1 Web ACL, 3 rule | 8,00 |
 | | AWS Secrets Manager | 5 secret | 2,00 |
 | | AWS KMS | 1 customer managed key | 1,00 |
-| | Amazon CloudWatch | ~5 GB log, cảnh báo | 3,50 |
-| | Amazon ECR | ~10 GB image | 1,00 |
-| **Tổng cộng** | **Toàn bộ kiến trúc (24/7)** | **≈1.773 USD / 12 tháng** | **≈147,76** |
+| | Amazon CloudWatch | ≈5 GB log, cảnh báo | 3,50 |
+| | Amazon ECR | ≈10 GB image | 1,00 |
+| **Tổng cộng** | **Toàn bộ kiến trúc (24/7)** | **≈1.649 USD / 12 tháng** | **≈137,43** |
 
 **Tối ưu chi phí:** Tắt task Web/Agent, RDS và ElastiCache ngoài giờ làm việc (~10 giờ/ngày, các ngày trong tuần) và bỏ WAF ở môi trường phát triển giúp giảm chi phí demo/thí điểm xuống khoảng **70–80 USD/tháng**. Các lựa chọn khác: Fargate Spot cho task Bot/STT/TTS, VPC endpoint cho S3/ECR để giảm phí dữ liệu qua NAT, và lifecycle rule trên S3 để chuyển bản ghi âm cũ sang lớp lưu trữ rẻ hơn. AWS Budgets cảnh báo ở mức 50%, 80% và 100% hạn mức tháng.
 

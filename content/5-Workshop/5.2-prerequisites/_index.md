@@ -26,9 +26,9 @@ NAT Gateway, public IPv4 addresses, Fargate, RDS, Valkey, ALB, WAF, S3, ECR, the
 
 ## 2. Source Code and Templates (for the multi-stack path 5.3 → 5.4)
 
-This workshop uses the pinned commit `7d6bba8109f6eac51c0d8241a7083e3e364cf59d` in the [TINA repository](https://github.com/poor-frog/TINA), which includes the ECS backend. Do not substitute `main`: the checked `main` branch does not contain the corresponding ECS backend.
+This workshop uses commit `0c206d46940f95c3469d1a65d18722e4f4fe96e5` on `main` in the [TINA repository](https://github.com/poor-frog/TINA), which includes the full ECS backend, VieGem ASR, Voice, Bedrock (`amazon.nova-lite-v1:0`), Amazon SES (`staging-ses.yml`), and CloudWatch Dashboard/Alarms (`staging-workspace-s3-monitoring.yml`).
 
-On your local machine, download the [source ZIP at this commit](https://github.com/poor-frog/TINA/archive/7d6bba8109f6eac51c0d8241a7083e3e364cf59d.zip) and extract it. Note the `deploy/aws/` directory because a Console step will ask you to upload `foundation.yml`. You will build the container images on a dedicated ARM64 EC2 instance in a later section; you do not need to copy any secrets from the author's machine.
+On your local machine, download the [source ZIP at this commit](https://github.com/poor-frog/TINA/archive/0c206d46940f95c3469d1a65d18722e4f4fe96e5.zip) and extract it. Note the `deploy/aws/` directory because a Console step will ask you to upload `foundation.yml` (if you choose the 5-command quick path in [5.4A](../5.4-full-cloudformation/), you do not need to download the ZIP or build Docker images yourself). You do not need to copy any secrets from the author's machine.
 
 ## 3. Open AWS CloudShell
 
@@ -41,7 +41,7 @@ mkdir -p "$HOME/tina-workshop"
 cat > "$HOME/tina-workshop/env.sh" <<'EOF'
 export AWS_REGION=us-east-1
 export AWS_PAGER=''
-export TINA_REV=7d6bba8109f6eac51c0d8241a7083e3e364cf59d
+export TINA_REV=0c206d46940f95c3469d1a65d18722e4f4fe96e5
 export TINA_SRC="$HOME/tina-workshop/TINA-${TINA_REV}"
 export TINA_ACCOUNT="$(aws sts get-caller-identity --query Account --output text)"
 export TINA_TAG=ws-v1

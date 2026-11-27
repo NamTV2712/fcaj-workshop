@@ -92,7 +92,7 @@ cat /tmp/tina-digests.env
 <details>
 <summary style="cursor:pointer;font-weight:600;color:#0073bb;text-decoration:underline;">▶ Advanced option: build all 12 images from source on an ARM64 EC2 instance (without GHCR)</summary>
 
-If you want to build from commit `7d6bba8109f6eac51c0d8241a7083e3e364cf59d` yourself, follow the ARM64 EC2 setup and inline `/root/tina-ecr-build.sh` script in [5.4.1 S3, ECR, and ARM64 image builds](../5.4-data-compute/5.4.1-s3-ecr-images/) and run it with the `--full` flag.
+If you want to build from commit `0c206d46940f95c3469d1a65d18722e4f4fe96e5` yourself, follow the ARM64 EC2 setup and inline `/root/tina-ecr-build.sh` script in [5.4.1 S3, ECR, and ARM64 image builds](../5.4-data-compute/5.4.1-s3-ecr-images/) and run it with the `--full` flag.
 
 </details>
 

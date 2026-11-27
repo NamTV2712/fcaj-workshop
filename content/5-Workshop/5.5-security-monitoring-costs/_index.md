@@ -15,11 +15,13 @@ Go to **IAM → Roles** and inspect the execution roles and task roles created b
 
 RDS, Valkey, and the services run in private subnets; secrets are referenced by ARN. CloudFront uses WAF and a VPC origin pointing to an internal ALB. The current configuration is intended for lab use—review internal transport encryption, backups, IAM policies, and WAF rules before serving real users.
 
-## 2. Inspect logs and health
+## 2. Inspect CloudWatch Logs, Metrics, and Alarms
 
-In **ECS → Clusters → service → Tasks → task → Logs**, or **CloudWatch → Log groups**, review logs during task startup and while running a test meeting. In CloudFormation, the **Events** tab shows stack provisioning errors. Do not include access tokens, meeting URLs, transcript content, or personal data in screenshots.
+In **ECS → Clusters → service → Tasks → task → Logs**, or **CloudWatch → Log groups**, review logs during task startup and while running a test meeting (`tina-full.yml` automatically provisions 13 Log Groups for all ECS services and enables `CloudWatchMetricsEnabled` on AWS WAF). In CloudFormation, the **Events** tab shows stack provisioning errors. Do not include access tokens, meeting URLs, transcript content, or personal data in screenshots.
 
 {{< workshop-screenshot file="20-logs.png" description="CloudWatch task logs with tokens, user details, and meeting content redacted." >}}
+
+To monitor system health, open **CloudWatch → Metrics → All metrics** and check `AWS/ECS` (`CPUUtilization`, `MemoryUtilization`), `AWS/ApplicationELB` (`HTTPCode_Target_5XX_Count`, `HealthyHostCount`), and `AWS/RDS` (`CPUUtilization`, `FreeStorageSpace`, `DatabaseConnections`). When you need full operational alerting (10 Metric Filters, 20 Alarms, and a unified Dashboard), deploy `deploy/aws/staging-workspace-s3-monitoring.yml` from `main` (see [Section 5.4.3.5](../5.4-data-compute/5.4.3-ecs-load-balancer/5.4.3.5-extensions/)).
 
 If ECS reports `CannotPullContainerError`, check that the digest is ARM64, the execution role has ECR permissions, and outbound NAT routing works. If you hit quota limits, check Service Quotas. If targets are unhealthy, inspect Terminal logs, port 3000, and the `/api/auth/providers` health check path.
 
@@ -27,17 +29,21 @@ If ECS reports `CannotPullContainerError`, check that the digest is ARM64, the e
 
 Check **Billing → Budgets** and **Cost Explorer**; billing data can lag behind actual usage. Budgets send alerts only—they do not automatically delete resources.
 
-### Reference Cost Estimate (`us-east-1`, pilot workload)
+### Reference Cost Estimate (`us-east-1`, single pilot environment)
 
-The table below estimates on-demand pricing in `us-east-1` for a pilot workload (≈10 users, ≈5 meetings/week, ≈20 meeting-hours/month):
+The table below uses official AWS `us-east-1` on-demand pricing (730 h/month) for **a single pilot environment** (≈10 users, ≈5 meetings/week, ≈20 meeting-hours/month):
 
 | Service Category | Key Sizing | Est. Monthly Cost |
 | --- | --- | --- |
-| **ECS Fargate (ARM64)** | Terminal, Core, Runtime, Agent (24/7) + Bot/VieGem (on-demand ≈20 h/month) | ≈$38–42 |
-| **Networking** | 1 ALB (≈$18) + 1 NAT Gateway (≈$33) + 3 Public IPv4 (≈$11) + CloudFront (≈$1) | ≈$63 |
-| **Data Stores** | RDS PostgreSQL `db.t4g.micro` (≈$14) + ElastiCache Valkey `cache.t4g.micro` (≈$11.7) + S3 (≈$0.3) | ≈$26 |
-| **Security & Observability** | AWS WAF (≈$8) + Secrets Manager (≈$2) + KMS (≈$1) + CloudWatch (≈$3.5) + ECR (≈$1) | ≈$15.5 |
-| **Total (24/7 full stack)** | Full pilot architecture | **≈$145/month** |
+| **ECS Fargate (ARM64)** | Web/Agent 24/7 (≈$28.80) + Bot/VieGem/VieNeu on-demand ≈20 h/month (≈$3.20) | ≈$32.00 |
+| **Networking** | 1 Internal ALB (≈$18.00) + 1 NAT Gateway (≈$33.30) + 1 Public IPv4 for NAT (≈$3.65) + CloudFront (≈$1.00) | ≈$55.95 |
+| **Data Stores** | RDS PostgreSQL `db.t4g.micro` + 20 GB gp3 (≈$14.00) + ElastiCache Valkey `cache.t4g.micro` (≈$9.34) + S3 (≈$0.33) | ≈$23.67 |
+| **AI & Messaging** | Amazon Bedrock `amazon.nova-lite-v1:0` (≈$0.54; budgeted with fallback ≈$3.00) + optional Amazon SES (≈$0.01) | ≈$3.01 |
+| **Security & Observability** | AWS WAF (≈$8.00) + Secrets Manager (≈$2.00) + KMS (≈$1.00) + CloudWatch (≈$3.50) + ECR (≈$1.00) | ≈$15.50 |
+| **Total (24/7 full stack)** | Full single pilot environment | **≈$130.13/month** |
+| **Hands-on lab session (2–3 h)** | Deploy, validate, and delete per Section 5.6 | **≈$1–2 / lab session** |
+
+> **Note:** If you deploy the combined `tina-full.yml` template (5.4A) and leave all optional services (Voice, Agent, MCP, Flows, and 4 VPC Interface Endpoints) running 24/7 without deleting them, monthly costs will be higher than the lean table above. Always run cleanup in [Section 5.6](../5.6-cleanup-evidence/) right after finishing the lab.
 
 ### Cost Optimization Strategies
 

@@ -53,4 +53,4 @@ Nếu có lỗi, dừng lại đọc **CloudFormation → Events** và xử lý 
 
 ## 4. Bằng chứng để đánh giá
 
-Ghi ngày, commit `7d6bba8109f6eac51c0d8241a7083e3e364cf59d`, trạng thái từng bước, lỗi và cách khắc phục. Ảnh phải là ảnh thật, đặt tại từng bước của trang; không đưa secret, transcript thật hoặc thông tin cá nhân vào tài liệu công khai.
+Ghi ngày, commit `0c206d46940f95c3469d1a65d18722e4f4fe96e5`, trạng thái từng bước, lỗi và cách khắc phục. Ảnh phải là ảnh thật, đặt tại từng bước của trang; không đưa secret, transcript thật hoặc thông tin cá nhân vào tài liệu công khai.

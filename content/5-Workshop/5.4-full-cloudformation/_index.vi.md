@@ -92,7 +92,7 @@ cat /tmp/tina-digests.env
 <details>
 <summary style="cursor:pointer;font-weight:600;color:#0073bb;text-decoration:underline;">▶ Tùy chọn nâng cao: tự build 12 image từ source bằng EC2 ARM64 (nếu không dùng GHCR)</summary>
 
-Nếu muốn tự build từ commit `7d6bba8109f6eac51c0d8241a7083e3e364cf59d`, xem hướng dẫn tạo EC2 ARM64 và script inline `/root/tina-ecr-build.sh` tại [5.4.1 S3, ECR và build image ARM64](../5.4-data-compute/5.4.1-s3-ecr-images/) rồi chạy với cờ `--full`.
+Nếu muốn tự build từ commit `0c206d46940f95c3469d1a65d18722e4f4fe96e5`, xem hướng dẫn tạo EC2 ARM64 và script inline `/root/tina-ecr-build.sh` tại [5.4.1 S3, ECR và build image ARM64](../5.4-data-compute/5.4.1-s3-ecr-images/) rồi chạy với cờ `--full`.
 
 </details>
 

@@ -15,11 +15,13 @@ Vào **IAM → Roles**, xem execution role và task role do stack tạo. Kiểm 
 
 RDS, Valkey và service chạy trong subnet riêng; secret được tham chiếu bằng ARN. CloudFront sử dụng WAF và VPC origin tới ALB nội bộ. Cấu hình hiện tại dành cho lab: xem lại mã hóa kết nối nội bộ, backup, IAM và rule WAF trước khi phục vụ người dùng thật.
 
-## 2. Xem log và health
+## 2. Xem CloudWatch Logs, Metrics và Cảnh báo
 
-Trong **ECS → Clusters → service → Tasks → task → Logs**, hoặc **CloudWatch → Log groups**, xem log khi task khởi động và lúc thử meeting. Trong CloudFormation, tab **Events** cho biết lỗi khởi tạo stack. Không đưa access token, URL meeting, nội dung transcript hoặc thông tin cá nhân vào ảnh.
+Trong **ECS → Clusters → service → Tasks → task → Logs**, hoặc **CloudWatch → Log groups**, xem log khi task khởi động và lúc thử meeting (template `tina-full.yml` tự tạo sẵn 13 Log Group cho toàn bộ ECS service và bật `CloudWatchMetricsEnabled` cho AWS WAF). Trong CloudFormation, tab **Events** cho biết lỗi khởi tạo stack. Không đưa access token, URL meeting, nội dung transcript hoặc thông tin cá nhân vào ảnh.
 
 {{< workshop-screenshot file="20-logs.png" description="CloudWatch log của task đã che token, thông tin người dùng và nội dung meeting." >}}
+
+Để theo dõi sức khỏe hệ thống, mở **CloudWatch → Metrics → All metrics** kiểm tra `AWS/ECS` (`CPUUtilization`, `MemoryUtilization`), `AWS/ApplicationELB` (`HTTPCode_Target_5XX_Count`, `HealthyHostCount`) và `AWS/RDS` (`CPUUtilization`, `FreeStorageSpace`, `DatabaseConnections`). Khi cần bộ giám sát hoàn chỉnh (10 Metric Filter, 20 Alarm và 1 Dashboard tổng hợp), bạn có thể triển khai thêm template `deploy/aws/staging-workspace-s3-monitoring.yml` từ nhánh `main` (xem [Mục 5.4.3.5](../5.4-data-compute/5.4.3-ecs-load-balancer/5.4.3.5-extensions/)).
 
 Nếu ECS `CannotPullContainerError`, kiểm tra đúng digest ARM64, execution role ECR và đường ra NAT. Nếu hết quota, kiểm tra Service Quotas. Nếu target unhealthy, kiểm tra log Terminal, port 3000 và health path `/api/auth/providers`.
 
@@ -27,17 +29,21 @@ Nếu ECS `CannotPullContainerError`, kiểm tra đúng digest ARM64, execution 
 
 Xem **Billing → Budgets** và **Cost Explorer**; chi phí có thể cập nhật chậm. Budget chỉ gửi cảnh báo, không tự xóa tài nguyên.
 
-### Ước tính chi phí tham khảo (`us-east-1`, môi trường thí điểm)
+### Ước tính chi phí tham khảo (`us-east-1`, 1 môi trường thí điểm)
 
-Bảng dưới ước tính theo giá on-demand tại `us-east-1` với tải thí điểm (≈10 người dùng, ≈5 cuộc họp/tuần, ≈20 giờ họp/tháng):
+Bảng dưới tính theo đơn giá on-demand chính thức của AWS tại `us-east-1` (730 giờ/tháng) cho **1 môi trường thí điểm** (≈10 người dùng, ≈5 cuộc họp/tuần, ≈20 giờ họp/tháng):
 
 | Nhóm dịch vụ | Cấu hình chính | Chi phí ước tính/tháng |
 | --- | --- | --- |
-| **ECS Fargate (ARM64)** | Terminal, Core, Runtime, Agent (chạy 24/7) + Bot/VieGem (chạy theo cuộc họp ≈20 giờ/tháng) | ≈38–42 USD |
-| **Mạng** | 1 ALB (≈18 USD) + 1 NAT Gateway (≈33 USD) + 3 Public IPv4 (≈11 USD) + CloudFront (≈1 USD) | ≈63 USD |
-| **Dữ liệu** | RDS PostgreSQL `db.t4g.micro` (≈14 USD) + ElastiCache Valkey `cache.t4g.micro` (≈11,7 USD) + S3 (≈0,3 USD) | ≈26 USD |
-| **Bảo mật & Giám sát** | AWS WAF (≈8 USD) + Secrets Manager (≈2 USD) + KMS (≈1 USD) + CloudWatch (≈3,5 USD) + ECR (≈1 USD) | ≈15,5 USD |
-| **Tổng cộng (chạy 24/7)** | Toàn bộ kiến trúc thí điểm | **≈145 USD/tháng** |
+| **ECS Fargate (ARM64)** | Web/Agent chạy 24/7 (≈28,8 USD) + Bot/VieGem/VieNeu chạy theo cuộc họp ≈20 giờ/tháng (≈3,2 USD) | ≈32,00 USD |
+| **Mạng** | 1 Internal ALB (≈18,00 USD) + 1 NAT Gateway (≈33,30 USD) + 1 Public IPv4 cho NAT (≈3,65 USD) + CloudFront (≈1,00 USD) | ≈55,95 USD |
+| **Dữ liệu** | RDS PostgreSQL `db.t4g.micro` + 20 GB gp3 (≈14,00 USD) + ElastiCache Valkey `cache.t4g.micro` (≈9,34 USD) + S3 (≈0,33 USD) | ≈23,67 USD |
+| **AI & Gửi thư** | Amazon Bedrock `amazon.nova-lite-v1:0` (≈0,54 USD; dự trù kèm model dự phòng ≈3,00 USD) + Amazon SES tùy chọn (≈0,01 USD) | ≈3,01 USD |
+| **Bảo mật & Giám sát** | AWS WAF (≈8,00 USD) + Secrets Manager (≈2,00 USD) + KMS (≈1,00 USD) + CloudWatch (≈3,50 USD) + ECR (≈1,00 USD) | ≈15,50 USD |
+| **Tổng cộng (chạy 24/7)** | Toàn bộ 1 môi trường thí điểm | **≈130,13 USD/tháng** |
+| **Chi phí làm lab (2–3 giờ)** | Triển khai thực hành xong xóa ngay theo Mục 5.6 | **≈1–2 USD / buổi lab** |
+
+> **Lưu ý:** Nếu bạn triển khai template gộp `tina-full.yml` (5.4A) và giữ nguyên toàn bộ service mở rộng (Voice, Agent, MCP, Flows, 4 VPC Interface Endpoints) chạy 24/7 không xóa, chi phí sẽ cao hơn bảng tối giản trên. Hãy luôn chạy bước dọn dẹp ở [Mục 5.6](../5.6-cleanup-evidence/) ngay sau khi hoàn tất thực hành.
 
 ### Các biện pháp tối ưu chi phí
 

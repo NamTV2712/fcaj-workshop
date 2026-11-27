@@ -53,4 +53,4 @@ If an error occurs, stop and read **CloudFormation → Events** to resolve the d
 
 ## 4. Evidence for evaluation
 
-Record the date, commit `7d6bba8109f6eac51c0d8241a7083e3e364cf59d`, the status of each step, any errors encountered, and how they were resolved. Screenshots must be genuine captures placed at their corresponding steps; do not include secrets, real transcripts, or personal information in public documentation.
+Record the date, commit `0c206d46940f95c3469d1a65d18722e4f4fe96e5`, the status of each step, any errors encountered, and how they were resolved. Screenshots must be genuine captures placed at their corresponding steps; do not include secrets, real transcripts, or personal information in public documentation.

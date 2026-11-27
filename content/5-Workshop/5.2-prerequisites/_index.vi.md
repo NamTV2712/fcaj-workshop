@@ -26,9 +26,9 @@ NAT Gateway, IPv4 công cộng, Fargate, RDS, Valkey, ALB, WAF, S3, ECR, builder
 
 ## 2. Mã nguồn và template (dành cho lộ trình nhiều stack 5.3 → 5.4)
 
-Bài dùng commit cố định `7d6bba8109f6eac51c0d8241a7083e3e364cf59d` trong [repository TINA](https://github.com/poor-frog/TINA), có ECS backend. Đừng thay bằng `main`: phiên bản `main` đã kiểm tra không có backend ECS tương ứng.
+Bài dùng commit `0c206d46940f95c3469d1a65d18722e4f4fe96e5` trên nhánh `main` của [repository TINA](https://github.com/poor-frog/TINA), đã tích hợp đầy đủ ECS backend, VieGem ASR, Voice, Bedrock (`amazon.nova-lite-v1:0`), Amazon SES (`staging-ses.yml`) và CloudWatch Dashboard/Alarms (`staging-workspace-s3-monitoring.yml`).
 
-Trên máy của bạn, tải [ZIP mã nguồn ở commit này](https://github.com/poor-frog/TINA/archive/7d6bba8109f6eac51c0d8241a7083e3e364cf59d.zip), giải nén. Ghi nhớ thư mục `deploy/aws/` vì bước Console sẽ yêu cầu chọn `foundation.yml`. Thực hiện build bằng một EC2 ARM64 riêng ở phần sau; không cần sao chép secret từ máy tác giả.
+Trên máy của bạn, tải [ZIP mã nguồn ở commit này](https://github.com/poor-frog/TINA/archive/0c206d46940f95c3469d1a65d18722e4f4fe96e5.zip), giải nén. Ghi nhớ thư mục `deploy/aws/` vì bước Console sẽ yêu cầu chọn `foundation.yml` (còn nếu chọn lộ trình nhanh 5 lệnh [5.4A](../5.4-full-cloudformation/) thì không cần tải ZIP hay tự build Docker). Không cần sao chép secret từ máy tác giả.
 
 ## 3. Mở AWS CloudShell
 
@@ -41,7 +41,7 @@ mkdir -p "$HOME/tina-workshop"
 cat > "$HOME/tina-workshop/env.sh" <<'EOF'
 export AWS_REGION=us-east-1
 export AWS_PAGER=''
-export TINA_REV=7d6bba8109f6eac51c0d8241a7083e3e364cf59d
+export TINA_REV=0c206d46940f95c3469d1a65d18722e4f4fe96e5
 export TINA_SRC="$HOME/tina-workshop/TINA-${TINA_REV}"
 export TINA_ACCOUNT="$(aws sts get-caller-identity --query Account --output text)"
 export TINA_TAG=ws-v1

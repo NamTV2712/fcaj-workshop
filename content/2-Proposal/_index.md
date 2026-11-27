@@ -52,7 +52,7 @@ TINA sends a bot into the meeting through a headless browser (Playwright). The b
 - **Better follow-through:** Decisions and action items are captured in a searchable record and sent to every attendee.
 - **Data ownership:** All meeting data, recordings and models stay inside the team's own AWS account.
 - **Learning value:** Gives the team hands-on experience with ECS/Fargate, networking, managed databases, generative AI on Bedrock and CI/CD — a reusable foundation for future AI products.
-- **Cost:** About **$148/month** on-demand with the full architecture running 24/7 (see section 6). With off-hours scale-down it fits within the team's AWS credits for the internship and pilot period, much lower than per-seat SaaS licenses for 10 users.
+- **Cost:** About **$137/month** on-demand in `us-east-1` (Fargate ARM64 & Valkey) with the full architecture running 24/7 (see section 6). With off-hours scale-down it fits within the team's AWS credits for the internship and pilot period, much lower than per-seat SaaS licenses for 10 users.
 
 ### 4. Technical Architecture & Implementation
 #### Solution Architecture
@@ -150,26 +150,26 @@ Estimates use on-demand prices in `us-east-1` (US East – N. Virginia) via the 
 #### Infrastructure Cost Table
 | Category | Service | Sizing / Usage | Monthly Cost (USD) |
 | --- | --- | --- | ---: |
-| **Compute (ECS Fargate)** | Web serving | 0.5 vCPU, 1 GB, 24/7 | 18.02 |
-| | Agent | 0.5 vCPU, 1 GB, 24/7 | 18.02 |
-| | Bot – Playwright | 1 vCPU, 2 GB, 20 h | 0.99 |
-| | STT – VieGem | 2 vCPU, 4 GB, 20 h | 1.97 |
-| | TTS – VieNeu | 1 vCPU, 2 GB, 20 h | 0.99 |
+| **Compute (ECS Fargate ARM64)** | Web serving | 0.5 vCPU, 1 GB, 24/7 | 14.42 |
+| | Agent | 0.5 vCPU, 1 GB, 24/7 | 14.42 |
+| | Bot – Playwright | 1 vCPU, 2 GB, 20 h | 0.79 |
+| | STT – VieGem | 2 vCPU, 4 GB, 20 h | 1.58 |
+| | TTS – VieNeu | 1 vCPU, 2 GB, 20 h | 0.79 |
 | **Networking** | Application Load Balancer | 1 ALB, low LCU | 18.00 |
-| | NAT Gateway | 1 gateway, ~10 GB processed | 33.30 |
+| | NAT Gateway | 1 gateway, ≈10 GB processed | 33.30 |
 | | Public IPv4 addresses | 3 addresses | 10.95 |
 | | Amazon CloudFront | Mostly within free tier | 1.00 |
 | **Data** | Amazon RDS PostgreSQL | `db.t4g.micro`, Single-AZ, 20 GB gp3 | 14.00 |
-| | Amazon ElastiCache (Valkey/Redis) | `cache.t4g.micro` | 11.68 |
-| | Amazon S3 | ~10 GB recordings + requests | 0.33 |
-| **AI & Messaging** | Amazon Bedrock | Notes, summaries, translation, Q&A | ~3.00 |
-| | Amazon SES | ~200 emails | 0.01 |
+| | Amazon ElastiCache (Valkey) | `cache.t4g.micro` | 9.34 |
+| | Amazon S3 | ≈10 GB recordings + requests | 0.33 |
+| **AI & Messaging** | Amazon Bedrock | `amazon.nova-lite-v1:0` + fallback (notes, summaries, translation, Q&A) | ≈3.00 |
+| | Amazon SES | ≈200 emails | 0.01 |
 | **Security & Operations** | AWS WAF | 1 Web ACL, 3 rules | 8.00 |
 | | AWS Secrets Manager | 5 secrets | 2.00 |
 | | AWS KMS | 1 customer managed key | 1.00 |
-| | Amazon CloudWatch | ~5 GB logs, alarms | 3.50 |
-| | Amazon ECR | ~10 GB images | 1.00 |
-| **Total** | **Full architecture (24/7)** | **≈$1,773 / 12 months** | **≈$147.76** |
+| | Amazon CloudWatch | ≈5 GB logs, alarms | 3.50 |
+| | Amazon ECR | ≈10 GB images | 1.00 |
+| **Total** | **Full architecture (24/7)** | **≈$1,649 / 12 months** | **≈$137.43** |
 
 **Cost optimization:** Stopping the Web/Agent tasks, RDS and ElastiCache outside working hours (~10 h/day, weekdays) and removing WAF in the development environment brings the demo/pilot cost to about **$70–80/month**. Further options: Fargate Spot for the Bot/STT/TTS tasks, VPC endpoints for S3/ECR to reduce NAT data charges, and S3 lifecycle rules that move old recordings to cheaper storage classes. AWS Budgets alerts at 50%, 80% and 100% of the monthly limit.
 
