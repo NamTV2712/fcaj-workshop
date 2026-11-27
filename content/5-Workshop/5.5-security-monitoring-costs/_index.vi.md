@@ -29,21 +29,21 @@ Xem **Billing → Budgets** và **Cost Explorer**; chi phí có thể cập nh�
 
 ### Ước tính chi phí tham khảo (`us-east-1`, môi trường thí điểm)
 
-Bảng dưới ước tính theo giá on-demand tại `us-east-1` với tải thí điểm (~10 người dùng, ~5 cuộc họp/tuần, ~20 giờ họp/tháng):
+Bảng dưới ước tính theo giá on-demand tại `us-east-1` với tải thí điểm (≈10 người dùng, ≈5 cuộc họp/tuần, ≈20 giờ họp/tháng):
 
 | Nhóm dịch vụ | Cấu hình chính | Chi phí ước tính/tháng |
 | --- | --- | --- |
-| **ECS Fargate (ARM64)** | Terminal, Core, Runtime, Agent (chạy 24/7) + Bot/VieGem (chạy theo cuộc họp ~20 giờ/tháng) | ~38–42 USD |
-| **Mạng** | 1 ALB (~18 USD) + 1 NAT Gateway (~33 USD) + 3 Public IPv4 (~11 USD) + CloudFront (~1 USD) | ~63 USD |
-| **Dữ liệu** | RDS PostgreSQL `db.t4g.micro` (~14 USD) + ElastiCache Valkey `cache.t4g.micro` (~11.7 USD) + S3 (~0.3 USD) | ~26 USD |
-| **Bảo mật & Giám sát** | AWS WAF (~8 USD) + Secrets Manager (~2 USD) + KMS (~1 USD) + CloudWatch (~3.5 USD) + ECR (~1 USD) | ~15.5 USD |
-| **Tổng cộng (chạy 24/7)** | Toàn bộ kiến trúc thí điểm | **~145 USD/tháng** |
+| **ECS Fargate (ARM64)** | Terminal, Core, Runtime, Agent (chạy 24/7) + Bot/VieGem (chạy theo cuộc họp ≈20 giờ/tháng) | ≈38–42 USD |
+| **Mạng** | 1 ALB (≈18 USD) + 1 NAT Gateway (≈33 USD) + 3 Public IPv4 (≈11 USD) + CloudFront (≈1 USD) | ≈63 USD |
+| **Dữ liệu** | RDS PostgreSQL `db.t4g.micro` (≈14 USD) + ElastiCache Valkey `cache.t4g.micro` (≈11,7 USD) + S3 (≈0,3 USD) | ≈26 USD |
+| **Bảo mật & Giám sát** | AWS WAF (≈8 USD) + Secrets Manager (≈2 USD) + KMS (≈1 USD) + CloudWatch (≈3,5 USD) + ECR (≈1 USD) | ≈15,5 USD |
+| **Tổng cộng (chạy 24/7)** | Toàn bộ kiến trúc thí điểm | **≈145 USD/tháng** |
 
 ### Các biện pháp tối ưu chi phí
 
-1. **Dùng kiến trúc ARM64 (Graviton) trên Fargate & RDS `t4g`**: giảm ~20% chi phí compute so với x86_64 cùng cấu hình.
+1. **Dùng kiến trúc ARM64 (Graviton) trên Fargate & RDS `t4g`**: giảm ≈20% chi phí compute so với x86_64 cùng cấu hình.
 2. **Dùng VPC Endpoints (S3 Gateway miễn phí, ECR/Logs/Secrets Manager)**: giảm lưu lượng đi qua NAT Gateway (tránh phí $0.045/GB xử lý qua NAT).
-3. **Tắt/scale về 0 ngoài giờ làm việc**: đưa các ECS service không cần trực về `desiredCount=0` và tạm dừng RDS ngoài giờ (~10 giờ/ngày, 5 ngày/tuần) giúp giảm chi phí thực tế xuống còn **~70–80 USD/tháng**.
+3. **Tắt/scale về 0 ngoài giờ làm việc**: đưa các ECS service không cần trực về `desiredCount=0` và tạm dừng RDS ngoài giờ (≈10 giờ/ngày, 5 ngày/tuần) giúp giảm chi phí thực tế xuống còn **≈70–80 USD/tháng**.
 4. **Chạy Bot & VieGem theo nhu cầu (on-demand)**: task Bot chỉ spawn khi có cuộc họp và tự dừng khi kết thúc, không tốn tiền chạy nhàn rỗi 24/7.
 5. **S3 Lifecycle & Budget Alerts**: cấu hình rule tự xóa file tạm `runtime-invocations/` sau 1 ngày, chuyển bản ghi âm cũ sang lớp lưu trữ rẻ hơn và đặt **AWS Budgets** cảnh báo ở các mốc **50%, 80%, 100%**.
 

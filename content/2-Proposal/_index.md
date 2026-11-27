@@ -24,7 +24,7 @@ TINA is an AI meeting assistant built by a four-person team during the First Clo
 The platform runs on AWS in `us-east-1`. Containerized services run on Amazon ECS with AWS Fargate behind CloudFront, AWS WAF and an Application Load Balancer. Google OAuth (integrated via NextAuth) handles sign-in. Amazon RDS and Amazon ElastiCache (Valkey/Redis) store transcripts and live state, Amazon S3 stores recordings, Amazon Bedrock powers summaries and the meeting agent, and Amazon SES delivers follow-up emails.
 
 #### Objectives & Scope
-- **Pilot audience:** Internal team of about 10 users holding ~5 meetings/week (~20 meeting-hours/month).
+- **Pilot audience:** Internal team of about 10 users holding ≈5 meetings/week (≈20 meeting-hours/month).
 - **Technical objective:** Build a secure, containerized AWS architecture (2-AZ VPC, private subnets, KMS, Secrets Manager) delivering real-time Vietnamese transcription and automated post-meeting notes and follow-ups.
 - **Deployment scope:** Core online meeting workflows (Google Meet, Zoom, Teams), AI summaries/notes, voice assistant, and cost-optimized operation within internship AWS credits (Single-AZ data tier, not HA production).
 
@@ -145,7 +145,7 @@ TINA uses a containerized architecture on Amazon ECS (AWS Fargate) inside a VPC 
 | Week 12 | **All Members** | Full system run, record the demo video, complete documentation and presentation, and submit. |
 
 ### 6. Budget Estimation
-Estimates use on-demand prices in `us-east-1` (US East – N. Virginia) via the AWS Pricing Calculator for the pilot workload: ~10 users, ~5 meetings/week of about 1 hour (~20 meeting-hours/month). Always-on services run 24/7; meeting services (Bot, STT, TTS) run only while a meeting is active.
+Estimates use on-demand prices in `us-east-1` (US East – N. Virginia) via the AWS Pricing Calculator for the pilot workload: ≈10 users, ≈5 meetings/week of about 1 hour (≈20 meeting-hours/month). Always-on services run 24/7; meeting services (Bot, STT, TTS) run only while a meeting is active.
 
 #### Infrastructure Cost Table
 | Category | Service | Sizing / Usage | Monthly Cost (USD) |
@@ -169,7 +169,7 @@ Estimates use on-demand prices in `us-east-1` (US East – N. Virginia) via the 
 | | AWS KMS | 1 customer managed key | 1.00 |
 | | Amazon CloudWatch | ~5 GB logs, alarms | 3.50 |
 | | Amazon ECR | ~10 GB images | 1.00 |
-| **Total** | **Full architecture (24/7)** | **~$1,773 / 12 months** | **~$147.76** |
+| **Total** | **Full architecture (24/7)** | **≈$1,773 / 12 months** | **≈$147.76** |
 
 **Cost optimization:** Stopping the Web/Agent tasks, RDS and ElastiCache outside working hours (~10 h/day, weekdays) and removing WAF in the development environment brings the demo/pilot cost to about **$70–80/month**. Further options: Fargate Spot for the Bot/STT/TTS tasks, VPC endpoints for S3/ECR to reduce NAT data charges, and S3 lifecycle rules that move old recordings to cheaper storage classes. AWS Budgets alerts at 50%, 80% and 100% of the monthly limit.
 

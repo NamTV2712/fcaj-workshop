@@ -24,7 +24,7 @@ TINA là trợ lý cuộc họp AI do nhóm 4 thành viên xây dựng trong k�
 Nền tảng chạy trên AWS tại `us-east-1`. Các dịch vụ được đóng gói container, chạy trên Amazon ECS với AWS Fargate, phía sau CloudFront, AWS WAF và Application Load Balancer. Google OAuth (tích hợp qua NextAuth) xử lý đăng nhập. Amazon RDS và Amazon ElastiCache (Valkey/Redis) lưu transcript và trạng thái trực tiếp, Amazon S3 lưu bản ghi âm, Amazon Bedrock tạo tóm tắt và vận hành agent, Amazon SES gửi email follow-up.
 
 #### Mục tiêu & phạm vi
-- **Đối tượng thí điểm:** Nhóm nội bộ khoảng 10 người dùng với ~5 cuộc họp/tuần (~20 giờ họp/tháng).
+- **Đối tượng thí điểm:** Nhóm nội bộ khoảng 10 người dùng với ≈5 cuộc họp/tuần (≈20 giờ họp/tháng).
 - **Mục tiêu kỹ thuật:** Xây dựng kiến trúc container bảo mật trên AWS (VPC 2 AZ, private subnet, KMS, Secrets Manager), phiên âm tiếng Việt thời gian thực và tự động hóa ghi chú/email sau họp.
 - **Phạm vi triển khai:** Tập trung vào luồng họp trực tuyến cốt lõi (Google Meet, Zoom, Teams), bản ghi & tóm tắt AI, trợ lý giọng nói và vận hành tối ưu chi phí trong hạn mức AWS credits thực tập (Single-AZ cho lớp dữ liệu, chưa triển khai HA production).
 
@@ -145,7 +145,7 @@ TINA sử dụng kiến trúc container trên Amazon ECS (AWS Fargate) trong m�
 | Tuần 12 | **Cả nhóm** | Chạy toàn bộ hệ thống, quay video demo, hoàn thiện tài liệu và slide thuyết trình, nộp bài. |
 
 ### 6. Ước tính ngân sách
-Ước tính dùng giá on-demand tại `us-east-1` (US East – N. Virginia) theo AWS Pricing Calculator với tải thí điểm: ~10 người dùng, ~5 cuộc họp/tuần, mỗi cuộc khoảng 1 giờ (~20 giờ họp/tháng). Các dịch vụ thường trực chạy 24/7; dịch vụ cuộc họp (Bot, STT, TTS) chỉ chạy khi có cuộc họp.
+Ước tính dùng giá on-demand tại `us-east-1` (US East – N. Virginia) theo AWS Pricing Calculator với tải thí điểm: ≈10 người dùng, ≈5 cuộc họp/tuần, mỗi cuộc khoảng 1 giờ (≈20 giờ họp/tháng). Các dịch vụ thường trực chạy 24/7; dịch vụ cuộc họp (Bot, STT, TTS) chỉ chạy khi có cuộc họp.
 
 #### Bảng chi phí hạ tầng
 | Nhóm | Dịch vụ | Cấu hình / Mức sử dụng | Chi phí/tháng (USD) |
@@ -169,7 +169,7 @@ TINA sử dụng kiến trúc container trên Amazon ECS (AWS Fargate) trong m�
 | | AWS KMS | 1 customer managed key | 1,00 |
 | | Amazon CloudWatch | ~5 GB log, cảnh báo | 3,50 |
 | | Amazon ECR | ~10 GB image | 1,00 |
-| **Tổng cộng** | **Toàn bộ kiến trúc (24/7)** | **~1.773 USD / 12 tháng** | **~147,76** |
+| **Tổng cộng** | **Toàn bộ kiến trúc (24/7)** | **≈1.773 USD / 12 tháng** | **≈147,76** |
 
 **Tối ưu chi phí:** Tắt task Web/Agent, RDS và ElastiCache ngoài giờ làm việc (~10 giờ/ngày, các ngày trong tuần) và bỏ WAF ở môi trường phát triển giúp giảm chi phí demo/thí điểm xuống khoảng **70–80 USD/tháng**. Các lựa chọn khác: Fargate Spot cho task Bot/STT/TTS, VPC endpoint cho S3/ECR để giảm phí dữ liệu qua NAT, và lifecycle rule trên S3 để chuyển bản ghi âm cũ sang lớp lưu trữ rẻ hơn. AWS Budgets cảnh báo ở mức 50%, 80% và 100% hạn mức tháng.
 
