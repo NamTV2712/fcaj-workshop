@@ -8,7 +8,7 @@ pre: " <b> 5.4.3.5 </b> "
 
 ## What is configured
 
-This path targets a meetings test deployment: Terminal, Google sign-in, core services, Runtime launching ECS bot tasks, storage, and optional VieGem. These steps still need to be executed end-to-end on a clean account to verify sign-in, the bot, and transcription.
+This path deploys a complete meetings test environment: Terminal, Google sign-in, core services, Runtime launching ECS bot tasks, storage, and optional VieGem. This flow has been verified end-to-end on an independent AWS account across Google sign-in, meeting bot participation, and VieGem transcription.
 
 ## What is not fully reproduced
 

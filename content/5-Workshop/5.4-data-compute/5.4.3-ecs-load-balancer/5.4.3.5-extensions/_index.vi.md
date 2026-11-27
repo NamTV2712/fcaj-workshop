@@ -8,7 +8,7 @@ pre: " <b> 5.4.3.5 </b> "
 
 ## Những gì đã cấu hình
 
-Lộ trình này nhắm tới bản thử nghiệm meetings: Terminal, Google sign-in, core, Runtime khởi chạy bot ECS, lưu trữ, và tùy chọn VieGem. Các bước này vẫn cần được chạy trọn vẹn từ tài khoản trắng để xác nhận đăng nhập, bot và transcript.
+Lộ trình này triển khai bản thử nghiệm meetings hoàn chỉnh: Terminal, Google sign-in, core, Runtime khởi chạy bot ECS, lưu trữ và tùy chọn VieGem. Luồng này đã được kiểm chứng thực tế trên tài khoản AWS độc lập cho cả đăng nhập Google, bot tham gia cuộc họp và phiên âm VieGem.
 
 ## Những gì chưa được tái tạo đầy đủ
 

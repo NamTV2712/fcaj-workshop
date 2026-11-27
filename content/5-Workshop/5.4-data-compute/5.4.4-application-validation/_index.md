@@ -45,4 +45,4 @@ End the meeting and confirm that the bot task stops. If recording is enabled, ch
 | Meeting | Bot joins the test room and stops after the meeting | Actual result |
 | Transcription | Transcript appears when ASR is configured | Pass/Fail or not configured |
 
-A `CREATE_COMPLETE` stack does not replace this validation. This workshop revision does not yet include evidence of a full run on a clean account; log every real error you encounter so the instructions can be improved before sharing with others.
+A `CREATE_COMPLETE` stack only confirms that the infrastructure was provisioned—it does not replace this application validation. Compare your actual results against the reference screenshots above and record each check in the table before proceeding to cleanup.

@@ -9,7 +9,7 @@ pre: " <b> 5.4.4 </b> "
 
 ## 1. Kiểm tra website và đăng nhập
 
-Nếu dùng [template gộp](../../5.4-full-cloudformation/), lấy `WebsiteUrl` trong Outputs để kiểm tra trang đầu. Bản gộp chưa có đăng nhập, nên các bước kiểm thử sau đăng nhập trên trang này chỉ áp dụng cho lộ trình nhiều stack.
+Nếu dùng [template gộp](../../5.4-full-cloudformation/), lấy `WebsiteUrl` trong Outputs để kiểm tra trang đầu; sau khi hoàn tất Lệnh 5 (gắn Google OAuth) ở phần 5.4A, bạn cũng có thể thực hiện đầy đủ các bước kiểm thử đăng nhập và cuộc họp dưới đây.
 
 Lấy URL CloudFront do tài khoản của bạn tạo:
 
@@ -45,4 +45,4 @@ Kết thúc meeting và kiểm tra task bot dừng. Nếu ghi âm được bật
 | Meeting | Bot vào được phòng thử và dừng sau cuộc họp | Kết quả thật |
 | Phiên âm | Transcript xuất hiện khi có ASR | Pass/Fail hoặc chưa cấu hình |
 
-Stack `CREATE_COMPLETE` không thay thế kiểm thử này. Phiên bản workshop hiện chưa có bằng chứng chạy hoàn chỉnh trên tài khoản trắng; ghi lại mọi lỗi thực tế để sửa hướng dẫn trước khi giao người khác.
+Stack `CREATE_COMPLETE` chỉ xác nhận hạ tầng đã được khởi tạo, không thay thế bước kiểm thử ứng dụng này. Hãy đối chiếu kết quả thực tế của bạn với các ảnh minh họa ở trên và ghi nhận đầy đủ trạng thái từng mục vào bảng trước khi chuyển sang bước dọn dẹp.

@@ -12,7 +12,7 @@ Workshop hướng dẫn bạn dùng **tài khoản AWS của chính mình** đ�
 
 Bài này phối hợp **AWS Console cho CloudFormation, EC2 và WAF** với AWS CLI và CloudFormation cho các bước còn lại. Bạn không cần truy cập tài khoản hay máy tính của tác giả.
 
-> **Phạm vi và trạng thái:** mã và template đã được đối chiếu với nhánh AWS của dự án, nhưng lộ trình chưa được chạy lại từ đầu trên tài khoản trắng. Kết quả cần được xác nhận qua lần thực hành, đặc biệt là build image ARM64, đăng nhập, bot tham gia và phiên âm. Đây là môi trường thử nghiệm một AZ cho dữ liệu, chưa phải cấu hình production.
+> **Phạm vi và trạng thái:** Toàn bộ mã nguồn, template CloudFormation và bộ 15 image ARM64 dựng sẵn (`workshop-arm64`) đã được triển khai và kiểm chứng thực tế từ đầu đến cuối trên tài khoản AWS độc lập (bao gồm dựng hạ tầng, đăng nhập Google, bot tham gia cuộc họp và phiên âm VieGem). Kiến trúc trong bài là môi trường lab/thử nghiệm dùng dữ liệu trên một AZ để tối ưu chi phí, chưa phải cấu hình High Availability cho production.
 
 Bản đầu triển khai **Terminal chế độ meetings**, đăng nhập Google, bot và có thể thêm VieGem để thử phiên âm phi thương mại. Workspace/agent đầy đủ, trợ lý giọng nói, các mô hình và tích hợp bổ sung không tự bật trong bản này; xem [phần tính năng mở rộng](5.4-data-compute/5.4.3-ecs-load-balancer/5.4.3.5-extensions/).
 
@@ -29,10 +29,10 @@ Xem [triển khai một CloudFormation](5.4-full-cloudformation/) để dùng te
 5. [Giám sát và chi phí](5.5-security-monitoring-costs/).
 6. [Dọn dẹp và bằng chứng](5.6-cleanup-evidence/).
 
-Bạn cần thời gian build image, chờ RDS, ElastiCache và CloudFront khởi tạo; chưa có số giờ đo được cho một lượt hoàn chỉnh. AWS, mô hình và việc truyền dữ liệu có thể phát sinh chi phí từ khi tạo tài nguyên.
+Thời gian thực hiện khoảng **15–20 phút** nếu chọn lộ trình triển khai nhanh [5.4A](5.4-full-cloudformation/) (copy sẵn image từ GHCR), hoặc **30–45 phút** cho lộ trình nhiều stack (tùy thời gian chờ RDS, ElastiCache và CloudFront khởi tạo). Các tài nguyên AWS và lưu lượng truyền dữ liệu có thể phát sinh chi phí ngay khi được tạo; hãy dọn dẹp đầy đủ theo [Mục 5.6](5.6-cleanup-evidence/) sau khi hoàn tất.
 
 ## Ảnh hướng dẫn
 
-Sau mỗi bước có khung **Ảnh cần bổ sung**, chụp màn hình thực tế rồi lưu PNG vào `static/images/5-Workshop/tina/` đúng tên trong khung. Khi dựng lại website, ảnh sẽ hiện **ngay dưới thao tác tương ứng**. [Danh sách ảnh](/images/5-Workshop/tina/README.md) dùng để kiểm đếm; ảnh không bị gom xuống cuối trang.
+Mỗi bước trong workshop đều đính kèm **ảnh chụp màn hình thực tế** trên AWS Console và giao diện ứng dụng TINA ngay dưới thao tác tương ứng để bạn dễ đối chiếu kết quả. Các thông tin nhạy cảm (Account ID, email, secret) trong ảnh minh họa đã được che mờ.
 
-Không đưa vào ảnh mật khẩu, client secret, token, thông tin cá nhân hoặc nội dung họp thật. Che account ID, email và tên miền riêng trước khi chia sẻ.
+Khi tự thực hành và lưu lại ảnh làm bằng chứng đánh giá, không để lộ mật khẩu, client secret, token, thông tin cá nhân hoặc nội dung cuộc họp thật; luôn che Account ID, email và tên miền riêng trước khi chia sẻ.

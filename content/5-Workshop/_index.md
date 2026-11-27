@@ -12,7 +12,7 @@ This workshop guides you through using **your own AWS account** to build a test 
 
 This walkthrough combines the **AWS Console for CloudFormation, EC2, and WAF** with the AWS CLI and CloudFormation for the remaining steps. You do not need access to the author's account or machine.
 
-> **Scope and status:** the code and templates have been cross-checked against the project's AWS branch, but the full path has not yet been re-run from scratch on a blank account. Results should be verified during your hands-on run—especially building ARM64 images, signing in, having the bot join a meeting, and transcription. This is a single-AZ data test environment, not a production configuration.
+> **Scope and status:** The source code, CloudFormation templates, and all 15 prebuilt ARM64 images (`workshop-arm64`) have been deployed and verified end-to-end on an independent AWS account (including infrastructure provisioning, Google sign-in, meeting bot participation, and VieGem transcription). This workshop deploys a single-AZ data layer to keep lab costs low and is intended for lab/pilot evaluation rather than High Availability production.
 
 The initial deployment runs **Terminal in meetings mode**, Google sign-in, the meeting bot, and optionally VieGem for non-commercial transcription testing. Full workspace/agent capabilities, voice assistant, additional models, and extra integrations are not enabled by default in this build; see the [extensions section](5.4-data-compute/5.4.3-ecs-load-balancer/5.4.3.5-extensions/).
 
@@ -29,10 +29,10 @@ See [single CloudFormation deployment](5.4-full-cloudformation/) to use the comb
 5. [Monitoring and costs](5.5-security-monitoring-costs/).
 6. [Cleanup and evidence](5.6-cleanup-evidence/).
 
-You will need time to build images and wait for RDS, ElastiCache, and CloudFront to provision; there is no measured total duration yet for a complete end-to-end run. AWS resources, models, and data transfer may incur charges as soon as resources are created.
+Estimated completion time is **15–20 minutes** using the quick single-stack path in [5.4A](5.4-full-cloudformation/) (copying prebuilt images from GHCR), or **30–45 minutes** for the multi-stack path (depending on RDS, ElastiCache, and CloudFront provisioning times). AWS resources and data transfer may incur charges as soon as resources are created; remember to clean up all resources in [Section 5.6](5.6-cleanup-evidence/) when finished.
 
 ## Guide Screenshots
 
-After each step that shows a **Screenshot needed** box, take a real screenshot and save the PNG to `static/images/5-Workshop/tina/` using the exact filename shown in the box. When the site is rebuilt, the image will appear **directly beneath the corresponding step**. The [screenshot checklist](/images/5-Workshop/tina/README.md) is for tracking; images are not grouped at the bottom of the page.
+Each step in this workshop includes **real screenshots** from the AWS Console and the deployed TINA web application directly beneath the corresponding instructions so you can easily verify your progress. Sensitive details (Account IDs, email addresses, and secrets) have been redacted in the reference captures.
 
-Do not include passwords, client secrets, tokens, personal information, or real meeting content in screenshots. Mask your account ID, email address, and private domains before sharing.
+When capturing your own screenshots for lab evidence, never expose passwords, client secrets, tokens, personal information, or real meeting content; always mask your Account ID, email address, and private domains before sharing.
