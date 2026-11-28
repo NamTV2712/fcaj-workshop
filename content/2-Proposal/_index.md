@@ -19,14 +19,14 @@ pre: " <b> 2. </b> "
 | Thái Việt Nam | SE192065 | FPT University | vnam27122005@gmail.com |
 
 ### 1. Executive Summary
-TINA is an AI meeting assistant built by a four-person team during the First Cloud AI Journey (FCAJ) internship. A meeting bot joins Google Meet, Zoom or Microsoft Teams, transcribes the conversation in real time (Vietnamese first, with English and bilingual views), produces live notes and a summary, and lets participants ask questions about the meeting ("Ask TINA"), including spoken replies through a wake word. When the meeting ends, every known attendee receives a follow-up email linking to the saved summary and recording.
+TINA is an AI meeting assistant built by a four-person team during the First Cloud AI Journey (FCAJ) internship. A meeting bot joins **Google Meet**, transcribes the conversation in real time (Vietnamese first, with English and bilingual views), produces live notes and a summary, and lets participants ask questions about the meeting ("Ask TINA"), including spoken replies through a wake word. When the meeting ends, every known attendee receives a follow-up email linking to the saved summary and recording.
 
 The platform runs on AWS in `us-east-1`. Containerized services run on Amazon ECS with AWS Fargate behind CloudFront, AWS WAF and an Application Load Balancer. Google OAuth (integrated via NextAuth) handles sign-in. Amazon RDS and Amazon ElastiCache (Valkey/Redis) store transcripts and live state, Amazon S3 stores recordings, Amazon Bedrock powers summaries and the meeting agent, and Amazon SES delivers follow-up emails.
 
 #### Objectives & Scope
 - **Pilot audience:** Internal team of about 10 users holding ≈5 meetings/week (≈20 meeting-hours/month).
 - **Technical objective:** Build a secure, containerized AWS architecture (2-AZ VPC, private subnets, KMS, Secrets Manager) delivering real-time Vietnamese transcription and automated post-meeting notes and follow-ups.
-- **Deployment scope:** Core online meeting workflows (Google Meet, Zoom, Teams), AI summaries/notes, voice assistant, and cost-optimized operation within internship AWS credits (Single-AZ data tier, not HA production).
+- **Deployment scope:** Core online meeting workflows on **Google Meet**, AI summaries/notes, voice assistant, and cost-optimized operation within internship AWS credits (Single-AZ data tier, not HA production).
 
 ### 2. Problem Statement
 Teams lose information in meetings. Someone has to take notes by hand, so decisions, owners and deadlines are missed or recorded inconsistently. People who join late or miss the meeting have no reliable record to catch up from.
@@ -41,7 +41,7 @@ In addition, most commercial meeting assistants present three major drawbacks fo
 TINA sends a bot into the meeting through a headless browser (Playwright). The bot streams the meeting audio to a self-hosted speech-to-text service (**VieGem**, tuned for Vietnamese). Finalized transcript segments are stored in Amazon RDS, and live updates are pushed through Amazon ElastiCache (Valkey/Redis) to the web app. An agent service uses Amazon Bedrock to keep notes and a summary current, translate transcripts for the English/bilingual view, and answer questions about the selected meeting. A TTS service (**VieNeu**) lets TINA answer aloud when someone calls its wake word. After the meeting, recordings are saved to Amazon S3 and Amazon SES emails each attendee a follow-up with links whose access is bound to the recipient's signed-in account.
 
 **Key features:**
-- Meeting bot for Google Meet, Zoom and Teams; live transcript with Vietnamese, English and bilingual views.
+- Meeting bot for **Google Meet**; live transcript with Vietnamese, English and bilingual views.
 - Live notes, end-of-meeting summary and transcript search.
 - "Ask TINA" agent with meeting context, plus wake-word and spoken replies.
 - Post-meeting follow-up email with recipient-bound summary and recording links.
@@ -66,7 +66,7 @@ TINA uses a containerized architecture on Amazon ECS (AWS Fargate) inside a VPC 
 3. Traffic reaches the **Application Load Balancer**.
 4. The ALB routes HTTPS traffic to the **Web serving** task (Next.js terminal, API, WebSocket gateway).
 5. When a meeting starts, the Web task launches a **Bot** task (Playwright).
-6. The bot joins Google Meet / Zoom / Teams through the **NAT Gateway** over HTTPS/WebRTC.
+6. The bot joins **Google Meet** through the **NAT Gateway** over HTTPS/WebRTC.
 7. The bot streams audio to the **STT (VieGem)** task (7.1) and stores recordings in **Amazon S3** (7.2).
 8. Transcript segments are written to **RDS** and live state to **ElastiCache**.
 9. The Web and Bot tasks call the **Agent** task for notes, summaries, translation and Ask TINA.
@@ -135,7 +135,7 @@ TINA uses a containerized architecture on Amazon ECS (AWS Fargate) inside a VPC 
 | Week 10 | **All Members** | End-to-end tests with real Google Meet meetings and bug fixes. |
 | | Trần Kiến Quốc | Post-meeting follow-up email via Amazon SES with recipient-bound summary/recording links. |
 | | Thái Việt Nam | CloudWatch dashboards/alarms and AWS Budgets cost alerts. |
-| | Hoàng Đình Quang | Support Zoom/Teams capture and reduce STT latency. |
+| | Hoàng Đình Quang | Stabilize Google Meet audio capture, improve speaker attribution, and reduce STT latency. |
 | | Lê Hoài Thanh Quang | Tune prompts, add transcript search and track Bedrock token cost. |
 | Week 11 | **All Members** | Review test results, find bottlenecks and optimize costs. |
 | | Trần Kiến Quốc | Regression tests for the voice, wake word and email flows; keep CI green. |
@@ -179,7 +179,7 @@ Estimates use on-demand prices in `us-east-1` (US East – N. Virginia) via the 
 | --- | --- | --- | --- |
 | Cost overrun | NAT Gateway, ALB and always-on tasks | High | Medium |
 | Vietnamese ASR accuracy | Regional accents, noise, mixed English terms | High | Medium |
-| Meeting platform changes | Meet/Zoom/Teams UI updates or bot blocking | High | Medium |
+| Meeting platform changes | Google Meet UI updates or bot blocking | High | Medium |
 | Real-time latency | Audio → transcript → notes pipeline | Medium | Medium |
 | Data privacy | Internal meeting recordings and transcripts | High | Low |
 | Bedrock quota / availability | Quota limits or model outage | Medium | Low |
@@ -205,7 +205,14 @@ Estimates use on-demand prices in `us-east-1` (US East – N. Virginia) via the 
 - A secure, monitored, containerized deployment on AWS with automated CI/CD.
 - Each service scales independently; meeting tasks run only when needed.
 
-#### Long-term Value
-- A reusable foundation for AI meeting products: more integrations (Notion, Calendar), action-item extraction, speaker diarization.
-- A growing set of meeting data for improving Vietnamese ASR and evaluating LLM output quality.
-- Practical team experience with AWS architecture, cost management and generative AI on Bedrock.
+#### Current Limitations
+- **Meeting platform:** The current release is tested and tuned on **Google Meet** only; the Playwright bot can be affected by Google Meet UI updates or room admission policies that restrict guest participants.
+- **Pilot-scale infrastructure:** Amazon RDS and ElastiCache run Single-AZ to keep lab costs low (no Multi-AZ HA / auto-failover yet); concurrent voice rooms are capped for pilot sizing (`MaxRooms=3`).
+- **ASR model licensing:** VieGem is released under a non-commercial license (`CC-BY-NC-SA-4.0`) and must be swapped for a commercially licensed ASR model for commercial deployment.
+- **Authentication & External integrations:** Currently supports Google OAuth only (no enterprise SAML/OIDC SSO yet) and does not yet sync action items bidirectionally to Jira, Notion, or Slack.
+
+#### Future Improvements & Roadmap
+- **Additional meeting platforms:** Build and validate capture adapters for **Zoom** and **Microsoft Teams** alongside Google Meet.
+- **Production readiness:** Upgrade RDS/ElastiCache to Multi-AZ, configure ECS Fargate Auto Scaling, and implement automated backup/Disaster Recovery drills.
+- **Enhanced speech & AI quality:** Improve speaker diarization, support pluggable commercial/multilingual ASR models, and build automated LLM summary evaluation benchmarks.
+- **Workspace ecosystem & governance:** Two-way sync of Action Items with **Notion, Jira, Slack, and Microsoft 365**, plus **enterprise SSO (SAML/OIDC)** and team role-based access control (RBAC).

@@ -19,14 +19,14 @@ pre: " <b> 2. </b> "
 | Thái Việt Nam | SE192065 | FPT University | vnam27122005@gmail.com |
 
 ### 1. Tóm tắt điều hành
-TINA là trợ lý cuộc họp AI do nhóm 4 thành viên xây dựng trong kỳ thực tập First Cloud AI Journey (FCAJ). Bot của TINA tham gia Google Meet, Zoom hoặc Microsoft Teams, phiên âm hội thoại theo thời gian thực (ưu tiên tiếng Việt, có chế độ xem tiếng Anh và song ngữ), tạo ghi chú và tóm tắt trực tiếp, đồng thời cho phép người tham gia đặt câu hỏi về cuộc họp ("Ask TINA"), kể cả trả lời bằng giọng nói khi gọi wake word. Khi cuộc họp kết thúc, mỗi người tham dự nhận được email follow-up kèm link tới bản tóm tắt và bản ghi âm.
+TINA là trợ lý cuộc họp AI do nhóm 4 thành viên xây dựng trong kỳ thực tập First Cloud AI Journey (FCAJ). Bot của TINA tham gia **Google Meet**, phiên âm hội thoại theo thời gian thực (ưu tiên tiếng Việt, có chế độ xem tiếng Anh và song ngữ), tạo ghi chú và tóm tắt trực tiếp, đồng thời cho phép người tham gia đặt câu hỏi về cuộc họp ("Ask TINA"), kể cả trả lời bằng giọng nói khi gọi wake word. Khi cuộc họp kết thúc, mỗi người tham dự nhận được email follow-up kèm link tới bản tóm tắt và bản ghi âm.
 
 Nền tảng chạy trên AWS tại `us-east-1`. Các dịch vụ được đóng gói container, chạy trên Amazon ECS với AWS Fargate, phía sau CloudFront, AWS WAF và Application Load Balancer. Google OAuth (tích hợp qua NextAuth) xử lý đăng nhập. Amazon RDS và Amazon ElastiCache (Valkey/Redis) lưu transcript và trạng thái trực tiếp, Amazon S3 lưu bản ghi âm, Amazon Bedrock tạo tóm tắt và vận hành agent, Amazon SES gửi email follow-up.
 
 #### Mục tiêu & phạm vi
 - **Đối tượng thí điểm:** Nhóm nội bộ khoảng 10 người dùng với ≈5 cuộc họp/tuần (≈20 giờ họp/tháng).
 - **Mục tiêu kỹ thuật:** Xây dựng kiến trúc container bảo mật trên AWS (VPC 2 AZ, private subnet, KMS, Secrets Manager), phiên âm tiếng Việt thời gian thực và tự động hóa ghi chú/email sau họp.
-- **Phạm vi triển khai:** Tập trung vào luồng họp trực tuyến cốt lõi (Google Meet, Zoom, Teams), bản ghi & tóm tắt AI, trợ lý giọng nói và vận hành tối ưu chi phí trong hạn mức AWS credits thực tập (Single-AZ cho lớp dữ liệu, chưa triển khai HA production).
+- **Phạm vi triển khai:** Tập trung vào luồng họp trực tuyến cốt lõi trên **Google Meet**, bản ghi & tóm tắt AI, trợ lý giọng nói và vận hành tối ưu chi phí trong hạn mức AWS credits thực tập (Single-AZ cho lớp dữ liệu, chưa triển khai HA production).
 
 ### 2. Tuyên bố vấn đề
 Các nhóm làm việc thường bị thất lạc thông tin trong cuộc họp. Phải có người ghi chép thủ công nên quyết định, người phụ trách và deadline dễ bị bỏ sót hoặc ghi không thống nhất. Người vào muộn hoặc vắng mặt không có bản ghi đáng tin cậy để nắm lại nội dung.
@@ -41,7 +41,7 @@ Bên cạnh đó, phần lớn trợ lý cuộc họp thương mại hiện nay 
 TINA đưa một bot vào cuộc họp thông qua trình duyệt headless (Playwright). Bot stream âm thanh cuộc họp tới dịch vụ speech-to-text tự vận hành (**VieGem**, tối ưu cho tiếng Việt). Các đoạn transcript đã xác nhận được lưu vào Amazon RDS, cập nhật trực tiếp được đẩy qua Amazon ElastiCache (Valkey/Redis) tới ứng dụng web. Dịch vụ Agent dùng Amazon Bedrock để cập nhật ghi chú và tóm tắt, dịch transcript cho chế độ xem tiếng Anh/song ngữ và trả lời câu hỏi về cuộc họp đang chọn. Dịch vụ TTS (**VieNeu**) giúp TINA trả lời bằng giọng nói khi có người gọi wake word. Sau cuộc họp, bản ghi âm được lưu vào Amazon S3 và Amazon SES gửi email follow-up cho từng người tham dự, với link chỉ truy cập được bằng tài khoản đã đăng nhập của người nhận.
 
 **Tính năng chính:**
-- Bot cuộc họp cho Google Meet, Zoom và Teams; transcript trực tiếp với chế độ xem tiếng Việt, tiếng Anh và song ngữ.
+- Bot cuộc họp cho **Google Meet**; transcript trực tiếp với chế độ xem tiếng Việt, tiếng Anh và song ngữ.
 - Ghi chú trực tiếp, tóm tắt cuối buổi và tìm kiếm transcript.
 - Agent "Ask TINA" hiểu ngữ cảnh cuộc họp, hỗ trợ wake word và trả lời bằng giọng nói.
 - Email follow-up sau cuộc họp kèm link tóm tắt và bản ghi âm gắn quyền theo người nhận.
@@ -66,7 +66,7 @@ TINA sử dụng kiến trúc container trên Amazon ECS (AWS Fargate) trong m�
 3. Lưu lượng tới **Application Load Balancer**.
 4. ALB định tuyến HTTPS tới task **Web serving** (Next.js terminal, API, WebSocket gateway).
 5. Khi cuộc họp bắt đầu, task Web khởi chạy task **Bot** (Playwright).
-6. Bot tham gia Google Meet / Zoom / Teams qua **NAT Gateway** bằng HTTPS/WebRTC.
+6. Bot tham gia **Google Meet** qua **NAT Gateway** bằng HTTPS/WebRTC.
 7. Bot stream âm thanh tới task **STT (VieGem)** (7.1) và lưu bản ghi âm vào **Amazon S3** (7.2).
 8. Các đoạn transcript được ghi vào **RDS**, trạng thái trực tiếp vào **ElastiCache**.
 9. Task Web và Bot gọi task **Agent** để tạo ghi chú, tóm tắt, bản dịch và trả lời Ask TINA.
@@ -135,7 +135,7 @@ TINA sử dụng kiến trúc container trên Amazon ECS (AWS Fargate) trong m�
 | Tuần 10 | **Cả nhóm** | Kiểm thử end-to-end với cuộc họp Google Meet thật và sửa lỗi. |
 | | Trần Kiến Quốc | Gửi email follow-up sau cuộc họp qua Amazon SES, kèm link tóm tắt/bản ghi âm gắn với người nhận. |
 | | Thái Việt Nam | Dashboard và cảnh báo CloudWatch, cảnh báo chi phí bằng AWS Budgets. |
-| | Hoàng Đình Quang | Hỗ trợ thu âm Zoom/Teams và giảm độ trễ STT. |
+| | Hoàng Đình Quang | Ổn định thu âm Google Meet, tối ưu tách người nói và giảm độ trễ STT. |
 | | Lê Hoài Thanh Quang | Tinh chỉnh prompt, thêm tìm kiếm transcript và theo dõi chi phí token Bedrock. |
 | Tuần 11 | **Cả nhóm** | Đánh giá kết quả kiểm thử, tìm điểm nghẽn và tối ưu chi phí. |
 | | Trần Kiến Quốc | Regression test cho luồng giọng nói, wake word và email; giữ CI ổn định. |
@@ -179,7 +179,7 @@ TINA sử dụng kiến trúc container trên Amazon ECS (AWS Fargate) trong m�
 | --- | --- | --- | --- |
 | Vượt ngân sách | NAT Gateway, ALB và các task chạy 24/7 | Cao | Trung bình |
 | Độ chính xác ASR tiếng Việt | Giọng vùng miền, tiếng ồn, pha thuật ngữ tiếng Anh | Cao | Trung bình |
-| Thay đổi từ nền tảng họp | Giao diện Meet/Zoom/Teams thay đổi hoặc chặn bot | Cao | Trung bình |
+| Thay đổi từ nền tảng họp | Giao diện Google Meet thay đổi hoặc chặn bot | Cao | Trung bình |
 | Độ trễ thời gian thực | Chuỗi xử lý âm thanh → transcript → ghi chú | Trung bình | Trung bình |
 | Quyền riêng tư dữ liệu | Bản ghi âm và transcript cuộc họp nội bộ | Cao | Thấp |
 | Hạn mức / khả dụng Bedrock | Giới hạn quota hoặc gián đoạn model | Trung bình | Thấp |
@@ -205,7 +205,14 @@ TINA sử dụng kiến trúc container trên Amazon ECS (AWS Fargate) trong m�
 - Hệ thống container trên AWS bảo mật, có giám sát và CI/CD tự động.
 - Mỗi dịch vụ mở rộng độc lập; task cuộc họp chỉ chạy khi cần.
 
-#### Giá trị dài hạn
-- Nền tảng tái sử dụng cho các sản phẩm AI về cuộc họp: thêm tích hợp (Notion, Calendar), trích xuất đầu việc, phân tách người nói.
-- Kho dữ liệu cuộc họp ngày càng lớn để cải thiện ASR tiếng Việt và đánh giá chất lượng đầu ra của LLM.
-- Kinh nghiệm thực tế của nhóm về kiến trúc AWS, quản lý chi phí và generative AI trên Bedrock.
+#### Giới hạn hiện tại
+- **Nền tảng họp:** Phiên bản hiện tại mới kiểm thử và tối ưu trên **Google Meet**; bot Playwright có thể bị ảnh hưởng khi Google Meet thay đổi giao diện hoặc khi chính sách phòng họp chặn tài khoản khách.
+- **Hạ tầng quy mô thí điểm:** Amazon RDS và ElastiCache chạy Single-AZ để tối ưu chi phí (chưa triển khai Multi-AZ HA / auto-failover); số phòng voice đồng thời giới hạn cho quy mô thí điểm (`MaxRooms=3`).
+- **Giấy phép mô hình ASR:** Mô hình VieGem sử dụng giấy phép phi thương mại (`CC-BY-NC-SA-4.0`), cần chuyển sang mô hình thương mại khi mở rộng kinh doanh.
+- **Xác thực & Tích hợp ngoài:** Hiện hỗ trợ đăng nhập Google OAuth (chưa có SSO doanh nghiệp SAML/OIDC) và chưa đồng bộ đầu việc hai chiều sang Jira, Notion hay Slack.
+
+#### Hướng phát triển & Cải tiến tiếp theo
+- **Mở rộng nền tảng họp:** Phát triển và kiểm thử thêm adapter cho **Zoom** và **Microsoft Teams** bên cạnh Google Meet.
+- **Sẵn sàng cho Production:** Nâng cấp Multi-AZ cho RDS/ElastiCache, cấu hình Auto-Scaling cho ECS Fargate và quy trình sao lưu/khôi phục định kỳ (Disaster Recovery).
+- **Nâng cao chất lượng giọng nói & AI:** Cải thiện phân tách người nói (speaker diarization), hỗ trợ thay thế linh hoạt mô hình ASR thương mại/đa ngôn ngữ và đánh giá tự động chất lượng tóm tắt LLM.
+- **Tích hợp hệ sinh thái làm việc:** Đồng bộ hai chiều Action Items với **Notion, Jira, Slack, Microsoft 365** và bổ sung **SSO doanh nghiệp (SAML/OIDC)** cùng phân quyền theo phòng ban (RBAC).
