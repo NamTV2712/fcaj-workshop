@@ -1,0 +1,590 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: TINA workshop - creates all services except VPC/subnets/NAT/IGW (create those manually first). Region us-east-1.
+
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: ID of the manually created tina-vpc
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet::Id
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet::Id
+  AppRouteTableId:
+    Type: AWS::EC2::RouteTable::Id
+    Description: Route table of the private app subnets
+  DataRouteTableId:
+    Type: AWS::EC2::RouteTable::Id
+    Description: Route table of the private data subnets
+  DBPassword:
+    Type: String
+    NoEcho: true
+    MinLength: 8
+    Description: Master password for the RDS PostgreSQL instance
+  CertificateArn:
+    Type: String
+    Description: ACM certificate ARN for the ALB HTTPS listener (us-east-1)
+
+Resources:
+  # ---------- VPC endpoints ----------
+  S3GatewayEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VpcId
+      ServiceName: com.amazonaws.us-east-1.s3
+      VpcEndpointType: Gateway
+      RouteTableIds: [!Ref AppRouteTableId, !Ref DataRouteTableId]
+
+  ECRAPIEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VpcId
+      ServiceName: com.amazonaws.us-east-1.ecr.api
+      VpcEndpointType: Interface
+      SubnetIds: [!Ref PrivateSubnet1, !Ref PrivateSubnet2]
+      SecurityGroupIds: [!Ref TinaWebSG]
+      PrivateDnsEnabled: true
+
+  ECRDKREndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VpcId
+      ServiceName: com.amazonaws.us-east-1.ecr.dkr
+      VpcEndpointType: Interface
+      SubnetIds: [!Ref PrivateSubnet1, !Ref PrivateSubnet2]
+      SecurityGroupIds: [!Ref TinaWebSG]
+      PrivateDnsEnabled: true
+
+  # ---------- KMS ----------
+  TinaKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: TINA workshop encryption key
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: EnableIAMUserPermissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'kms:*'
+            Resource: '*'
+
+  # ---------- S3 ----------
+  RecordingsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'tina-${AWS::AccountId}-recordings'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !Ref TinaKey
+      LifecycleConfiguration:
+        Rules:
+          - Id: ArchiveOldRecordings
+            Status: Enabled
+            Prefix: recordings/
+            Transitions:
+              - TransitionInDays: 30
+                StorageClass: STANDARD_IA
+
+  ExportsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'tina-${AWS::AccountId}-exports'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !Ref TinaKey
+
+  # ---------- ECR ----------
+  ECRTerminal:
+    Type: AWS::ECR::Repository
+    Properties: { RepositoryName: tina-terminal }
+  ECRGateway:
+    Type: AWS::ECR::Repository
+    Properties: { RepositoryName: tina-gateway }
+  ECRBot:
+    Type: AWS::ECR::Repository
+    Properties: { RepositoryName: tina-bot }
+  ECRSTT:
+    Type: AWS::ECR::Repository
+    Properties: { RepositoryName: tina-stt }
+  ECRTTS:
+    Type: AWS::ECR::Repository
+    Properties: { RepositoryName: tina-tts }
+  ECRAgent:
+    Type: AWS::ECR::Repository
+    Properties: { RepositoryName: tina-agent }
+
+  # ---------- Secrets Manager ----------
+  TinaSecrets:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: tina/core
+      Description: TINA application secrets
+      GenerateSecretString:
+        SecretStringTemplate: '{"username":"tinauser"}'
+        GenerateStringKey: password
+        PasswordLength: 24
+
+  # ---------- IAM ----------
+  TinaTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: tina-task-execution-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: ecs-tasks.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Policies:
+        - PolicyName: ReadTinaSecrets
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: ['secretsmanager:GetSecretValue', 'kms:Decrypt']
+                Resource: [!Ref TinaSecrets, !GetAtt TinaKey.Arn]
+
+  TinaTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: tina-task-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: ecs-tasks.amazonaws.com }
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: TinaTaskPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: ['s3:GetObject', 's3:PutObject', 's3:ListBucket', 'bedrock:InvokeModel', 'ses:SendEmail']
+                Resource: '*'
+
+  # ---------- Security groups ----------
+  TinaALBSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: ALB public ingress
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  TinaWebSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Web tasks accept traffic from ALB only
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          SourceSecurityGroupId: !Ref TinaALBSG
+
+  TinaDataSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: RDS and ElastiCache accept traffic from web tasks only
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !Ref TinaWebSG
+        - IpProtocol: tcp
+          FromPort: 6379
+          ToPort: 6379
+          SourceSecurityGroupId: !Ref TinaWebSG
+
+  # ---------- RDS ----------
+  TinaDBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: TINA private data subnets
+      SubnetIds: [!Ref PrivateSubnet1, !Ref PrivateSubnet2]
+
+  TinaDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: tina-db
+      DBInstanceClass: db.t4g.micro
+      Engine: postgres
+      AllocatedStorage: 20
+      StorageType: gp3
+      DBName: tina
+      MasterUsername: tinauser
+      MasterUserPassword: !Ref DBPassword
+      DBSubnetGroupName: !Ref TinaDBSubnetGroup
+      VPCSecurityGroups: [!Ref TinaDataSG]
+      StorageEncrypted: true
+      KmsKeyId: !GetAtt TinaKey.Arn
+      PubliclyAccessible: false
+
+  # ---------- ElastiCache ----------
+  TinaCacheSubnetGroup:
+    Type: AWS::ElastiCache::SubnetGroup
+    Properties:
+      Description: TINA private data subnets
+      SubnetIds: [!Ref PrivateSubnet1, !Ref PrivateSubnet2]
+
+  TinaCache:
+    Type: AWS::ElastiCache::CacheCluster
+    Properties:
+      ClusterName: tina-cache
+      Engine: redis
+      CacheNodeType: cache.t4g.micro
+      NumCacheNodes: 1
+      CacheSubnetGroupName: !Ref TinaCacheSubnetGroup
+      VpcSecurityGroupIds: [!Ref TinaDataSG]
+
+  # ---------- Cognito ----------
+  TinaUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: tina-users
+      AutoVerifiedAttributes: [email]
+
+  TinaUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: tina-web
+      UserPoolId: !Ref TinaUserPool
+      GenerateSecret: false
+      CallbackUrls:
+        - !Sub 'https://${TinaCDN.DomainName}/api/auth/callback/google'
+      ExplicitAuthFlows: ['ALLOW_USER_SRP_AUTH', 'ALLOW_REFRESH_TOKEN_AUTH']
+
+  # ---------- ALB ----------
+  TinaALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: tina-alb
+      Scheme: internet-facing
+      Type: application
+      Subnets: [!Ref PublicSubnet1, !Ref PublicSubnet2]
+      SecurityGroups: [!Ref TinaALBSG]
+
+  TinaTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: tina-web-tg
+      Port: 3000
+      Protocol: HTTP
+      VpcId: !Ref VpcId
+      TargetType: ip
+      HealthCheckPath: /health
+      HealthCheckProtocol: HTTP
+
+  TinaListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref TinaALB
+      Port: 443
+      Protocol: HTTPS
+      Certificates: [{ CertificateArn: !Ref CertificateArn }]
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TinaTargetGroup
+
+  # ---------- ECS ----------
+  TinaCluster:
+    Type: AWS::ECS::Cluster
+    Properties: { ClusterName: tina-cluster }
+
+  TinaWebTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: tina-web
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      Cpu: '512'
+      Memory: '1024'
+      ExecutionRoleArn: !GetAtt TinaTaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt TinaTaskRole.Arn
+      ContainerDefinitions:
+        - Name: web
+          Image: !Sub '${AWS::AccountId}.dkr.ecr.us-east-1.amazonaws.com/tina-terminal:prod'
+          PortMappings: [{ ContainerPort: 3000 }]
+          Environment:
+            - { Name: DATABASE_URL, Value: !Sub 'postgresql://tinauser:${DBPassword}@${TinaDB.Endpoint.Address}:5432/tina' }
+            - { Name: REDIS_URL, Value: !Sub 'redis://${TinaCache.Endpoint.Address}:6379' }
+            - { Name: S3_BUCKET, Value: !Ref RecordingsBucket }
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref TinaLogs
+              awslogs-region: us-east-1
+              awslogs-stream-prefix: web
+
+  TinaWebService:
+    Type: AWS::ECS::Service
+    DependsOn: TinaListener
+    Properties:
+      ServiceName: tina-web
+      Cluster: !Ref TinaCluster
+      TaskDefinition: !Ref TinaWebTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          Subnets: [!Ref PrivateSubnet1, !Ref PrivateSubnet2]
+          SecurityGroups: [!Ref TinaWebSG]
+      LoadBalancers:
+        - ContainerName: web
+          ContainerPort: 3000
+          TargetGroupArn: !Ref TinaTargetGroup
+
+  TinaBotService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: tina-bot
+      Cluster: !Ref TinaCluster
+      TaskDefinition: !Ref TinaBotTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          Subnets: [!Ref PrivateSubnet1, !Ref PrivateSubnet2]
+          SecurityGroups: [!Ref TinaWebSG]
+
+  TinaBotTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: tina-bot
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      Cpu: '1024'
+      Memory: '2048'
+      ExecutionRoleArn: !GetAtt TinaTaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt TinaTaskRole.Arn
+      ContainerDefinitions:
+        - Name: bot
+          Image: !Sub '${AWS::AccountId}.dkr.ecr.us-east-1.amazonaws.com/tina-bot:prod'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref TinaLogs
+              awslogs-region: us-east-1
+              awslogs-stream-prefix: bot
+
+  TinaSTTTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: tina-stt
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      Cpu: '2048'
+      Memory: '4096'
+      ExecutionRoleArn: !GetAtt TinaTaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt TinaTaskRole.Arn
+      ContainerDefinitions:
+        - Name: stt
+          Image: !Sub '${AWS::AccountId}.dkr.ecr.us-east-1.amazonaws.com/tina-stt:prod'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref TinaLogs
+              awslogs-region: us-east-1
+              awslogs-stream-prefix: stt
+
+  TinaSTTService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: tina-stt
+      Cluster: !Ref TinaCluster
+      TaskDefinition: !Ref TinaSTTTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          Subnets: [!Ref PrivateSubnet1, !Ref PrivateSubnet2]
+          SecurityGroups: [!Ref TinaWebSG]
+
+  TinaTTSTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: tina-tts
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      Cpu: '1024'
+      Memory: '2048'
+      ExecutionRoleArn: !GetAtt TinaTaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt TinaTaskRole.Arn
+      ContainerDefinitions:
+        - Name: tts
+          Image: !Sub '${AWS::AccountId}.dkr.ecr.us-east-1.amazonaws.com/tina-tts:prod'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref TinaLogs
+              awslogs-region: us-east-1
+              awslogs-stream-prefix: tts
+
+  TinaTTSService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: tina-tts
+      Cluster: !Ref TinaCluster
+      TaskDefinition: !Ref TinaTTSTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          Subnets: [!Ref PrivateSubnet1, !Ref PrivateSubnet2]
+          SecurityGroups: [!Ref TinaWebSG]
+
+  TinaAgentTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: tina-agent
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      Cpu: '512'
+      Memory: '1024'
+      ExecutionRoleArn: !GetAtt TinaTaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt TinaTaskRole.Arn
+      ContainerDefinitions:
+        - Name: agent
+          Image: !Sub '${AWS::AccountId}.dkr.ecr.us-east-1.amazonaws.com/tina-agent:prod'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref TinaLogs
+              awslogs-region: us-east-1
+              awslogs-stream-prefix: agent
+
+  TinaAgentService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: tina-agent
+      Cluster: !Ref TinaCluster
+      TaskDefinition: !Ref TinaAgentTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          Subnets: [!Ref PrivateSubnet1, !Ref PrivateSubnet2]
+          SecurityGroups: [!Ref TinaWebSG]
+
+  # ---------- CloudWatch ----------
+  TinaLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /ecs/tina
+      RetentionInDays: 14
+
+  TinaCPUAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: tina-ecs-high-cpu
+      MetricName: CPUUtilization
+      Namespace: AWS/ECS
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: ClusterName
+          Value: !Ref TinaCluster
+        - Name: ServiceName
+          Value: !Ref TinaWebService
+
+  # ---------- CloudFront + WAF ----------
+  TinaCDN:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: TINA workshop CDN
+        WebACLId: !GetAtt TinaWAF.Arn
+        Origins:
+          - Id: tina-alb
+            DomainName: !GetAtt TinaALB.DNSName
+            CustomOriginConfig:
+              HTTPPort: 80
+              HTTPSPort: 443
+              OriginProtocolPolicy: https-only
+        DefaultCacheBehavior:
+          TargetOriginId: tina-alb
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+          ForwardedValues:
+            QueryString: true
+            Cookies: { Forward: all }
+
+  TinaWAF:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      Name: tina-waf-acl
+      Scope: CLOUDFRONT
+      DefaultAction: { Allow: {} }
+      VisibilityConfig:
+        SampledRequestsEnabled: true
+        CloudWatchMetricsEnabled: true
+        MetricName: TinaWAF
+      Rules: []
+
+  # ---------- Budget ----------
+  TinaBudget:
+    Type: AWS::Budgets::Budget
+    Properties:
+      Budget:
+        BudgetName: tina-monthly
+        BudgetType: COST
+        TimeUnit: MONTHLY
+        BudgetLimit: { Amount: 150, Unit: USD }
+      NotificationsWithSubscribers:
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 50
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: tina-workshop@example.com
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 80
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: tina-workshop@example.com
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 100
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: tina-workshop@example.com
+
+Outputs:
+  VPCId: { Value: !Ref VpcId }
+  ALBEndpoint: { Value: !GetAtt TinaALB.DNSName }
+  CloudFrontDomain: { Value: !GetAtt TinaCDN.DomainName }
+  RDSEndpoint: { Value: !GetAtt TinaDB.Endpoint.Address }
+  RedisEndpoint: { Value: !GetAtt TinaCache.Endpoint.Address }
+  ECSCluster: { Value: !Ref TinaCluster }
+  UserPoolId: { Value: !Ref TinaUserPool }
