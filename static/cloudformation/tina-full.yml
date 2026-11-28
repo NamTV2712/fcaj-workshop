@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
-# Generated from TINA AWS templates at 7d6bba8109f6eac51c0d8241a7083e3e364cf59d
+# Generated from TINA AWS templates (updated to 8a2b79e884bc0833f9075d4e795b20d347cef9c2)
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'TINA workshop: network, ECS Fargate, data, web, agent, workspace and optional voice. Source 7d6bba8109f6eac51c0d8241a7083e3e364cf59d'
+Description: 'TINA workshop: network, ECS Fargate, data, web, agent, workspace and optional voice. Source 8a2b79e884bc0833f9075d4e795b20d347cef9c2'
 Metadata:
   AWSToolsMetrics:
     AWSAgentToolkit: aws-cloudformation@3
@@ -2986,6 +2986,9 @@ Resources:
           - ImageDigest:
               Ref: VieNeuDigest
         Essential: true
+        Cpu: 768
+        MemoryReservation: 2560
+        Memory: 4096
         PortMappings:
         - ContainerPort: 8000
         LinuxParameters:
@@ -3022,6 +3025,9 @@ Resources:
           - ImageDigest:
               Ref: LiveKitDigest
         Essential: true
+        Cpu: 512
+        MemoryReservation: 512
+        Memory: 1536
         PortMappings:
         - ContainerPort: 7880
         - ContainerPort: 7881
@@ -3066,6 +3072,9 @@ Resources:
           - ImageDigest:
               Ref: LiveKitAgentDigest
         Essential: true
+        Cpu: 768
+        MemoryReservation: 2048
+        Memory: 3584
         DependsOn:
         - ContainerName: vieneu
           Condition: HEALTHY
@@ -3080,6 +3089,8 @@ Resources:
           Value: ws://127.0.0.1:7880
         - Name: LIVEKIT_API_KEY
           Value: tina-staging
+        - Name: LIVEKIT_MAX_ROOMS
+          Value: '3'
         - Name: MEETING_API_URL
           Value: http://core.tina-staging.local:8080
         - Name: TTS_SERVICE_URL
@@ -3315,6 +3326,10 @@ Resources:
                   Ref: FoundationStagingRecordings
             - Fn::Sub:
               - arn:${AWS::Partition}:s3:::${RecordingsBucket}/signal/*
+              - RecordingsBucket:
+                  Ref: FoundationStagingRecordings
+            - Fn::Sub:
+              - arn:${AWS::Partition}:s3:::${RecordingsBucket}/voice-replies/*
               - RecordingsBucket:
                   Ref: FoundationStagingRecordings
   CoreTaskDefinition:

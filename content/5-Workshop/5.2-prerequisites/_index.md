@@ -26,9 +26,9 @@ NAT Gateway, public IPv4 addresses, Fargate, RDS, Valkey, ALB, WAF, S3, ECR, the
 
 ## 2. Source Code and Templates (for the multi-stack path 5.3 → 5.4)
 
-This workshop uses commit `0c206d46940f95c3469d1a65d18722e4f4fe96e5` on `main` in the [TINA repository](https://github.com/poor-frog/TINA), which includes the full ECS backend, VieGem ASR, Voice, Bedrock (`amazon.nova-lite-v1:0`), Amazon SES (`staging-ses.yml`), and CloudWatch Dashboard/Alarms (`staging-workspace-s3-monitoring.yml`).
+This workshop uses commit `8a2b79e884bc0833f9075d4e795b20d347cef9c2` on `main` in the [TINA repository](https://github.com/poor-frog/TINA), which includes the full ECS backend, VieGem ASR, Voice, Bedrock (`amazon.nova-lite-v1:0`), Amazon SES (`staging-ses.yml`), and CloudWatch Dashboard/Alarms (`staging-workspace-s3-monitoring.yml`).
 
-On your local machine, download the [source ZIP at this commit](https://github.com/poor-frog/TINA/archive/0c206d46940f95c3469d1a65d18722e4f4fe96e5.zip) and extract it. Note the `deploy/aws/` directory because a Console step will ask you to upload `foundation.yml` (if you choose the 5-command quick path in [5.4A](../5.4-full-cloudformation/), you do not need to download the ZIP or build Docker images yourself). You do not need to copy any secrets from the author's machine.
+On your local machine, download the [source ZIP at this commit](https://github.com/poor-frog/TINA/archive/8a2b79e884bc0833f9075d4e795b20d347cef9c2.zip) and extract it. Note the `deploy/aws/` directory because a Console step will ask you to upload `foundation.yml` (if you choose the 5-command quick path in [5.4A](../5.4-full-cloudformation/), you do not need to download the ZIP or build Docker images yourself). You do not need to copy any secrets from the author's machine.
 
 ## 3. Open AWS CloudShell
 
@@ -41,7 +41,7 @@ mkdir -p "$HOME/tina-workshop"
 cat > "$HOME/tina-workshop/env.sh" <<'EOF'
 export AWS_REGION=us-east-1
 export AWS_PAGER=''
-export TINA_REV=0c206d46940f95c3469d1a65d18722e4f4fe96e5
+export TINA_REV=8a2b79e884bc0833f9075d4e795b20d347cef9c2
 export TINA_SRC="$HOME/tina-workshop/TINA-${TINA_REV}"
 export TINA_ACCOUNT="$(aws sts get-caller-identity --query Account --output text)"
 export TINA_TAG=ws-v1
