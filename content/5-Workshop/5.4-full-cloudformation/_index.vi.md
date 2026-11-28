@@ -235,5 +235,5 @@ echo "HOÀN TẤT! Mở $WEBSITE_URL để đăng nhập bằng Google."
 
 ## Voice và dọn dẹp tài nguyên khi kết thúc
 
-- **Voice (tùy chọn)**: 3 image `linux/arm64` của nhánh Voice cũng đã có sẵn trên GHCR (`ghcr.io/poor-frog/tina-livekit:workshop-arm64`, `tina-livekit-agent:workshop-arm64`, `tina-vieneu:workshop-arm64`). Nếu muốn bật Voice, copy thêm 3 image này vào `tina-staging/{livekit,livekit-agent,vieneu}` trong ECR rồi cập nhật stack với `EnableVoice=true`, `VoicePilotRoom` và 3 digest tương ứng (`LiveKitDigest`, `LiveKitAgentDigest`, `VieNeuDigest`).
+- **Voice (tùy chọn)**: Cả 3 image `linux/arm64` của nhánh Voice (`livekit`, `livekit-agent`, `vieneu`) đã được Lệnh 2 copy sẵn vào ECR và truyền digest ở Lệnh 4. Khi muốn bật Voice, chỉ cần chạy `update-stack` đổi `EnableVoice=true` và truyền tên phòng vào `VoicePilotRoom` (giữ `UsePreviousValue=true` cho các tham số còn lại).
 - **Dọn dẹp**: chạy `aws cloudformation delete-stack --stack-name tina-workshop-full --region us-east-1`, sau đó kiểm tra và xóa các tài nguyên giữ lại (`DeletionPolicy: Retain`: bucket S3, KMS key, snapshot RDS) theo [5.6 Dọn dẹp và bằng chứng](../5.6-cleanup-evidence/).

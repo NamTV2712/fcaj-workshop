@@ -235,5 +235,5 @@ echo "DONE! Open $WEBSITE_URL to sign in with Google."
 
 ## Voice and cleanup when finished
 
-- **Voice (optional):** The 3 `linux/arm64` images for the Voice stack are also available on GHCR (`ghcr.io/poor-frog/tina-livekit:workshop-arm64`, `tina-livekit-agent:workshop-arm64`, `tina-vieneu:workshop-arm64`). To enable Voice, copy these 3 images into `tina-staging/{livekit,livekit-agent,vieneu}` in ECR and update the stack with `EnableVoice=true`, `VoicePilotRoom`, and the 3 corresponding digests (`LiveKitDigest`, `LiveKitAgentDigest`, `VieNeuDigest`).
+- **Voice (optional):** All 3 `linux/arm64` images for the Voice stack (`livekit`, `livekit-agent`, `vieneu`) were already copied into ECR by Command 2 and passed into the stack in Command 4. To enable Voice, simply run `update-stack` with `EnableVoice=true` and your `VoicePilotRoom` (keeping `UsePreviousValue=true` for all other parameters).
 - **Cleanup:** Run `aws cloudformation delete-stack --stack-name tina-workshop-full --region us-east-1`, then review and remove retained resources (`DeletionPolicy: Retain`: S3 buckets, KMS key, RDS snapshot) following [5.6 Cleanup and evidence](../5.6-cleanup-evidence/).
